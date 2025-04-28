@@ -13,6 +13,7 @@ from collections import OrderedDict
 from readii.negative_controls_refactor.manager import NegativeControlManager
 from readii.image_processing import flattenImage
 
+from readii.utils import logger
 
 
 def pyradiomics_extraction(extractor:radiomics.featureextractor,
@@ -50,6 +51,49 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
         sample_result_series = pd.Series(sample_result_dict).to_csv(complete_out_path)
 
     return sample_result_series
+
+
+def combine_feature_results(nc_manager:NegativeControlManager,
+                             samplewise_feature_dir_path:Path,
+                             output_dir_path:Path,
+                             ):
+    
+    strategy_list = []
+    for strategy_combo in nc_manager.strategy_products:
+        strategy_list.append(f"{strategy_combo[0].negative_control_name}_{strategy_combo[1].region_name}")
+
+    for negative_control in strategy_list:
+        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*{negative_control}_features.csv"))
+
+        combined_feature_path = output_dir_path / f"{negative_control}_features.csv"
+        combined_feature_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Generator
+        empty_files = [] 
+        def non_empty_dfs(file_list):
+            for file in file_list:
+                try:
+                    df = pd.read_csv(file, index_col=0)
+                    if not df.empty:
+                        empty_files.append(file)
+                        yield df.T
+                except pd.errors.EmptyDataError:
+                    pass
+
+        try:
+            all_sample_features = pd.concat(non_empty_dfs(feature_file_list))
+            all_sample_features.sort_values(by="ID", inplace=True)
+            all_sample_features.to_csv(combined_feature_path, index=False)
+        except ValueError:
+            # Handle case where all dataframes are empty
+            logger.error("No non-empty dataframes found.")
+            # write empty file to the output file
+            with open(combined_feature_path, "w") as f:
+                # write an empty file
+                f.write("")
+            logger.error(f"Empty file written to {combined_feature_path}")
+    
+    return combined_feature_path
 
 
 
@@ -113,9 +157,18 @@ def main(dataset_index:pd.DataFrame,
                                 )
                                 for neg_image, transform, region in manager.apply(sample_image, sample_mask)
                             )
-
     
     return sample_results
+
+    # Collect all results 
+    # samplewise_feature_dir_path = sample_feature_dir.parent
+    # dataset_features_dir_path = results_path / Path(pyrad_params).stem
+    # feature_path = combine_feature_results(nc_manager=manager,
+    #                                        samplewise_feature_dir_path=samplewise_feature_dir_path,
+    #                                        output_dir_path=dataset_features_dir_path)
+
+    # return feature_path
+
 
 
 if __name__ == "__main__":
@@ -136,22 +189,19 @@ if __name__ == "__main__":
     dataset_index = pd.read_csv(dataset_index_path)
 
     # PYRADIOMICS CONFIGURATION
-    parameter_file_path = "../../config/pyradiomics/pyradiomics_original_single_feature.yaml"
+    parameter_file_path = "../../config/pyradiomics/pyradiomics_original_all_features.yaml"
 
 
     sample_results = main(dataset_index = dataset_index,
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = ["full", "roi"],
-                          transforms = ["shuffled"],
-                          overwrite = True,
+                          regions = ["full", "roi", "non_roi"],
+                          transforms = ["shuffled", "sampled", "randomized"],
+                          overwrite = False,
                           parallel= True,
                           seed = RANDOM_SEED)
+    
 
-
-
-    # pyrad_output_path = RESULTS_DATA_PATH / "pyradiomics_features"
-    # RESULTS_DIR = Path("../data/results", f"{DATA_SOURCE}_{DATASET_NAME}", "pyradiomics_features")
 
     
