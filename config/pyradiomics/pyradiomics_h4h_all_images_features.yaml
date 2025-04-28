@@ -1,0 +1,50 @@
+imageType:
+    Original: {}
+    Wavelet: {}
+    Square: {}
+    SquareRoot: {}
+    Logarithm: {}
+    Exponential: {}
+    Gradient: {}
+
+featureClass:
+    shape:
+        - VoxelVolume
+        - MeshVolume
+        - SurfaceArea
+        - SurfaceVolumeRatio
+        - Compactness1
+        - Sphericity
+        - Maximum3DDiameter
+        - Maximum2DDiameterSlice
+        - Maximum2DDiameterColumn
+        - Maximum2DDiameterRow
+        - MajorAxisLength
+        - MinorAxisLength
+        - LeastAxisLength
+        - Elongation
+        - Flatness
+    firstorder:
+    glcm: 
+    glrlm: 
+    glszm: 
+    gldm:
+    ngtdm: 
+
+setting:
+    minimumROIDimensions: 2 
+    minimumROISize: None 
+    normalize: False 
+    normalizeScale: 1 
+    removeOutliers: None 
+    resampledPixelSpacing: [1.0 1.0 1.0] 
+    interpolator: sitkBSpline 
+    preCrop: False 
+    padDistance: 5 
+    distances: [1] 
+    force2D: False 
+    force2Ddimension: 0 
+    resegmentRange: None 
+    label: 1 
+    additionalInfo: True 
+    binWidth: 25
