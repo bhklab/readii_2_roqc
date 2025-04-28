@@ -77,9 +77,6 @@ def main(dataset_index:pd.DataFrame,
             random_seed=seed
         )
 
-    # Get number of samples for 
-    total_sample_count = len(dataset_index)
-
     for idx, sample_row in tqdm(dataset_index.iterrows(), total=dataset_index.shape[0]):
         # Set up output dir for this sample's features
         sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID
@@ -90,7 +87,6 @@ def main(dataset_index:pd.DataFrame,
         sample_mask = flattenImage(sitk.ReadImage(sample_row.Mask))
 
         if not parallel:
-
             sample_results = [pyradiomics_extraction(
                                         extractor=extractor,
                                         image=neg_image,
@@ -104,12 +100,58 @@ def main(dataset_index:pd.DataFrame,
                                         for neg_image, transform, region in manager.apply(sample_image, sample_mask)
                                     ]
         else:
-            Parallel(n_jobs=-1, require="sharedmem")(
-                delayed(pyradiomics_extraction)(
-                    
-                )
-            )
- 
+            sample_results = Parallel(n_jobs=-1, require="sharedmem")(
+                                delayed(pyradiomics_extraction)(
+                                    extractor=extractor,
+                                    image=neg_image,
+                                    mask=sample_mask,
+                                    sample_info=sample_row,
+                                    sample_dir_path=sample_feature_dir,
+                                    region=region,
+                                    transform=transform,
+                                    overwrite=overwrite
+                                )
+                                for neg_image, transform, region in manager.apply(sample_image, sample_mask)
+                            )
 
     
-    return
+    return sample_results
+
+
+if __name__ == "__main__":
+    RANDOM_SEED = 10
+
+    # general data directory path setup
+    DATA_DIR_PATH = Path("../../data")
+    RAW_DATA_PATH = DATA_DIR_PATH / "rawdata"
+    PROC_DATA_PATH = DATA_DIR_PATH / "procdata"
+    RESULTS_DATA_PATH = DATA_DIR_PATH / "results"
+
+    # specific dataset path setup
+    DATA_SOURCE = "TCIA"
+    DATASET_NAME = "HEAD-NECK-RADIOMICS-HN1"
+    
+    dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
+    dataset_index_path = PROC_DATA_PATH / dataset / f"pyrad_{dataset}_index.csv"
+    dataset_index = pd.read_csv(dataset_index_path)
+
+    # PYRADIOMICS CONFIGURATION
+    parameter_file_path = "../../config/pyradiomics/pyradiomics_original_single_feature.yaml"
+
+
+    sample_results = main(dataset_index = dataset_index,
+                          pyrad_params = parameter_file_path,
+                          procdata_path = PROC_DATA_PATH / dataset,
+                          results_path = RESULTS_DATA_PATH / dataset,
+                          regions = ["full", "roi"],
+                          transforms = ["shuffled"],
+                          overwrite = True,
+                          parallel= True,
+                          seed = RANDOM_SEED)
+
+
+
+    # pyrad_output_path = RESULTS_DATA_PATH / "pyradiomics_features"
+    # RESULTS_DIR = Path("../data/results", f"{DATA_SOURCE}_{DATASET_NAME}", "pyradiomics_features")
+
+    
