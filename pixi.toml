@@ -17,6 +17,7 @@ ipython = "*"
 ipykernel = "*"
 jupyterlab = "*"
 pip = "*"
+numpy = ">=2.2.5,<3"
 
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
@@ -53,3 +54,6 @@ cmd = "mkdocs serve -f mkdocs.yaml"
 depends-on = ["doc-build"]
 inputs = ["docs"]
 description = "Serve documentation with mkdocs, runs doc-build first"
+
+[pypi-dependencies]
+readii = ">=1.26.0, <2"

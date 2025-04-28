@@ -1,0 +1,10 @@
+imageType:
+    Original: {}
+
+featureClass:
+    shape:
+        - VoxelVolume
+
+setting:
+    binWidth: 25
+    resampledPixelSpacing: [1., 1., 1.]
