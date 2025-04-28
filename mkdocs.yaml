@@ -1,0 +1,34 @@
+site_name: READII-2-ROQC
+repo_url: https://github.com/bhklab/readii_2_roqc
+repo_name: readii_2_roqc
+site_description: Package documentation for READII-2-ROQC
+site_author: Katy Scott
+
+# The directory where the documentation files are located
+docs_dir: docs
+
+# The directory where the documentation is built (add to .gitignore if changed)
+site_dir: site
+
+# This is the branch where the documentation will pushed to using
+# 'mkdocs gh-deploy' and from where it will be served by GitHub Pages.
+remote_branch: gh-pages
+
+# Address when using 'mkdocs serve', format is 'address:port'
+dev_addr: 127.0.0.1:8003
+
+# The layout of the navigation links
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - Data Sources: data_sources.md
+  - Developer Notes: devnotes.md
+
+theme: readthedocs
+
+plugins:
+    - search                            # necessary for search functionality to work
+    - include-markdown                  # allows for including Markdown files into another Markdown file
+
+extra:
+    homepage: https://bhklab.github.io/readii_2_roqc

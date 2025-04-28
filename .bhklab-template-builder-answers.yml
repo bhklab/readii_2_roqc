@@ -1,0 +1,13 @@
+# Changes here will be overwritten by Copier
+_commit: 915e675
+_src_path: https://github.com/jjjermiah/bhklab_test_template
+author_email: bhklab.katyscott@gmail.com
+author_full_name: Katy Scott
+github_username: strixy16
+is_snakemake: false
+project_description: 'Radiomic Extraction and Analysis for DICOM Images to Refine
+    Objective Quality Control '
+project_name: READII-2-ROQC
+project_slug: readii_2_roqc
+python_version: '3.12'
+repo_location: bhklab

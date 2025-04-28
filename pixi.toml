@@ -1,0 +1,55 @@
+
+[workspace]
+name = "readii_2_roqc"
+authors = ["Katy Scott <bhklab.katyscott@gmail.com>"]
+description = "Radiomic Extraction and Analysis for DICOM Images to Refine Objective Quality Control "
+license = "MIT"
+channels = ["conda-forge", "bioconda"]
+platforms = ["osx-arm64", "linux-64", "win-64", "osx-64"]
+
+[environments]
+quality = { features = ["quality"], solve-group = "default" }
+docs = { features = ["docs"], solve-group = "default" }
+
+[dependencies]
+python = ">=3.12"
+ipython = "*"
+ipykernel = "*"
+jupyterlab = "*"
+pip = "*"
+
+############################################## QUALITY ###############################################
+# Quality includes linting, type checking, and formatting
+[feature.quality.dependencies]
+ruff = "*"
+
+[feature.quality.tasks]
+ruff-check.cmd = ["ruff", "check"]
+ruff-check.inputs = ["config/ruff.toml", "workflow"]
+ruff-check.description = "Run ruff check"
+
+ruff-format.cmd = ["ruff", "format"]
+ruff-format.inputs = ["config/ruff.toml", "workflow"]
+ruff-format.depends-on = ["ruff-check"]
+ruff-format.description = "Run ruff format, run check first"
+
+qc.depends-on = ["ruff-format", "ruff-check"]
+qc.description = "Quality check: ruff check and format"
+
+############################################## DOCS ################################################
+
+[feature.docs.dependencies]
+mkdocs = "*"
+mkdocs-include-markdown-plugin = ">=7.0.0,<8"
+
+[feature.docs.tasks.doc-build]
+cmd = "mkdocs build -f mkdocs.yaml"
+inputs = ["docs"]
+outputs = ["site"]
+description = "Build documentation with mkdocs"
+
+[feature.docs.tasks.doc-serve]
+cmd = "mkdocs serve -f mkdocs.yaml"
+depends-on = ["doc-build"]
+inputs = ["docs"]
+description = "Serve documentation with mkdocs, runs doc-build first"
