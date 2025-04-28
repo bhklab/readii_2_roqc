@@ -9,6 +9,7 @@ import SimpleITK as sitk
 from tqdm import tqdm
 from joblib import Parallel, delayed
 from collections import OrderedDict
+import itertools
 
 from readii.negative_controls_refactor.manager import NegativeControlManager
 from readii.image_processing import flattenImage
@@ -58,12 +59,12 @@ def combine_feature_results(nc_manager:NegativeControlManager,
                              output_dir_path:Path,
                              ):
     
-    strategy_list = []
+    strategy_list = ["full_original"]
     for strategy_combo in nc_manager.strategy_products:
-        strategy_list.append(f"{strategy_combo[0].negative_control_name}_{strategy_combo[1].region_name}")
+        strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
 
     for negative_control in strategy_list:
-        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*{negative_control}_features.csv"))
+        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*[0-9]_{negative_control}_features.csv"))
 
         combined_feature_path = output_dir_path / f"{negative_control}_features.csv"
         combined_feature_path.parent.mkdir(parents=True, exist_ok=True)
@@ -121,7 +122,7 @@ def main(dataset_index:pd.DataFrame,
             random_seed=seed
         )
 
-    for idx, sample_row in tqdm(dataset_index.iterrows(), total=dataset_index.shape[0]):
+    for idx, sample_row in tqdm(dataset_index.iterrows(), total=len(dataset_index)):
         # Set up output dir for this sample's features
         sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID
         sample_feature_dir.mkdir(parents=True, exist_ok=True)
@@ -141,7 +142,9 @@ def main(dataset_index:pd.DataFrame,
                                         transform=transform,
                                         overwrite=overwrite
                                         )
-                                        for neg_image, transform, region in manager.apply(sample_image, sample_mask)
+                                        for neg_image, transform, region in 
+                                        itertools.chain([(sample_image, "original", "full")], 
+                                                          manager.apply(sample_image, sample_mask))
                                     ]
         else:
             sample_results = Parallel(n_jobs=-1, require="sharedmem")(
@@ -155,19 +158,19 @@ def main(dataset_index:pd.DataFrame,
                                     transform=transform,
                                     overwrite=overwrite
                                 )
-                                for neg_image, transform, region in manager.apply(sample_image, sample_mask)
+                                for neg_image, transform, region in 
+                                itertools.chain([(sample_image, "original", "full")], 
+                                                  manager.apply(sample_image, sample_mask))
                             )
-    
-    return sample_results
 
     # Collect all results 
-    # samplewise_feature_dir_path = sample_feature_dir.parent
-    # dataset_features_dir_path = results_path / Path(pyrad_params).stem
-    # feature_path = combine_feature_results(nc_manager=manager,
-    #                                        samplewise_feature_dir_path=samplewise_feature_dir_path,
-    #                                        output_dir_path=dataset_features_dir_path)
+    samplewise_feature_dir_path = procdata_path / Path(pyrad_params).stem
+    dataset_features_dir_path = results_path / Path(pyrad_params).stem
+    feature_path = combine_feature_results(nc_manager=manager,
+                                           samplewise_feature_dir_path=samplewise_feature_dir_path,
+                                           output_dir_path=dataset_features_dir_path)
 
-    # return feature_path
+    return feature_path, sample_results
 
 
 
@@ -182,7 +185,7 @@ if __name__ == "__main__":
 
     # specific dataset path setup
     DATA_SOURCE = "TCIA"
-    DATASET_NAME = "HEAD-NECK-RADIOMICS-HN1"
+    DATASET_NAME = "NSCLC-Radiomics"
     
     dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
     dataset_index_path = PROC_DATA_PATH / dataset / f"pyrad_{dataset}_index.csv"
@@ -196,10 +199,10 @@ if __name__ == "__main__":
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = ["full", "roi", "non_roi"],
+                          regions = ["full", "roi"],
                           transforms = ["shuffled", "sampled", "randomized"],
                           overwrite = False,
-                          parallel= True,
+                          parallel = True,
                           seed = RANDOM_SEED)
     
 
