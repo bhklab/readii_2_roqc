@@ -28,11 +28,11 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
                            ):
     # check if file already exists
     if region and transform:
-        sample_result_file_name = f"{sample_info.ID}_{region}_{transform}_features.csv"
+        sample_result_file_name = f"{region}_{transform}_features.csv"
     else:
-        sample_result_file_name = f"{sample_info.ID}_full_original_features.csv"
+        sample_result_file_name = f"full_original_features.csv"
     
-    complete_out_path = sample_dir_path / sample_result_file_name
+    complete_out_path = sample_dir_path / sample_result_file_name 
     if complete_out_path.exists() and (not overwrite):
         print(f"Features already extracted for: {complete_out_path.stem}")
         return
@@ -124,7 +124,8 @@ def main(dataset_index:pd.DataFrame,
 
     for idx, sample_row in tqdm(dataset_index.iterrows(), total=len(dataset_index)):
         # Set up output dir for this sample's features
-        sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID
+        roi_name = Path(Path(sample_row.Mask).stem).stem
+        sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID / roi_name
         sample_feature_dir.mkdir(parents=True, exist_ok=True)
 
         # Load image and ROI mask for this sample
@@ -185,7 +186,7 @@ if __name__ == "__main__":
 
     # specific dataset path setup
     DATA_SOURCE = "TCIA"
-    DATASET_NAME = "NSCLC-Radiomics"
+    DATASET_NAME = "CC-Radiomics-Phantom"
     
     dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
     dataset_index_path = PROC_DATA_PATH / dataset / f"pyrad_{dataset}_index.csv"
