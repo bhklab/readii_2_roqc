@@ -64,7 +64,7 @@ def combine_feature_results(nc_manager:NegativeControlManager,
         strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
 
     for negative_control in strategy_list:
-        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*[0-9]_{negative_control}_features.csv"))
+        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*{negative_control}_features.csv"))
 
         combined_feature_path = output_dir_path / f"{negative_control}_features.csv"
         combined_feature_path.parent.mkdir(parents=True, exist_ok=True)
@@ -200,10 +200,10 @@ if __name__ == "__main__":
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = ["full", "roi"],
+                          regions = ["non_roi"],
                           transforms = ["shuffled", "sampled", "randomized"],
                           overwrite = False,
-                          parallel = True,
+                          parallel = False,
                           seed = RANDOM_SEED)
     
 
