@@ -1,5 +1,18 @@
 # Data Sources
 
+## CC-Radiomics-Phantom
+- **Name**: Credence Cartridge Radiomics Phantom CT Scans
+- **Version/Date**: Version 1: Updated 2017/07/28
+- **URL**: <https://www.cancerimagingarchive.net/collection/cc-radiomics-phantom/>
+- **Access Method**: NBIA Data Retriever
+- **Access Date**: 2025-04-22
+- **Data Format**: DICOM
+- **Citation**: Mackin, D., Ray, X., Zhang, L., Fried, D., Yang, J., Taylor, B., Rodriguez-Rivera, E., Dodge, C., Jones, A., & Court, L. (2017). Data From Credence Cartridge Radiomics Phantom CT Scans (CC-Radiomics-Phantom) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2017.zuzrml5b 
+- **License**: [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
+
+Image Types: CT, RTSTRUCT
+
+
 ## Overview
 
 This section should document all data sources used in your project.

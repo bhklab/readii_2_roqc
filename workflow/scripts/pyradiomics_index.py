@@ -11,8 +11,15 @@ def generate_dataset_index(image_directory:Path,
     # Get list of sample IDs from top of data directory
     unique_sample_ids = [sample_dir.name for sample_dir in sorted(image_directory.glob(pattern="*/"))]
 
-    # Construct dataframe to iterate over
-    dataset_index = pd.DataFrame(data = {'ID': unique_sample_ids, 'Image': image_files, 'Mask': mask_files})
+    if len(mask_files) > len(image_files):
+        mask_index = pd.DataFrame(data= {'ID': [mask_path.parent.parent.stem for mask_path in mask_files],
+                                         'Mask': mask_files})
+        image_index = pd.DataFrame(data = {'ID': unique_sample_ids, 'Image': image_files})
+        dataset_index = image_index.merge(mask_index, how='outer', left_on='ID', right_on='ID')
+
+    else:
+        # Construct dataframe to iterate over
+        dataset_index = pd.DataFrame(data = {'ID': unique_sample_ids, 'Image': image_files, 'Mask': mask_files})
 
     dataset_index.to_csv(output_file_path, index=False)
 
@@ -26,7 +33,7 @@ if __name__ == "__main__":
     RESULTS_DATA_PATH = DATA_DIR_PATH / "results"
 
     DATA_SOURCE = "TCIA"
-    DATASET_NAME = "HEAD-NECK-RADIOMICS-HN1"
+    DATASET_NAME = "CC-Radiomics-Phantom"
 
     dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
 

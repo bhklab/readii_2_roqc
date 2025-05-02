@@ -28,11 +28,11 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
                            ):
     # check if file already exists
     if region and transform:
-        sample_result_file_name = f"{sample_info.ID}_{region}_{transform}_features.csv"
+        sample_result_file_name = f"{region}_{transform}_features.csv"
     else:
-        sample_result_file_name = f"{sample_info.ID}_full_original_features.csv"
+        sample_result_file_name = f"full_original_features.csv"
     
-    complete_out_path = sample_dir_path / sample_result_file_name
+    complete_out_path = sample_dir_path / sample_result_file_name 
     if complete_out_path.exists() and (not overwrite):
         print(f"Features already extracted for: {complete_out_path.stem}")
         return
@@ -64,7 +64,7 @@ def combine_feature_results(nc_manager:NegativeControlManager,
         strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
 
     for negative_control in strategy_list:
-        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*[0-9]_{negative_control}_features.csv"))
+        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*{negative_control}_features.csv"))
 
         combined_feature_path = output_dir_path / f"{negative_control}_features.csv"
         combined_feature_path.parent.mkdir(parents=True, exist_ok=True)
@@ -124,7 +124,8 @@ def main(dataset_index:pd.DataFrame,
 
     for idx, sample_row in tqdm(dataset_index.iterrows(), total=len(dataset_index)):
         # Set up output dir for this sample's features
-        sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID
+        roi_name = Path(Path(sample_row.Mask).stem).stem
+        sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID / roi_name
         sample_feature_dir.mkdir(parents=True, exist_ok=True)
 
         # Load image and ROI mask for this sample
@@ -185,7 +186,7 @@ if __name__ == "__main__":
 
     # specific dataset path setup
     DATA_SOURCE = "TCIA"
-    DATASET_NAME = "NSCLC-Radiomics"
+    DATASET_NAME = "CC-Radiomics-Phantom"
     
     dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
     dataset_index_path = PROC_DATA_PATH / dataset / f"pyrad_{dataset}_index.csv"
@@ -199,10 +200,10 @@ if __name__ == "__main__":
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = ["full", "roi"],
+                          regions = ["non_roi"],
                           transforms = ["shuffled", "sampled", "randomized"],
                           overwrite = False,
-                          parallel = True,
+                          parallel = False,
                           seed = RANDOM_SEED)
     
 
