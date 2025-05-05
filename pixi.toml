@@ -19,6 +19,9 @@ jupyterlab = "*"
 pip = "*"
 numpy = ">=2.2.5,<3"
 
+[pypi-dependencies]
+readii = ">=1.26.0, <2"
+
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
 [feature.quality.dependencies]
@@ -55,5 +58,4 @@ depends-on = ["doc-build"]
 inputs = ["docs"]
 description = "Serve documentation with mkdocs, runs doc-build first"
 
-[pypi-dependencies]
-readii = ">=1.26.0, <2"
+
