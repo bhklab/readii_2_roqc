@@ -45,6 +45,7 @@ qc.description = "Quality check: ruff check and format"
 [feature.docs.dependencies]
 mkdocs = "*"
 mkdocs-include-markdown-plugin = ">=7.0.0,<8"
+mkdocs-material = ">=9.6.12,<10"
 
 [feature.docs.tasks.doc-build]
 cmd = "mkdocs build -f mkdocs.yaml"
