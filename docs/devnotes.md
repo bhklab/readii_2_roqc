@@ -9,9 +9,9 @@
 |full randomized     |           X          |           X             |        X        |
 |full sampled        |           X          |           X             |        X        |
 |full shuffled       |           X          |           X             |        X        |
-|non_roi randomized  |           X          |           X             |                 |
-|non_roi sampled     |           X          |           X             |                 |
-|non_roi shuffled    |           X          |           X             |                 |
+|non_roi randomized  |           X          |           X             |    running      |
+|non_roi sampled     |           X          |           X             |    running      |
+|non_roi shuffled    |           X          |           X             |    running      |
 |roi randomized      |           X          |  !!! has duplicate rows |        X        |
 |roi sampled         |           X          |  !!! has duplicate rows |        X        |
 |roi shuffled        |           X          |  !!! has duplicate rows |        X        |
