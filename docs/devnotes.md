@@ -5,13 +5,13 @@
 
 |NC / Dataset        | CC-Radiomics-Phantom | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics |
 |--------------------|:--------------------:|:-----------------------:|:---------------:|
-|full original       |           X          |                         |        X        |
+|full original       |           X          |          running        |        X        |
 |full randomized     |           X          |           X             |        X        |
 |full sampled        |           X          |           X             |        X        |
 |full shuffled       |           X          |           X             |        X        |
-|non_roi randomized  |           X          |           X             |    running      |
-|non_roi sampled     |           X          |           X             |    running      |
-|non_roi shuffled    |           X          |           X             |    running      |
+|non_roi randomized  |           X          |           X             |        X        |
+|non_roi sampled     |           X          |           X             |        X        |
+|non_roi shuffled    |           X          |           X             |        X        |
 |roi randomized      |           X          |  !!! has duplicate rows |        X        |
 |roi sampled         |           X          |  !!! has duplicate rows |        X        |
 |roi shuffled        |           X          |  !!! has duplicate rows |        X        |
