@@ -17,15 +17,49 @@ from readii.image_processing import flattenImage
 from readii.utils import logger
 
 
-def pyradiomics_extraction(extractor:radiomics.featureextractor,
-                           image:sitk.Image,
-                           mask:sitk.Image,
-                           sample_info:pd.Series,
-                           sample_dir_path:Path,
-                           region:str = None,
-                           transform:str = None,
-                           overwrite:bool = False
-                           ):
+def pyradiomics_extraction(extractor: radiomics.featureextractor,
+                           image: sitk.Image,
+                           mask: sitk.Image,
+                           sample_info: pd.Series,
+                           sample_dir_path: Path,
+                           region: str | None = None,
+                           transform: str | None = None,
+                           overwrite: bool = False
+                           ) -> pd.Series:
+    """Perform PyRadiomic feature extraction on a single image and mask pair.
+
+    Parameters
+    ----------
+    extractor : radiomics.featureextractor
+        PyRadiomics feature extractor object set up with parameters
+    image : sitk.Image
+        Main 3D image to perform feature extraction on.
+    mask : sitk.Image
+        3D binary mask specifying region to perform feature extraction on. Region of interest (ROI) voxels assumed to be 1.
+    sample_info : pd.Series
+        Info pertaining to the image and mask combo, should contain three values:
+            1. ID - unique identifier for the image (e.g. sample ID)
+            2. Image - path to the image file
+            3. Mask - path to the mask file
+    sample_dir_path : Path
+        Path to directory to create a sample directory in to store the output extracted feature file for this sample.
+        Example: "data/procdata/TCIA_NSCLC-Radiomics/pyradiomics_original_all_features/"
+    region : str | None, default=None
+        If image has had a negative control applied, region specifies where the transformation was applied. Used in naming the output file.
+    transform : str | None, default=None
+        If image has had a negative control applied, transform specifies what transformation was applied. Used in naming the output file.
+    overwrite : bool, default=False
+        Whether to extract features if feature file already exists at in the sample_dir_path for this sample.
+        If file exists and `overwrite == False`, will print a message stating features were already extracted for this sample.
+
+    Returns
+    -------
+    sample_result_series : pd.Series
+        Series containing 
+            * the ID, Mask, and Image data from `sample_info`
+            * PyRadiomics diagnostics outputs
+            * PyRadiomics feature outputs
+    """
     # Set PyRadiomics verbosity to critical only
     setVerbosity(50)
 
@@ -35,6 +69,7 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
     else:
         sample_result_file_name = f"full_original_features.csv"
     
+    # Set up sample directory to save output files in
     complete_out_path = sample_dir_path / sample_result_file_name 
     if complete_out_path.exists() and (not overwrite):
         print(f"Features already extracted for: {complete_out_path.stem}")
@@ -42,6 +77,7 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
     
     else:
         try:
+            # Perform feature extraction on the ROI specified by the mask on the image
             sample_feature_vector = pd.Series(extractor.execute(image, mask))
         except Exception as e:
             print(f"Feature extraction failed for {sample_info.ID} {region} {transform}: {e}")
