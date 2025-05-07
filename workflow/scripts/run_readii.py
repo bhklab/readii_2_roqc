@@ -193,11 +193,12 @@ def extract_features(dataset_index : pd.DataFrame,
     """
     # Set up PyRadiomics feature extractor
     extractor = featureextractor.RadiomicsFeatureExtractor(pyrad_params)
+    dataset_feature_dir = procdata_path / Path(pyrad_params).stem
 
     for idx, sample_row in tqdm(dataset_index.iterrows(), total=len(dataset_index)):
         # Set up output dir for this sample's features
         roi_name = Path(Path(sample_row.Mask).stem).stem
-        sample_feature_dir = procdata_path / Path(pyrad_params).stem / sample_row.ID / roi_name
+        sample_feature_dir = dataset_feature_dir / sample_row.ID / roi_name
         sample_feature_dir.mkdir(parents=True, exist_ok=True)
 
         # Load image and ROI mask for this sample
@@ -238,7 +239,7 @@ def extract_features(dataset_index : pd.DataFrame,
                                 for neg_image, transform, region in image_types
                             )
 
-    return sample_results
+    return sample_results, dataset_feature_dir
 
 
 
@@ -260,10 +261,13 @@ def main(dataset_index:pd.DataFrame,
             region_types=regions,
             random_seed=seed
         )
+    else:
+        manager = None
 
     # Extract features
     sample_results = extract_features(dataset_index=dataset_index,
-                                      manager = manager,
+                                      procdata_path=procdata_path,
+                                      nc_manager = manager,
                                       pyrad_params = pyrad_params,
                                       parallel=parallel,
                                       overwrite=overwrite,
@@ -301,12 +305,11 @@ if __name__ == "__main__":
 
 
     sample_results = main(dataset_index = dataset_index,
-                          dataset_name = dataset,
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = ["full", "roi", "non_roi"],
-                          transforms = ["shuffled", "randomized", "sampled"],
+                          regions = [],
+                          transforms = [],
                           overwrite = False,
                           parallel = True,
                           seed = RANDOM_SEED)
