@@ -182,13 +182,15 @@ def combine_feature_results(procdata_path: Path,
 
 
 
-def extract_features(dataset_index,
-                     manager,
+def extract_features(dataset_index : pd.DataFrame,
                      procdata_path,
                      pyrad_params,
+                     nc_manager,
                      parallel,
                      overwrite,
                      ):
+    """
+    """
     # Set up PyRadiomics feature extractor
     extractor = featureextractor.RadiomicsFeatureExtractor(pyrad_params)
 
@@ -202,10 +204,16 @@ def extract_features(dataset_index,
         sample_image = flattenImage(sitk.ReadImage(sample_row.Image))
         sample_mask = flattenImage(sitk.ReadImage(sample_row.Mask))
 
+        if nc_manager:
+            image_types = itertools.chain([(sample_image, "original", "full")], 
+                                          nc_manager.apply(sample_image, sample_mask))
+        else:
+            image_types = itertools.chain([(sample_image, "original", "full")])
+
         if not parallel:
             sample_results = [pyradiomics_extraction(
                                         extractor=extractor,
-                                        image=neg_image,
+                                        image=image,
                                         mask=sample_mask,
                                         sample_info=sample_row,
                                         sample_dir_path=sample_feature_dir,
@@ -213,9 +221,7 @@ def extract_features(dataset_index,
                                         transform=transform,
                                         overwrite=overwrite
                                         )
-                                        for neg_image, transform, region in 
-                                        itertools.chain([(sample_image, "original", "full")], 
-                                                          manager.apply(sample_image, sample_mask))
+                                        for image, transform, region in image_types
                                     ]
         else:
             sample_results = Parallel(n_jobs=-1, require="sharedmem")(
@@ -229,9 +235,7 @@ def extract_features(dataset_index,
                                     transform=transform,
                                     overwrite=overwrite
                                 )
-                                for neg_image, transform, region in 
-                                itertools.chain([(sample_image, "original", "full")], 
-                                                  manager.apply(sample_image, sample_mask))
+                                for neg_image, transform, region in image_types
                             )
 
     return sample_results
