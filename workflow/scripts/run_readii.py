@@ -26,6 +26,9 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
                            transform:str = None,
                            overwrite:bool = False
                            ):
+    # Set PyRadiomics verbosity to critical only
+    setVerbosity(50)
+
     # check if file already exists
     if region and transform:
         sample_result_file_name = f"{region}_{transform}_features.csv"
@@ -55,16 +58,21 @@ def pyradiomics_extraction(extractor:radiomics.featureextractor,
 
 
 def combine_feature_results(nc_manager:NegativeControlManager,
-                             samplewise_feature_dir_path:Path,
-                             output_dir_path:Path,
-                             ):
+                            procdata_path: Path,
+                            results_path: Path,
+                            extraction_params: Path,
+                            ) -> Path:
+    
+    samplewise_feature_dir_path = procdata_path / Path(extraction_params).stem
+    output_dir_path = results_path / Path(extraction_params).stem
     
     strategy_list = ["full_original"]
     for strategy_combo in nc_manager.strategy_products:
         strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
 
     for negative_control in strategy_list:
-        feature_file_list = sorted(samplewise_feature_dir_path.rglob(f"*{negative_control}_features.csv"))
+        filename_pattern = f"*/{negative_control}_features.csv"
+        feature_file_list = sorted(samplewise_feature_dir_path.rglob(filename_pattern))
 
         combined_feature_path = output_dir_path / f"{negative_control}_features.csv"
         combined_feature_path.parent.mkdir(parents=True, exist_ok=True)
@@ -98,29 +106,15 @@ def combine_feature_results(nc_manager:NegativeControlManager,
 
 
 
-def main(dataset_index:pd.DataFrame,
-         pyrad_params:str,
-         procdata_path:Path,
-         results_path:Path,
-         regions:list[str] = ["roi", "non_roi", "full"],
-         transforms:list[str] = ["randomized", "shuffled", "sampled"],
-         overwrite:bool = False,
-         parallel:bool = True,
-         seed:int = 10        
-):
-    # Set PyRadiomics verbosity to critical only
-    setVerbosity(50)
-    
+def extract_features(dataset_index,
+                     manager,
+                     procdata_path,
+                     pyrad_params,
+                     parallel,
+                     overwrite,
+                     ):
     # Set up PyRadiomics feature extractor
     extractor = featureextractor.RadiomicsFeatureExtractor(pyrad_params)
-
-    # Set up negative control generator based on inputs
-    if regions and transforms:
-        manager = NegativeControlManager.from_strings(
-            negative_control_types=transforms,
-            region_types=regions,
-            random_seed=seed
-        )
 
     for idx, sample_row in tqdm(dataset_index.iterrows(), total=len(dataset_index)):
         # Set up output dir for this sample's features
@@ -164,12 +158,42 @@ def main(dataset_index:pd.DataFrame,
                                                   manager.apply(sample_image, sample_mask))
                             )
 
+    return sample_results
+
+
+
+def main(dataset_index:pd.DataFrame,
+         pyrad_params:str,
+         procdata_path:Path,
+         results_path:Path,
+         regions:list[str] = ["roi", "non_roi", "full"],
+         transforms:list[str] = ["randomized", "shuffled", "sampled"],
+         overwrite:bool = False,
+         parallel:bool = True,
+         seed:int = 10        
+        ) -> tuple[Path, pd.DataFrame]:
+    
+    # Set up negative control generator based on inputs
+    if regions and transforms:
+        manager = NegativeControlManager.from_strings(
+            negative_control_types=transforms,
+            region_types=regions,
+            random_seed=seed
+        )
+
+    # Extract features
+    sample_results = extract_features(dataset_index=dataset_index,
+                                      manager = manager,
+                                      pyrad_params = pyrad_params,
+                                      parallel=parallel,
+                                      overwrite=overwrite,
+                                      )
+
     # Collect all results 
-    samplewise_feature_dir_path = procdata_path / Path(pyrad_params).stem
-    dataset_features_dir_path = results_path / Path(pyrad_params).stem
     feature_path = combine_feature_results(nc_manager=manager,
-                                           samplewise_feature_dir_path=samplewise_feature_dir_path,
-                                           output_dir_path=dataset_features_dir_path)
+                                           procdata_path=procdata_path,
+                                           results_path=results_path,
+                                           extraction_params= pyrad_params)
 
     return feature_path, sample_results
 
@@ -186,7 +210,7 @@ if __name__ == "__main__":
 
     # specific dataset path setup
     DATA_SOURCE = "TCIA"
-    DATASET_NAME = "CC-Radiomics-Phantom"
+    DATASET_NAME = "HEAD-NECK-RADIOMICS-HN1"
     
     dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
     dataset_index_path = PROC_DATA_PATH / dataset / f"pyrad_{dataset}_index.csv"
@@ -197,13 +221,14 @@ if __name__ == "__main__":
 
 
     sample_results = main(dataset_index = dataset_index,
+                          dataset_name = dataset,
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = ["non_roi"],
-                          transforms = ["shuffled", "sampled", "randomized"],
+                          regions = ["full", "roi", "non_roi"],
+                          transforms = ["shuffled", "randomized", "sampled"],
                           overwrite = False,
-                          parallel = False,
+                          parallel = True,
                           seed = RANDOM_SEED)
     
 
