@@ -93,25 +93,58 @@ def pyradiomics_extraction(extractor: radiomics.featureextractor,
     return sample_result_series
 
 
-def combine_feature_results(nc_manager:NegativeControlManager,
-                            procdata_path: Path,
+
+def combine_feature_results(procdata_path: Path,
                             results_path: Path,
                             extraction_params: Path,
-                            ) -> Path:
-    
-    samplewise_feature_dir_path = procdata_path / Path(extraction_params).stem
-    output_dir_path = results_path / Path(extraction_params).stem
-    
-    strategy_list = ["full_original"]
-    for strategy_combo in nc_manager.strategy_products:
-        strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
+                            nc_manager : NegativeControlManager | None = None,
+                            ) -> list[Path]:
+    """Combine sample-wise feature extraction output files for an entire datasets for the default image type and those in a NegativeControlManager.
+    If no feature files exist for an image type, an empty .csv file is writen and an error is logged.
 
-    for negative_control in strategy_list:
-        filename_pattern = f"*/{negative_control}_features.csv"
+    Parameters
+    ----------
+    procdata_path : Path
+        Path to directory where radiomic features were saved. (e.g. what was passed to `extra_features`)
+    results_path : Path
+        Path to directory to save the combine radiomic feature files. 
+    extraction_params : Path
+        Path to extraction parameter configuration file. Used to name output directory combined feature files will be saved in.
+    nc_manager : NegativeControlManager | None, default = None
+        READII Negative control manager used on images for feature extraction. Used to collect all the sample feature sets for each image type.
+    
+    Returns
+    -------
+    combined_feature_path_list : list[Path]
+        List of saved output paths.
+    """
+    # Setup input directory to search through
+    samplewise_feature_dir_path = procdata_path / Path(extraction_params).stem
+    # Setup output directory to save combined feature files to
+    output_dir_path = results_path / Path(extraction_params).stem
+    output_dir_path.mkdir(parents=True, exist_ok=True)
+    
+    # Initialize strategy list with default image type (no negative control applied)
+    strategy_list = ["full_original"]
+
+    # Initialize list to store output file paths in
+    combined_feature_path_list = []
+
+    # add negative controls to the strategy list if passed in
+    if NegativeControlManager:
+        for strategy_combo in nc_manager.strategy_products:
+            strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
+
+    # Search for all the sample feature files for each image type
+    for image_type in strategy_list:
+        # Regex for directory search
+        filename_pattern = f"*/{image_type}_features.csv"
+
+        # List of sample feature files for this image type
         feature_file_list = sorted(samplewise_feature_dir_path.rglob(filename_pattern))
 
-        combined_feature_path = output_dir_path / f"{negative_control}_features.csv"
-        combined_feature_path.parent.mkdir(parents=True, exist_ok=True)
+        # Set up output file path for this image type
+        combined_feature_path = output_dir_path / f"{image_type}_features.csv"
 
         # Generator
         empty_files = [] 
@@ -126,9 +159,13 @@ def combine_feature_results(nc_manager:NegativeControlManager,
                     pass
 
         try:
+            # Find all non-empty feature dataframes in the globbed list and concatenate them
             all_sample_features = pd.concat(non_empty_dfs(feature_file_list))
+            # Sort the dataframes by the sample ID column
             all_sample_features.sort_values(by="ID", inplace=True)
+            # Save out the combined feature dataframe
             all_sample_features.to_csv(combined_feature_path, index=False)
+
         except ValueError:
             # Handle case where all dataframes are empty
             logger.error("No non-empty dataframes found.")
@@ -137,8 +174,11 @@ def combine_feature_results(nc_manager:NegativeControlManager,
                 # write an empty file
                 f.write("")
             logger.error(f"Empty file written to {combined_feature_path}")
+
+        # Store the output file path to return
+        combined_feature_path_list.append(combined_feature_path)
     
-    return combined_feature_path
+    return combined_feature_path_list
 
 
 
