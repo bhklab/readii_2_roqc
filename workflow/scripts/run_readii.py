@@ -133,7 +133,7 @@ def combine_feature_results(procdata_path: Path,
     combined_feature_path_list = []
 
     # add negative controls to the strategy list if passed in
-    if NegativeControlManager:
+    if nc_manager is not None:
         for strategy_combo in nc_manager.strategy_products:
             strategy_list.append(f"{strategy_combo[1].region_name}_{strategy_combo[0].negative_control_name}")
 
