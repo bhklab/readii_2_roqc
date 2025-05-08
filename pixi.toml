@@ -18,6 +18,7 @@ ipykernel = "*"
 jupyterlab = "*"
 pip = "*"
 numpy = ">=2.2.5,<3"
+scikit-learn = ">=1.6.1,<2"
 
 [pypi-dependencies]
 readii = ">=1.26.0, <2"
