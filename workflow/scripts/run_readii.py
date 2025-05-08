@@ -183,13 +183,38 @@ def combine_feature_results(procdata_path: Path,
 
 
 def extract_features(dataset_index : pd.DataFrame,
-                     procdata_path,
-                     pyrad_params,
-                     nc_manager,
-                     parallel,
-                     overwrite,
-                     ):
-    """
+                     procdata_path : Path,
+                     pyrad_params : str,
+                     nc_manager : NegativeControlManager | None = None,
+                     parallel : bool = False,
+                     overwrite : bool = False,
+                     ) -> tuple[list[pd.Series], Path]:
+    """Extract radiomic features for each sample in a given dataset. Optionally apply negative controls and run in parallel.
+
+    Parameters
+    ----------
+    dataset_index : pd.DataFrame
+        Table of samples to process. Must contain three columns labelled:
+            1. ID - unique identifier for the image (e.g. sample ID)
+            2. Image - path to the image file
+            3. Mask - path to the mask file
+    procdata_path : Path
+        Path to directory to save sample feature outputs to. Will create a directory here named the same as the extraction parameter file.
+    pyrad_params : str
+        String of the path to the PyRadiomics configuration file to use for feature extraction.
+    nc_manager : NegativeControlManager | None, default=None
+        READII Negative control manager to be used on images for feature extraction if provided. 
+    parallel: bool, default=False
+        Whether to run feature extraction in a parallel fashion. Note that this currently fails when running non-ROI negative controls.
+    overwrite : bool, default=False
+        Whether to overwrite existing feature files if present. 
+
+    Returns
+    -------
+    sample_results : list[pd.Series]
+        List of sample feature extraction results. Each entry is a pandas Series containing the sample ID, image path, mask path, and extracted features.
+    dataset_feature_dir : Path
+        Path to the directory where the sample feature files were saved. This is the same as `procdata_path` with the extraction parameter file name appended.    
     """
     # Set up PyRadiomics feature extractor
     extractor = featureextractor.RadiomicsFeatureExtractor(pyrad_params)
@@ -205,12 +230,15 @@ def extract_features(dataset_index : pd.DataFrame,
         sample_image = flattenImage(sitk.ReadImage(sample_row.Image))
         sample_mask = flattenImage(sitk.ReadImage(sample_row.Mask))
 
+        # Set up image types to iterate over, including negative controls if provided
         if nc_manager:
             image_types = itertools.chain([(sample_image, "original", "full")], 
                                           nc_manager.apply(sample_image, sample_mask))
         else:
+            # If no negative control manager is provided, just use the original image and mask
             image_types = itertools.chain([(sample_image, "original", "full")])
 
+        # Feature Extraction call in parallel or sequentially
         if not parallel:
             sample_results = [pyradiomics_extraction(
                                         extractor=extractor,
