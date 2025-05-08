@@ -32,3 +32,7 @@ plugins:
 
 extra:
     homepage: https://bhklab.github.io/readii_2_roqc
+
+markdown_extensions:
+  - pymdownx.tasklist:
+      custom_checkbox: true

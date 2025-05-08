@@ -1,5 +1,25 @@
 # Developer Notes
 
+## Data Processing Notes
+[2025-05-05] PyRadiomics original_all_features extraction tracking
+[2025-05-07] Updated with completed HN1 runs
+
+|NC / Dataset        | CC-Radiomics-Phantom | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics |
+|--------------------|:--------------------:|:-----------------------:|:---------------:|
+|full original       |           X          |           X             |        X        |
+|full randomized     |           X          |           X             |        X        |
+|full sampled        |           X          |           X             |        X        |
+|full shuffled       |           X          |           X             |        X        |
+|non_roi randomized  |           X          |           X             |        X        |
+|non_roi sampled     |           X          |           X             |        X        |
+|non_roi shuffled    |           X          |           X             |        X        |
+|roi randomized      |           X          |           X             |        X        |
+|roi sampled         |           X          |           X             |        X        |
+|roi shuffled        |           X          |           X             |        X        |
+
+
+
+
 ## Purpose of This Section
 
 This section is for documenting technical decisions, challenges, and solutions encountered during your project. These notes are valuable for:
@@ -53,3 +73,5 @@ Document specific version requirements or compatibility issues:
 - Note alternatives you considered and why they were rejected
 - Document failed approaches to prevent others from repeating mistakes
 - Update notes when major changes are made to the approach
+
+
