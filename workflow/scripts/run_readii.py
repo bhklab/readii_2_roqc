@@ -265,13 +265,13 @@ def main(dataset_index:pd.DataFrame,
         manager = None
 
     # Extract features
-    sample_results = extract_features(dataset_index=dataset_index,
-                                      procdata_path=procdata_path,
-                                      nc_manager = manager,
-                                      pyrad_params = pyrad_params,
-                                      parallel=parallel,
-                                      overwrite=overwrite,
-                                      )
+    sample_results, dataset_feature_dir = extract_features(dataset_index=dataset_index,
+                                                            procdata_path=procdata_path,
+                                                            nc_manager = manager,
+                                                            pyrad_params = pyrad_params,
+                                                            parallel=parallel,
+                                                            overwrite=overwrite,
+                                                            )
 
     # Collect all results 
     feature_path = combine_feature_results(nc_manager=manager,
