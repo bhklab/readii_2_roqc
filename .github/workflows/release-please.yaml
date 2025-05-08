@@ -1,0 +1,29 @@
+name: Release-Please
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+    pull-requests: write
+    issues: write
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+
+        concurrency:
+            group: ${{ github.workflow }}-${{ github.ref }}
+
+        steps:
+            - uses: GoogleCloudPlatform/release-please-action@v4
+              id: release
+              with:
+                  release-type: simple
+
+            - uses: actions/checkout@v4.2.0
+              if: ${{ steps.release.outputs.release_created }}
+              with:
+                  fetch-depth: 0
