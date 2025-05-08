@@ -137,8 +137,6 @@ venv.bak/
 
 # mkdocs documentation
 /site
-site/
-
 
 # mypy
 .mypy_cache/
@@ -170,8 +168,3 @@ src/testmypixipkg/__pycache__/__init__.cpython-312.pyc
 **/__pycache__/*
 *./**/.pyc
 **.pyc
-
-
-data/rawdata/*
-data/procdata/*
-data/results/*
