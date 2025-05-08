@@ -281,7 +281,41 @@ def main(dataset_index:pd.DataFrame,
          parallel:bool = True,
          seed:int = 10        
         ) -> tuple[Path, pd.DataFrame]:
-    
+    """Main function to extract features from a dataset using PyRadiomics, apply negative controls if specified, and consolidate results.
+    This function is designed to be run as a script, and will extract features from the dataset specified in the `dataset_index` parameter.
+    It will create a directory for the extracted features in the `procdata_path` directory, and save the results in the `results_path` directory.
+
+    Parameters
+    ----------
+    dataset_index : pd.DataFrame
+        Table of samples to process. Must contain three columns labelled:
+            1. ID - unique identifier for the image (e.g. sample ID)
+            2. Image - path to the image file
+            3. Mask - path to the mask file
+    pyrad_params : str
+        String of the path to the PyRadiomics configuration file to use for feature extraction.
+    procdata_path : Path
+        Path to directory to save sample feature outputs to. Will create a directory here named the same as the extraction parameter file.
+    results_path : Path
+        Path to directory to save combined feature outputs to. Will create a directory here named the same as the extraction parameter file.
+    regions : list[str], default=["roi", "non_roi", "full"]
+        List of regions to apply negative controls to. If empty, no negative controls will be applied.
+    transforms : list[str], default=["randomized", "shuffled", "sampled"]
+        List of transforms to apply to the regions. If empty, no negative controls will be applied.
+    overwrite : bool, default=False
+        Whether to overwrite existing feature files if present.
+    parallel : bool, default=True
+        Whether to run feature extraction in parallel. Note that this currently fails when running non-ROI negative controls.
+    seed : int, default=10
+        Random seed to use for negative control generation. This is used to ensure that the same negative controls are generated each time the script is run.
+
+    Returns
+    -------
+    feature_path : Path
+        Path to the directory where the combined feature files were saved. This is the same as `results_path` with the extraction parameter file name appended.
+    sample_results : pd.DataFrame
+        DataFrame containing the sample feature extraction results. Each entry is a pandas Series containing the sample ID, image path, mask path, and extracted features.
+    """    
     # Set up negative control generator based on inputs
     if regions and transforms:
         manager = NegativeControlManager.from_strings(
