@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Katy Scott" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Developer Notes - READII-2-ROQC</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Developer Notes";
+        var mkdocs_page_input_path = "devnotes.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> READII-2-ROQC
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../usage/">Usage</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../data_sources/">Data Sources</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Developer Notes</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#purpose-of-this-section">Purpose of This Section</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-to-document">What to Document</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#design-decisions">Design Decisions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#technical-challenges">Technical Challenges</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dependencies-and-environment">Dependencies and Environment</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">READII-2-ROQC</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Developer Notes</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/bhklab/readii_2_roqc/edit/master/docs/devnotes.md">Edit on readii_2_roqc</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="developer-notes">Developer Notes</h1>
+<h2 id="purpose-of-this-section">Purpose of This Section</h2>
+<p>This section is for documenting technical decisions, challenges, and solutions encountered during your project. These notes are valuable for:</p>
+<ul>
+<li>Future you (who will forget why certain decisions were made)</li>
+<li>Collaborators who join the project later</li>
+<li>People coming from your publication who want to reproduce your work</li>
+<li>Anyone who might want to extend your research</li>
+</ul>
+<h2 id="what-to-document">What to Document</h2>
+<h3 id="design-decisions">Design Decisions</h3>
+<p>Document important decisions about your project's architecture, algorithms, or methodologies:</p>
+<pre><code class="language-markdown">## Choice of RNA-Seq Analysis Pipeline
+
+[2025-04-25] We chose the kallisto over STAR pipeline for the following reasons:
+    1. The CCLE dataset is very large, and kallisto is faster for quantifying large datasets
+    2. GDSC used kallisto, so we can compare our results with theirs
+</code></pre>
+<h3 id="technical-challenges">Technical Challenges</h3>
+<p>Record significant problems you encountered and how you solved them</p>
+<pre><code class="language-markdown">## Sample Name Format Issue
+
+[2025-04-25] We encountered a problem with sample name formats between the CCLE and GDSC datasets.
+    The CCLE dataset uses &quot;BRCA-XX-XXXX&quot; format, while the GDSC dataset uses &quot;BRCA-XX-XXXX-XX&quot;.
+    We had to write a script to remove the last two characters from the sample names in the GDSC dataset.
+</code></pre>
+<h3 id="dependencies-and-environment">Dependencies and Environment</h3>
+<p>Document specific version requirements or compatibility issues:</p>
+<pre><code class="language-markdown">## Critical Version Dependencies
+
+[2025-04-25] SimpleITK 2.4.1 introduced a bug that flips images, so we froze version 2.4.0
+</code></pre>
+<h2 id="best-practices">Best Practices</h2>
+<ul>
+<li>Date your entries when appropriate</li>
+<li>Link to relevant code files or external resources</li>
+<li>Include small code snippets when helpful</li>
+<li>Note alternatives you considered and why they were rejected</li>
+<li>Document failed approaches to prevent others from repeating mistakes</li>
+<li>Update notes when major changes are made to the approach</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../data_sources/" class="btn btn-neutral float-left" title="Data Sources"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bhklab/readii_2_roqc" class="fa fa-code-fork" style="color: #fcfcfc"> readii_2_roqc</a>
+        </span>
+    
+    
+      <span><a href="../data_sources/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
