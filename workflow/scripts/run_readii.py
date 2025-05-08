@@ -72,7 +72,9 @@ def pyradiomics_extraction(extractor: radiomics.featureextractor,
     # Set up sample directory to save output files in
     complete_out_path = sample_dir_path / sample_result_file_name 
     if complete_out_path.exists() and (not overwrite):
-        print(f"Features already extracted for: {complete_out_path.stem}")
+        message = f"Features already extracted for: {complete_out_path.stem}"
+        print(message)
+        logger.info(message)
         return
     
     else:
