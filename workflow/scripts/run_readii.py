@@ -277,8 +277,8 @@ def main(dataset_index:pd.DataFrame,
          pyrad_params:str,
          procdata_path:Path,
          results_path:Path,
-         regions:list[str] = ["roi", "non_roi", "full"],
-         transforms:list[str] = ["randomized", "shuffled", "sampled"],
+         regions: list[str] | None = None,  
+         transforms: list[str] | None = None,
          overwrite:bool = False,
          parallel:bool = True,
          seed:int = 10        
@@ -300,9 +300,9 @@ def main(dataset_index:pd.DataFrame,
         Path to directory to save sample feature outputs to. Will create a directory here named the same as the extraction parameter file.
     results_path : Path
         Path to directory to save combined feature outputs to. Will create a directory here named the same as the extraction parameter file.
-    regions : list[str], default=["roi", "non_roi", "full"]
+    regions : list[str] | None, default=None
         List of regions to apply negative controls to. If empty, no negative controls will be applied.
-    transforms : list[str], default=["randomized", "shuffled", "sampled"]
+    transforms : list[str] | None, default=None
         List of transforms to apply to the regions. If empty, no negative controls will be applied.
     overwrite : bool, default=False
         Whether to overwrite existing feature files if present.
