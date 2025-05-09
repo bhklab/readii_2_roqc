@@ -27,7 +27,8 @@
     - Images: CT, RTSTRUCT
     - Clinical: CSV
 - **Sample Size**: 422 subjects
-- **Notes**: 
+- **ROI Name**: Tumour = GTV-1
+- **Notes**: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.
 
 
 ## HEAD-NECK-RADIOMICS-HN1
