@@ -1,0 +1,8 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "NSCLC-Radiomics"
+
+
+CLINICAL_FILE: "NSCLC-Radiomics-Lung1.clinical-version3-Oct-2019.csv"
+
+MIT_INDEX_FILE: "mit_NSCLC-Radiomics_index.csv"
+
