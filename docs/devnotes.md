@@ -25,7 +25,10 @@
 |original_glrlm_GrayLevelNonUniformity    |             X           |        X        |    X    |
 |wavelet-HLH_glrlm_GrayLevelNonUniformity |          running        |   running       |    X    |
 
-
+* Bootstrapping help came from: https://acclab.github.io/bootstrap-confidence-intervals.html
+* survcomp R package only works for linux and osx-64
+* tried the scikit-survival implementation of the concordance index with bootstrapping, but results don't match Mattea's exactly
+* trying with R now
 
 ## Purpose of This Section
 
