@@ -18,8 +18,12 @@
 |roi shuffled        |           X          |           X             |        X        |
 
 
-
-
+[2025-05-12] Tracking extraction of all features for Aerts signature
+|Feature / Dataset                        | CC-Radiomics-Phantom | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE |
+|original_firstorder_Energy               |         X            |             X           |        X        |    X    |
+|original_shape_Compactness1              |         X            |             X           |        X        |    X    |
+|original_glrlm_GrayLevelNonUniformity    |         X            |             X           |        X        |    X    |
+|wavelet-HLH_glrlm_GrayLevelNonUniformity |                      |                         |                 |    X    |
 ## Purpose of This Section
 
 This section is for documenting technical decisions, challenges, and solutions encountered during your project. These notes are valuable for:
