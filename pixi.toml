@@ -19,6 +19,7 @@ jupyterlab = "*"
 pip = "*"
 numpy = ">=1.26.4e,<2"
 scikit-learn = ">=1.6.1,<2"
+scikit-survival = ">=0.24.1,<0.25"
 
 [pypi-dependencies]
 readii = ">=1.35.0, <2"
