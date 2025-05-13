@@ -3,7 +3,8 @@ DATASET_NAME: "NSCLC-Radiomics"
 
 CLINICAL_FILE: "NSCLC-Radiomics-Lung1.clinical-version3-Oct-2019.csv"
 
-MIT_INDEX_FILE: "mit_NSCLC-Radiomics_index.csv"
+MIT_COMMAND: "imgtools autopipeline ~/bhklab/radiomics/PublicDatasets/srcdata/Lung/TCIA_NSCLC-Radiomics/NSCLC-Radiomics ~/bhklab/radiomics/PublicDatasets/procdata/Lung/TCIA_NSCLC-Radiomics/mit2_NSCLC-Radiomics --modalities \"CT,RTSTRUCT\" -rmap \"GTV:GTV-1\" --roi-strategy MERGE --update-crawl -f {PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz"
+MIT_INDEX_FILE: "mit2_NSCLC-Radiomics_index.csv"
 
 ### CLINICAL VARIABLE INFORMATION ###
 # Event values should be in the order [Alive_value, Dead_value]
