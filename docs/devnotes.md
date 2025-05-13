@@ -38,4 +38,8 @@
 |File / Dataset       | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE             |
 | clinical            | id                      | PatientID       | patient_id          |
 | mit index file      | SampleID, PatientID     | PatientID       | SampleID, PatientID |
-| radiomics           | ID                      | ID              | ID                  |
+| radiomics           | ID ==                      | ID              | ID                  |
+
+
+* HN1 - going to make a SampleID column in the mit2_index 
+* Rerunning all the MIT and feature extraction
