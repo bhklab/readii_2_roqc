@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+import numpy as np
 
 import radiomics
 from radiomics import featureextractor, setVerbosity
@@ -12,9 +13,27 @@ from collections import OrderedDict
 import itertools
 
 from readii.negative_controls_refactor.manager import NegativeControlManager
-from readii.image_processing import flattenImage
 
-from readii.utils import logger
+# from readii.utils import logger
+
+def flattenImage(image: sitk.Image) -> sitk.Image:
+    """Remove axes of image with size one. (ex. shape is [1, 100, 256, 256])
+
+    Parameters
+    ----------
+    image : sitk.Image
+        Image to remove axes with size one.
+
+    Returns
+    -------
+    sitk.Image
+        image with axes of length one removed.
+    """
+    imageArr = sitk.GetArrayFromImage(image)
+
+    imageArr = np.squeeze(imageArr)
+
+    return sitk.GetImageFromArray(imageArr)
 
 
 def pyradiomics_extraction(extractor: radiomics.featureextractor,
@@ -74,7 +93,7 @@ def pyradiomics_extraction(extractor: radiomics.featureextractor,
     if complete_out_path.exists() and (not overwrite):
         message = f"Features already extracted for: {complete_out_path.stem}"
         print(message)
-        logger.info(message)
+        # logger.info(message)
         return
     
     else:
@@ -170,12 +189,12 @@ def combine_feature_results(procdata_path: Path,
 
         except ValueError:
             # Handle case where all dataframes are empty
-            logger.error("No non-empty dataframes found.")
+            # logger.error("No non-empty dataframes found.")
             # write empty file to the output file
             with open(combined_feature_path, "w") as f:
                 # write an empty file
                 f.write("")
-            logger.error(f"Empty file written to {combined_feature_path}")
+            # logger.error(f"Empty file written to {combined_feature_path}")
 
         # Store the output file path to return
         combined_feature_path_list.append(combined_feature_path)
@@ -372,10 +391,10 @@ if __name__ == "__main__":
                           pyrad_params = parameter_file_path,
                           procdata_path = PROC_DATA_PATH / dataset,
                           results_path = RESULTS_DATA_PATH / dataset,
-                          regions = [],
-                          transforms = [],
+                          regions = ["full", "roi", "non_roi"],
+                          transforms = ["randomized", "shuffled", "sampled"],
                           overwrite = False,
-                          parallel = True,
+                          parallel = False,
                           seed = RANDOM_SEED)
     
 
