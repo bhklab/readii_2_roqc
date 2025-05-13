@@ -27,3 +27,10 @@ Validation: HN1, RADCURE-test
 
 Train: RADCURE-train
 Validation: HN1, RADCURE-test
+
+
+## Survival Modelling
+### Resources
+https://scikit-survival.readthedocs.io/en/stable/user_guide/evaluating-survival-models.html#
+
+Harrell's C-index: https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.metrics.concordance_index_censored.html
