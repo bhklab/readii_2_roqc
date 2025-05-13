@@ -1,12 +1,12 @@
 import pandas as pd
 from pathlib import Path
-from readii.io.loaders import loadImageDatasetConfig
+
 
 def generate_dataset_index(image_directory:Path,
                            output_file_path:Path):
     # Construct file path lists for images and masks
     image_files = sorted(image_directory.rglob(pattern="*/CT*/CT.nii.gz"))
-    mask_files = sorted(image_directory.rglob(pattern="*/RT*/*.nii.gz"))
+    mask_files = sorted(image_directory.rglob(pattern="*/RT*/GTV.nii.gz"))
 
     # Get list of sample IDs from top of data directory
     unique_sample_ids = [sample_dir.name for sample_dir in sorted(image_directory.glob(pattern="*/"))]
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     RESULTS_DATA_PATH = DATA_DIR_PATH / "results"
 
     DATA_SOURCE = "TCIA"
-    DATASET_NAME = "CC-Radiomics-Phantom"
+    DATASET_NAME = "HEAD-NECK-RADIOMICS-HN1"
 
     dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
 
