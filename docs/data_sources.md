@@ -46,6 +46,7 @@
     - Images: CT, RTSTRUCT
     - Clinical: CSV
 - **Sample Size**: 137 subjects
+- **ROI Name**: Tumour = GTV-1
 
 
 ## RADCURE
@@ -63,6 +64,8 @@
     - Images: CT, RTSTRUCT
     - Clinical: CSV
 - **Sample Size**: 3,346 subjects
+- **ROI Name**: Tumour = GTVp$ (regex to just get first primary tumour)
+
 ---
 ## Overview
 
