@@ -29,7 +29,6 @@ openpyxl = ">=3.1.5,<4"
 
 [pypi-dependencies]
 readii = ">=1.35.0, <2"
-med-imagetools = ">=2.3.0, <3"
 
 [target.linux-64.dependencies]
 bioconductor-survcomp = ">=1.56.0,<2"
