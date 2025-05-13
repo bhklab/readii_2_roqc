@@ -3,7 +3,7 @@ DATASET_NAME: "RADCURE"
 
 CLINICAL_FILE: "RADCURE_Clinical_v04_20241219.xlsx"
 
-MIT_INDEX_FILE: None
+MIT_INDEX_FILE: "mit_index.csv"
 
 ### CLINICAL VARIABLE INFORMATION ###
 # Event values should be in the order [Alive_value, Dead_value]
