@@ -52,6 +52,12 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#cc-radiomics-phantom">CC-Radiomics-Phantom</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nsclc-radiomics">NSCLC-Radiomics</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#radcure">RADCURE</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#how-to-document-your-data">How to Document Your Data</a>
@@ -108,8 +114,76 @@
 <li><strong>Data Format</strong>: DICOM</li>
 <li><strong>Citation</strong>: Mackin, D., Ray, X., Zhang, L., Fried, D., Yang, J., Taylor, B., Rodriguez-Rivera, E., Dodge, C., Jones, A., &amp; Court, L. (2017). Data From Credence Cartridge Radiomics Phantom CT Scans (CC-Radiomics-Phantom) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2017.zuzrml5b </li>
 <li><strong>License</strong>: <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a></li>
+<li><strong>Data Types</strong>: <ul>
+<li>Images: CT, RTSTRUCT</li>
 </ul>
-<p>Image Types: CT, RTSTRUCT</p>
+</li>
+<li><strong>Sample Size</strong>: 17 subjects</li>
+</ul>
+<h2 id="nsclc-radiomics">NSCLC-Radiomics</h2>
+<ul>
+<li><strong>Name</strong>: NSCLC-Radiomics (or Lung1)</li>
+<li><strong>Version/Date</strong>: Version 4: Updated 2020/10/22</li>
+<li><strong>URL</strong>: <a href="https://www.cancerimagingarchive.net/collection/nsclc-radiomics/">https://www.cancerimagingarchive.net/collection/nsclc-radiomics/</a></li>
+<li><strong>Access Method</strong>: NBIA Data Retriever</li>
+<li><strong>Access Date</strong>: 2025-04-23</li>
+<li><strong>Data Format</strong>: DICOM</li>
+<li><strong>Citation</strong>: Aerts, H. J. W. L., Wee, L., Rios Velazquez, E., Leijenaar, R. T. H., Parmar, C., Grossmann, P., Carvalho, S., Bussink, J., Monshouwer, R., Haibe-Kains, B., Rietveld, D., Hoebers, F., Rietbergen, M. M., Leemans, C. R., Dekker, A., Quackenbush, J., Gillies, R. J., Lambin, P. (2014). Data From NSCLC-Radiomics (version 4) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2015.PF0M9REI </li>
+<li><strong>License</strong>: <a href="https://creativecommons.org/licenses/by-nc/3.0/">CC BY-NC 3.0</a></li>
+<li><strong>Data Types</strong>: <ul>
+<li>Images: CT, RTSTRUCT</li>
+<li>Clinical: CSV</li>
+</ul>
+</li>
+<li><strong>Sample Size</strong>: 422 subjects</li>
+<li><strong>ROI Name</strong>: Tumour = GTV-1</li>
+<li><strong>Notes</strong>: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.</li>
+</ul>
+<h2 id="head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</h2>
+<ul>
+<li><strong>Name</strong>: HEAD-NECK-RADIOMICS-HN1 (or H&amp;N1)</li>
+<li><strong>Version/Date</strong>: Version 3: Updated 2020/07/29</li>
+<li><strong>URL</strong>: <a href="https://www.cancerimagingarchive.net/collection/head-neck-radiomics-hn1/">https://www.cancerimagingarchive.net/collection/head-neck-radiomics-hn1/</a></li>
+<li><strong>Access Method</strong>: NBIA Data Retriever</li>
+<li><strong>Access Date</strong>: 2025-04-23</li>
+<li><strong>Data Format</strong>: DICOM</li>
+<li><strong>Citation</strong>: Wee, L., &amp; Dekker, A. (2019). Data from HEAD-NECK-RADIOMICS-HN1 [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/tcia.2019.8kap372n</li>
+<li><strong>License</strong>:<ul>
+<li>Images: <a href="https://www.cancerimagingarchive.net/wp-content/uploads/TCIA-License-for-Limited-Access-Collections-w-NC-Final20220121.pdf">TCIA No Commercial Limited</a></li>
+<li>Clinical: <a href="https://creativecommons.org/licenses/by-nc/3.0/">CC BY-NC 3.0</a></li>
+</ul>
+</li>
+<li><strong>Data Types</strong>: <ul>
+<li>Images: CT, RTSTRUCT</li>
+<li>Clinical: CSV</li>
+</ul>
+</li>
+<li><strong>Sample Size</strong>: 137 subjects</li>
+<li><strong>ROI Name</strong>: Tumour = GTV-1</li>
+</ul>
+<h2 id="radcure">RADCURE</h2>
+<ul>
+<li><strong>Name</strong>: RADCURE</li>
+<li><strong>Version/Date</strong>: Clinical: Version 4: Updated 2024/12/19 / Images: Version 3: Updated 2024/03/27</li>
+<li><strong>URL</strong>: <a href="https://www.cancerimagingarchive.net/collection/radcure/">https://www.cancerimagingarchive.net/collection/radcure/</a></li>
+<li><strong>Access Method</strong>: NBIA Data Retriever</li>
+<li><strong>Access Date</strong>: 2024-05-23</li>
+<li><strong>Data Format</strong>: DICOM</li>
+<li><strong>Citation</strong>: Welch, M. L., Kim, S., Hope, A., Huang, S. H., Lu, Z., Marsilla, J., Kazmierski, M., Rey-McIntyre, K., Patel, T., O’Sullivan, B., Waldron, J., Kwan, J., Su, J., Soltan Ghoraie, L., Chan, H. B., Yip, K., Giuliani, M., Princess Margaret Head And Neck Site Group, Bratman, S., … Tadic, T. (2023). Computed Tomography Images from Large Head and Neck Cohort (RADCURE) (Version 4) [Dataset]. The Cancer Imaging Archive. https://doi.org/10.7937/J47W-NM11</li>
+<li><strong>License</strong>:<ul>
+<li>Images: <a href="https://wiki.cancerimagingarchive.net/download/attachments/4556915/TCIA%20Restricted%20License%2020220519.pdf?api=v2">TCIA Restricted</a></li>
+<li>Clinical: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY-NC 4.0</a></li>
+</ul>
+</li>
+<li><strong>Data Types</strong>: <ul>
+<li>Images: CT, RTSTRUCT</li>
+<li>Clinical: CSV</li>
+</ul>
+</li>
+<li><strong>Sample Size</strong>: 3,346 subjects</li>
+<li><strong>ROI Name</strong>: Tumour = GTVp$ (regex to just get first primary tumour)</li>
+</ul>
+<hr />
 <h2 id="overview">Overview</h2>
 <p>This section should document all data sources used in your project.
 Proper documentation ensures reproducibility and helps others

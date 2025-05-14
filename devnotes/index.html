@@ -56,19 +56,7 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#data-processing-notes">Data Processing Notes</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#purpose-of-this-section">Purpose of This Section</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#what-to-document">What to Document</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#design-decisions">Design Decisions</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#technical-challenges">Technical Challenges</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#dependencies-and-environment">Dependencies and Environment</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a>
+    <li class="toctree-l2"><a class="reference internal" href="#manuscript-notes">Manuscript Notes</a>
     </li>
     </ul>
                 </li>
@@ -173,46 +161,67 @@
 </tr>
 </tbody>
 </table>
-<h2 id="purpose-of-this-section">Purpose of This Section</h2>
-<p>This section is for documenting technical decisions, challenges, and solutions encountered during your project. These notes are valuable for:</p>
+<p>[2025-05-12] Tracking extraction of all features for Aerts signature
+|Feature / Dataset                        | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE |
+|original_firstorder_Energy               |             X           |        X        |    X    |
+|original_shape_Compactness1              |             X           |        X        |    X    |
+|original_glrlm_GrayLevelNonUniformity    |             X           |        X        |    X    |
+|wavelet-HLH_glrlm_GrayLevelNonUniformity |          running        |   running       |    X    |</p>
 <ul>
-<li>Future you (who will forget why certain decisions were made)</li>
-<li>Collaborators who join the project later</li>
-<li>People coming from your publication who want to reproduce your work</li>
-<li>Anyone who might want to extend your research</li>
+<li>Bootstrapping help came from: https://acclab.github.io/bootstrap-confidence-intervals.html</li>
+<li>survcomp R package only works for linux and osx-64</li>
+<li>tried the scikit-survival implementation of the concordance index with bootstrapping, but results don't match Mattea's exactly</li>
+<li>trying with R now</li>
 </ul>
-<h2 id="what-to-document">What to Document</h2>
-<h3 id="design-decisions">Design Decisions</h3>
-<p>Document important decisions about your project's architecture, algorithms, or methodologies:</p>
-<pre><code class="language-markdown">## Choice of RNA-Seq Analysis Pipeline
-
-[2025-04-25] We chose the kallisto over STAR pipeline for the following reasons:
-    1. The CCLE dataset is very large, and kallisto is faster for quantifying large datasets
-    2. GDSC used kallisto, so we can compare our results with theirs
-</code></pre>
-<h3 id="technical-challenges">Technical Challenges</h3>
-<p>Record significant problems you encountered and how you solved them</p>
-<pre><code class="language-markdown">## Sample Name Format Issue
-
-[2025-04-25] We encountered a problem with sample name formats between the CCLE and GDSC datasets.
-    The CCLE dataset uses &quot;BRCA-XX-XXXX&quot; format, while the GDSC dataset uses &quot;BRCA-XX-XXXX-XX&quot;.
-    We had to write a script to remove the last two characters from the sample names in the GDSC dataset.
-</code></pre>
-<h3 id="dependencies-and-environment">Dependencies and Environment</h3>
-<p>Document specific version requirements or compatibility issues:</p>
-<pre><code class="language-markdown">## Critical Version Dependencies
-
-[2025-04-25] SimpleITK 2.4.1 introduced a bug that flips images, so we froze version 2.4.0
-</code></pre>
-<h2 id="best-practices">Best Practices</h2>
+<p>[2025-05-13] Processing data for signature prediction models
+* Since RADCURE was processed with old med-imagetools, manually set up mit_index from dataset.csv
+    * Change the column <code>patient_ID</code> to <code>PatientID</code>
+    * Add index column label <code>SampleID</code></p>
+<p>|File / Dataset       | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE             |
+| clinical            | id                      | PatientID       | patient_id          |
+| mit index file      | SampleID, PatientID     | PatientID       | SampleID, PatientID |
+| radiomics           | ID ==                      | ID              | ID                  |</p>
 <ul>
-<li>Date your entries when appropriate</li>
-<li>Link to relevant code files or external resources</li>
-<li>Include small code snippets when helpful</li>
-<li>Note alternatives you considered and why they were rejected</li>
-<li>Document failed approaches to prevent others from repeating mistakes</li>
-<li>Update notes when major changes are made to the approach</li>
+<li>HN1 - going to make a SampleID column in the mit2_index </li>
+<li>Rerunning all the MIT and feature extraction</li>
 </ul>
+<h2 id="manuscript-notes">Manuscript Notes</h2>
+<p>[2025-05-14] Manuscript Review Feedback Notes</p>
+<p><strong>Introduction/Background</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Paragraph around biological/clinical application of radiomics (why do we do it?)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Literature review for other quality control methods for radiomics</li>
+</ul>
+<p><strong>Methods</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Add prediction of HPV status model</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Include section about saving out the negative control images</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Explain modular implementation of the negative controls such that users can construct their own</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Add ability to save out the changed mask from the contraction/expansion NCs</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Look for synonyms for transformation<ul>
+<li>Intensity transformation?</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sisira asked for an example of the RadiomicSet data to understand what it looks like</li>
+</ul>
+<p><strong>Results</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Josh liked the new abstract figure more</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Get p-value calculation code from Caryn</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Save out bootstrap hazards so they don't get recalculated</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Keep the diagonal self-correlation plots, will go in supplemental</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Calculate and plot average correlations between clusters of features (shape vs. first order)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Hierarchical clustering between the feature class clusters</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Correlation plot of the Aerts signature + volume features</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Compare distribution of correlation values in a line plot<ul>
+<li>Line for each image type</li>
+<li>x-axis is the feature types, colourblock behind the plot for each imagetype</li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Plot correlations with outcome before and after QC</li>
+</ul>
+<p><em>Plots</em>
+- [ ] Box plot of hazards for each image type and dataset to compare</p>
               
             </div>
           </div><footer>

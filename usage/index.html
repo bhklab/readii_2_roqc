@@ -50,6 +50,24 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#running-your-analysis">Running Your Analysis</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-splitting">Data splitting</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#aerts_original">aerts_original</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#aerts_radcure_refit">aerts_RADCURE_refit</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#r2r_nsclc">r2r_NSCLC</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#r2r_radcure">r2r_RADCURE</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#survival-modelling">Survival Modelling</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#resources">Resources</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -91,7 +109,23 @@
 <p>TODO:: discuss how to add your input data to the <code>data/rawdata/</code> directory and document it properly in the <code>docs/data_sources/</code> directory</p>
 <p>TODO:: discuss how to manage and organize your data sources effectively</p>
 <h2 id="running-your-analysis">Running Your Analysis</h2>
-<p>TODO:: discuss using pixi tasks to run the analysis</p>
+<h2 id="data-splitting">Data splitting</h2>
+<h3 id="aerts_original">aerts_original</h3>
+<p>Train: NSCLC-Radiomics
+Validation: HN1, RADCURE-test</p>
+<h3 id="aerts_radcure_refit">aerts_RADCURE_refit</h3>
+<p>Train: RADCURE-train
+Validation: HN1, RADCURE-test</p>
+<h3 id="r2r_nsclc">r2r_NSCLC</h3>
+<p>Train: NSCLC-Radiomics
+Validation: HN1, RADCURE-test</p>
+<h3 id="r2r_radcure">r2r_RADCURE</h3>
+<p>Train: RADCURE-train
+Validation: HN1, RADCURE-test</p>
+<h2 id="survival-modelling">Survival Modelling</h2>
+<h3 id="resources">Resources</h3>
+<p>https://scikit-survival.readthedocs.io/en/stable/user_guide/evaluating-survival-models.html#</p>
+<p>Harrell's C-index: https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.metrics.concordance_index_censored.html</p>
               
             </div>
           </div><footer>
