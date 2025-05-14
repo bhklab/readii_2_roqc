@@ -1,6 +1,7 @@
 from sksurv.metrics import concordance_index_censored
 
 import pandas as pd
+import numpy as np
 from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
 from readii.process.subset import getPatientIntersectionDataframes
 from readii.process.label import eventOutcomeColumnSetup, timeOutcomeColumnSetup, getPatientIdentifierLabel
@@ -138,7 +139,7 @@ for image_type in image_types:
 
     bootstrap_count = 1000
 
-    for idx in range(bootstrap_count):
+    for _idx in range(bootstrap_count):
         sampled_results = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True)
 
         sampled_cindex, _concordant, _discordant, _tied_risk, _tied_time = concordance_index_censored(
@@ -149,8 +150,8 @@ for image_type in image_types:
         
         sampled_cindex_bootstrap.append(sampled_cindex)
 
-    lower_confidence_interval = sorted(sampled_cindex_bootstrap)[bootstrap_count // 4 - 1]
-    upper_confidence_interval = sorted(sampled_cindex_bootstrap)[bootstrap_count - (bootstrap_count // 4)]
+    lower_confidence_interval = np.percentile(sampled_cindex_bootstrap, 2.5)  
+    upper_confidence_interval = np.percentile(sampled_cindex_bootstrap, 97.5)  
 
     performance_results = performance_results + [[DATASET_NAME, image_type, cindex, lower_confidence_interval, upper_confidence_interval]]
 
