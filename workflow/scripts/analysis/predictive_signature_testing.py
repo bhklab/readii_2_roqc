@@ -99,7 +99,7 @@ clinical_data = timeOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
 
 
 performance_results = list()
-image_types = {str(type.name).removesuffix("_features.csv") for type in sorted(RESULTS_DATA_PATH.rglob("**/*_features.csv"))}
+image_types = {str(csv_path.name).removesuffix("_features.csv") for csv_path in sorted(RESULTS_DATA_PATH.rglob("**/*_features.csv"))}
 
 for image_type in image_types:
     print(f"Processing image type: {image_type}")
@@ -111,7 +111,7 @@ for image_type in image_types:
     raw_feature_data.set_index('SampleID', inplace=True)
 
     # ## Intersect clinical and feature data
-    clinical_data, pyrad_subset = getPatientIntersectionDataframes(clinical_data, raw_feature_data, need_pat_index_A=False, need_pat_index_B=False)
+    clinical_data_subset, pyrad_subset = getPatientIntersectionDataframes(clinical_data, raw_feature_data, need_pat_index_A=False, need_pat_index_B=False)
 
     # ## Get just features in radiomic signature
     signature_feature_data = pyrad_subset[radiomic_signature.index]
@@ -121,8 +121,8 @@ for image_type in image_types:
 
     # Calculate the concordance index
     cindex, _concordant, _discordant, _tied_risk, _tied_time = concordance_index_censored(
-        event_indicator = clinical_data['survival_event_binary'].astype(bool),
-        event_time = clinical_data['survival_time_years'],
+        event_indicator = clinical_data_subset['survival_event_binary'].astype(bool),
+        event_time = clinical_data_subset['survival_time_years'],
         estimate = feature_hazards,
         )
 
@@ -132,9 +132,9 @@ for image_type in image_types:
 
     hazards_and_outcomes = pd.DataFrame({
         'hazards': feature_hazards,
-        'survival_event_binary': clinical_data['survival_event_binary'],
-        'survival_time_years': clinical_data['survival_time_years']
-    }, index=clinical_data.index)
+        'survival_event_binary': clinical_data_subset['survival_event_binary'],
+        'survival_time_years': clinical_data_subset['survival_time_years']
+    }, index=clinical_data_subset.index)
 
     bootstrap_count = 1000
 
