@@ -1,0 +1,22 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "HEAD-NECK-RADIOMICS-HN1"
+
+CLINICAL_FILE: "Copy of HEAD-NECK-RADIOMICS-HN1 Clinical data updated July 2020 2.csv"
+
+MIT_COMMAND: "imgtools autopipeline ~/bhklab/radiomics/PublicDatasets/srcdata/HeadNeck/TCIA_HEAD-NECK-RADIOMICS-HN1/images/HEAD-NECK-RADIOMICS-HN1/unzipped/ ~/bhklab/radiomics/PublicDatasets/procdata/HeadNeck/TCIA_HEAD-NECK-RADIOMICS-HN1/mit2_HEAD-NECK-RADIOMICS-HN1 --modalities \"CT,RTSTRUCT\" -rmap \"GTV:GTV-1\" --roi-strategy MERGE --update-crawl -f {PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz"
+MIT_INDEX_FILE: "mit2_HEAD-NECK-RADIOMICS-HN1_index.csv"
+
+### CLINICAL VARIABLE INFORMATION ###
+# Event values should be in the order [Alive_value, Dead_value]
+OUTCOME_VARIABLES:
+    time_label: "overall_survival_in_days"
+    event_label: "event_overall_survival"
+    convert_to_years: True
+    event_value_mapping: {}
+
+EXCLUSION_VARIABLES: {}
+
+TRAIN_TEST_SPLIT:
+    split: False
+    split_variable: {}
+    impute: null

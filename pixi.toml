@@ -18,9 +18,20 @@ ipykernel = "*"
 jupyterlab = "*"
 pip = "*"
 numpy = ">=2.2.5,<3"
+scikit-learn = ">=1.6.1,<2"
+scikit-survival = ">=0.24.1,<0.25"
+r = ">=4.4,<4.5"
+r-base = ">=4.4.3,<4.5"
+radian = ">=0.6.15,<0.7"
+r-checkmate = ">=2.3.2,<3"
+r-yaml = ">=2.3.10,<3"
+openpyxl = ">=3.1.5,<4"
 
 [pypi-dependencies]
-readii = ">=1.26.0, <2"
+readii = ">=1.35.1, <2"
+
+[target.linux-64.dependencies]
+bioconductor-survcomp = ">=1.56.0,<2"
 
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
@@ -58,5 +69,7 @@ cmd = "mkdocs serve -f mkdocs.yaml"
 depends-on = ["doc-build"]
 inputs = ["docs"]
 description = "Serve documentation with mkdocs, runs doc-build first"
+
+
 
 

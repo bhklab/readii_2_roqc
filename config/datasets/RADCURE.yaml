@@ -1,0 +1,21 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "RADCURE"
+
+CLINICAL_FILE: "RADCURE_Clinical_v04_20241219.xlsx"
+
+MIT_INDEX_FILE: "imgtools_unzipped.csv"
+
+### CLINICAL VARIABLE INFORMATION ###
+# Event values should be in the order [Alive_value, Dead_value]
+OUTCOME_VARIABLES:
+    time_label: "Length FU"
+    event_label: "Status"
+    convert_to_years: False
+    event_value_mapping: {0: ['Alive'], 1: ['Dead']}
+
+EXCLUSION_VARIABLES: {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+
+TRAIN_TEST_SPLIT:
+    split: True
+    split_variable: {'RADCURE-challenge': ['training', 'test']}
+    impute: 'training'

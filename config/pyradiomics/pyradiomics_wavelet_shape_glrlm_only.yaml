@@ -3,7 +3,7 @@ imageType:
 
 featureClass:
     shape:
-    gldm:
+    glrlm:
         - 'GrayLevelNonUniformity' 
 
 setting:
