@@ -1,8 +1,8 @@
 # Developer Notes
 
 ## Data Processing Notes
-[2025-05-05] PyRadiomics original_all_features extraction tracking
-[2025-05-07] Updated with completed HN1 runs
+#### [2025-05-05] PyRadiomics original_all_features extraction tracking
+#### [2025-05-07] Updated with completed HN1 runs
 
 |NC / Dataset        | CC-Radiomics-Phantom | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics |
 |--------------------|:--------------------:|:-----------------------:|:---------------:|
@@ -18,7 +18,7 @@
 |roi shuffled        |           X          |           X             |        X        |
 
 
-[2025-05-12] Tracking extraction of all features for Aerts signature
+#### [2025-05-12] Tracking extraction of all features for Aerts signature
 |Feature / Dataset                        | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE |
 |original_firstorder_Energy               |             X           |        X        |    X    |
 |original_shape_Compactness1              |             X           |        X        |    X    |
@@ -30,7 +30,7 @@
 * tried the scikit-survival implementation of the concordance index with bootstrapping, but results don't match Mattea's exactly
 * trying with R now
 
-[2025-05-13] Processing data for signature prediction models
+#### [2025-05-13] Processing data for signature prediction models
 * Since RADCURE was processed with old med-imagetools, manually set up mit_index from dataset.csv
     * Change the column `patient_ID` to `PatientID`
     * Add index column label `SampleID`
@@ -46,7 +46,7 @@
 
 
 ## Manuscript Notes
-[2025-05-14] Manuscript Review Feedback Notes
+#### [2025-05-14] Manuscript Review Feedback Notes
 
 **Introduction/Background**
 
@@ -59,8 +59,8 @@
 - [ ] Include section about saving out the negative control images
 - [ ] Explain modular implementation of the negative controls such that users can construct their own
 - [ ] Add ability to save out the changed mask from the contraction/expansion NCs
-- [ ] Look for synonyms for transformation
-    * Intensity transformation?
+- [X] Look for synonyms for transformation
+    * Intensity transformation? --> permutation?
 - [ ] Sisira asked for an example of the RadiomicSet data to understand what it looks like
 
 
