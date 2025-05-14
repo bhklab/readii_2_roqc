@@ -6,13 +6,12 @@ from readii.process.subset import getPatientIntersectionDataframes
 from readii.process.label import eventOutcomeColumnSetup, timeOutcomeColumnSetup, getPatientIdentifierLabel
 from readii.process.split import splitDataByColumnValue
 from pathlib import Path
-import numpy as np
 import yaml
 
 
 # ### Set up variables from config file for the dataset
 # Load in the configuration file
-config = loadImageDatasetConfig("NSCLC-Radiomics", Path("../../../config/datasets"))
+config = loadImageDatasetConfig("HEAD-NECK-RADIOMICS-HN1", Path("../../../config/datasets"))
 
 # Initialize dataset parameters
 CLINICAL_DATA_FILE = config["CLINICAL_FILE"]
@@ -33,11 +32,11 @@ TRAIN_TEST_SPLIT = config["TRAIN_TEST_SPLIT"]
 
 pyradiomics_settings = "pyradiomics_original_plus_aerts"
 
-signature_name = "aerts_original"
+signature_name = "lasso_10_signature"
 signature_dir = PROC_DATA_PATH / "signature_data"
 signature_dir.mkdir(parents=True, exist_ok=True)
 
-signature_results_dir = RESULTS_DATA_PATH / "signature_performance" / signature_name
+signature_results_dir = RESULTS_DATA_PATH / "signature_performance"
 signature_results_dir.mkdir(parents=True, exist_ok=True)
 
 
@@ -75,7 +74,7 @@ mit_index = loadFileToDataFrame((RAW_DATA_PATH / "images" / config["MIT_INDEX_FI
 
 # Set up SampleID if it doesn't exist in the med-imagetools index file
 if 'SampleID' not in mit_index.columns:
-    mit_index['SampleID'] = config["DATASET_NAME"] + "_" + mit_index['SampleNumber'].astype(str).str.zfill(3)
+    mit_index['SampleID'] = mit_index["PatientID"].astype(str) + "_" + mit_index['SampleNumber'].astype(str).str.zfill(4)
 
 # SampleID is local file name
 # PatientID is TCIA ID
@@ -84,14 +83,14 @@ id_map.index = mit_index["PatientID"]
 id_map.drop_duplicates(inplace=True)
 
 # Map the SampleIDs to the clinical data and add as a column for intersection
-clinical_data['SampleID'] = clinical_data['PatientID'].map(id_map)
+clinical_data['SampleID'] = clinical_data[clinical_pat_id].map(id_map)
 clinical_data.set_index('SampleID', inplace=True)
 
-
-# ### Set up outcome columns in clinical data
+### Set up outcome columns in clinical data
 clinical_data = eventOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
                                         outcome_column_label=OUTCOME_VARIABLES["event_label"],
                                         standard_column_label="survival_event_binary",
+                                        event_column_value_mapping=OUTCOME_VARIABLES["event_value_mapping"],
                                         )
 clinical_data = timeOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
                                        outcome_column_label=OUTCOME_VARIABLES["time_label"],
@@ -115,7 +114,7 @@ for image_type in image_types:
     clinical_data, pyrad_subset = getPatientIntersectionDataframes(clinical_data, raw_feature_data, need_pat_index_A=False, need_pat_index_B=False)
 
     # ## Get just features in radiomic signature
-    signature_feature_data = raw_feature_data[radiomic_signature.index]
+    signature_feature_data = pyrad_subset[radiomic_signature.index]
 
     # # Prediction Modelling with existing signature weights
     feature_hazards = signature_feature_data.dot(radiomic_signature)
@@ -153,10 +152,10 @@ for image_type in image_types:
     lower_confidence_interval = sorted(sampled_cindex_bootstrap)[bootstrap_count // 4 - 1]
     upper_confidence_interval = sorted(sampled_cindex_bootstrap)[bootstrap_count - (bootstrap_count // 4)]
 
-    performance_results = performance_results + [[image_type, cindex, lower_confidence_interval, upper_confidence_interval]]
+    performance_results = performance_results + [[DATASET_NAME, image_type, cindex, lower_confidence_interval, upper_confidence_interval]]
 
-performance_df = pd.DataFrame(performance_results, columns=["Image Type", "C-index", "Lower CI", "Upper CI"])
-performance_df.sort_values(by=["ID"], inplace=True)
+performance_df = pd.DataFrame(performance_results, columns=["Dataset", "Image_Type", "C-index", "Lower CI", "Upper CI"])
+performance_df.sort_values(by=["Image_Type"], inplace=True)
 performance_df.to_csv(RESULTS_DATA_PATH / "signature_performance" / f"{signature_name}.csv", index=False)
 
 
