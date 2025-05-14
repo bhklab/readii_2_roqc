@@ -17,7 +17,7 @@ ipython = "*"
 ipykernel = "*"
 jupyterlab = "*"
 pip = "*"
-numpy = ">=1.26.4e,<2"
+numpy = ">=2.2.5,<3"
 scikit-learn = ">=1.6.1,<2"
 scikit-survival = ">=0.24.1,<0.25"
 r = ">=4.4,<4.5"
@@ -28,7 +28,7 @@ r-yaml = ">=2.3.10,<3"
 openpyxl = ">=3.1.5,<4"
 
 [pypi-dependencies]
-readii = ">=1.35.0, <2"
+readii = ">=1.35.1, <2"
 
 [target.linux-64.dependencies]
 bioconductor-survcomp = ">=1.56.0,<2"
