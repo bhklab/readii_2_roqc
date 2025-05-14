@@ -21,10 +21,11 @@ Validation: HN1, RADCURE-test
 Train: RADCURE-train
 Validation: HN1, RADCURE-test
 
-### r2r
+### r2r_NSCLC
 Train: NSCLC-Radiomics
 Validation: HN1, RADCURE-test
 
+### r2r_RADCURE
 Train: RADCURE-train
 Validation: HN1, RADCURE-test
 
