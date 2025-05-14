@@ -43,3 +43,41 @@
 
 * HN1 - going to make a SampleID column in the mit2_index 
 * Rerunning all the MIT and feature extraction
+
+
+## Manuscript Notes
+[2025-05-14] Manuscript Review Feedback Notes
+
+**Introduction/Background**
+
+- [ ] Paragraph around biological/clinical application of radiomics (why do we do it?)
+- [ ] Literature review for other quality control methods for radiomics
+
+**Methods**
+
+- [ ] Add prediction of HPV status model
+- [ ] Include section about saving out the negative control images
+- [ ] Explain modular implementation of the negative controls such that users can construct their own
+- [ ] Add ability to save out the changed mask from the contraction/expansion NCs
+- [ ] Look for synonyms for transformation
+    * Intensity transformation?
+- [ ] Sisira asked for an example of the RadiomicSet data to understand what it looks like
+
+
+**Results**
+
+- [X] Josh liked the new abstract figure more
+- [ ] Get p-value calculation code from Caryn
+- [ ] Save out bootstrap hazards so they don't get recalculated
+- [ ] Keep the diagonal self-correlation plots, will go in supplemental
+- [ ] Calculate and plot average correlations between clusters of features (shape vs. first order)
+- [ ] Hierarchical clustering between the feature class clusters
+- [ ] Correlation plot of the Aerts signature + volume features
+- [ ] Compare distribution of correlation values in a line plot
+    * Line for each image type
+    * x-axis is the feature types, colourblock behind the plot for each imagetype
+- [ ] Plot correlations with outcome before and after QC
+ 
+*Plots*
+- [ ] Box plot of hazards for each image type and dataset to compare
+
