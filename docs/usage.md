@@ -20,12 +20,16 @@
 
 `EXCLUSION_VARIABLES`: `{column_name: [val1, val2]}` - column values of rows to drop in the clinical data 
 
-`TRAIN_TEST_SPLIT`:
-    `split`: False
-    `split_variable`: {}
-    `impute`: null
+`TRAIN_TEST_SPLIT`: 
+    `split`: False - whether to apply a train test split to the data
+    `split_variable`: `{split_label: ['train', 'test']}` - what column to use to split the data, and what values each of the subsets should have
+    `impute`: null - value to impute any missing values in `split_variable` with so that all the data is categorized
 
-TODO:: discuss how to edit the configuration files in the `config/` directory to match your research parameters
+## `pyradiomics`
+
+PyRadiomics feature extraction settings yaml files should be kept here. See the PyRadiomics ['Parameter File'](https://pyradiomics.readthedocs.io/en/latest/customization.html#parameter-file) documentation for details about this file.
+
+## Data Setup
 
 TODO:: discuss how to add your input data to the `data/rawdata/` directory and document it properly in the `docs/data_sources/` directory
 
