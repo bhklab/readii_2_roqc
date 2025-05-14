@@ -19,4 +19,4 @@ EXCLUSION_VARIABLES: {}
 TRAIN_TEST_SPLIT:
     split: False
     split_variable: {}
-    impute:
+    impute: null
