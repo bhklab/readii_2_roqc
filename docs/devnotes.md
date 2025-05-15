@@ -138,3 +138,19 @@ data
                 |-- {neg_control_region}_{neg_control_permutation}_features.csv
                 `-- {neg_control_region}_{neg_control_permutation}_features.csv
 ```
+
+```bash
+workflow
+|-- notebooks
+`-- scripts
+    |-- analysis
+    |   `-- predictive_signature_testing.py
+    |-- feature_extraction
+    |   `-- pyradiomics_index.py
+    |-- orcestra
+    |   `-- read_radiomicset.r
+    |-- mit
+    |   `-- run_autopipeline.sh
+    `-- readii
+        `-- run_readii.py
+```
