@@ -34,6 +34,9 @@ extra:
     homepage: https://bhklab.github.io/readii_2_roqc
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.tasklist:
       custom_checkbox: false
       clickable_checkbox: true
+  - pymdownx.superfences
