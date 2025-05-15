@@ -79,5 +79,62 @@
 - [ ] Plot correlations with outcome before and after QC
  
 *Plots*
+
 - [ ] Box plot of hazards for each image type and dataset to compare
 
+
+## Project Repo Organization Notes
+
+#### [2025-05-14] data and workflow organization
+
+```bash
+data
+|-- procdata
+|   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/procdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
+|       |-- correlations
+|       |-- features
+|       |   `-- {extraction_method}
+|       |       `-- {extraction_configuration_file_name}
+|       |           `-- {PatientID}_{SampleNumber}
+|       |               `-- {ROI_name}
+|       |                   |-- full_original_features.csv
+|       |                   |-- {neg_control_region}_{neg_control_permutation}_features.csv
+|       |                   `-- {neg_control_region}_{neg_control_permutation}_features.csv
+|       |-- images
+|       |   |-- mit_{DATASET_NAME}
+|       |   |   `-- {PatientID}_{SampleNumber}
+|       |   |       |-- {ImageModality}_{SeriesInstanceUID}
+|       |   |       |   `-- {ImageModality}.nii.gz
+|       |   |       `-- {SegmentationModality}_{SeriesInstanceUID}
+|       |   |           `-- {ROI_name}.nii.gz
+|       |   `-- readii_{DATASET_NAME}
+|       |       `-- {PatientID}_{SampleNumber}
+|       |           `-- {ImageModality}_{SeriesInstanceUID}
+|       |               |-- {neg_control_region}_{neg_control_permutation}.nii.gz
+|       |               `-- {neg_control_region}_{neg_control_permutation}.nii.gz
+|       `-- signatures
+|           `-- {signature_name}
+|               |-- full_original_signature_features.csv
+|               `-- {neg_control_region}_{neg_control_permutation}_signature_features.csv
+|-- rawdata
+|   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/srcdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
+|       |-- clinical
+|       |   `-- {Clinical Data File}.csv OR {Clinical Data File}.xlsx
+|       `-- images
+|           `-- {DATASET_NAME}
+|               |-- {Sample1 DICOM directory}
+|               |-- {Sample2 DICOM directory}
+|               |-- ...
+|               `-- {SampleN DICOM directory}
+`-- results
+    `-- {DATASET_SOURCE}_{DATASET_NAME}
+        |-- correlation_figures
+        |-- features
+        |   `-- {extraction_method}
+        |       `-- {extraction_configuration_file_name}        
+        `-- signature_performance
+            `-- {signature_name}.csv
+                |-- full_original_features.csv
+                |-- {neg_control_region}_{neg_control_permutation}_features.csv
+                `-- {neg_control_region}_{neg_control_permutation}_features.csv
+```
