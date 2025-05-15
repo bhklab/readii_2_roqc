@@ -144,7 +144,11 @@ workflow
 |-- notebooks
 `-- scripts
     |-- analysis
-    |   `-- predictive_signature_testing.py
+    |   |-- python
+    |   |   `-- predictive_signature_testing.py
+    |   `-- r
+    |       |-- io.r
+    |       `-- survival_prediction.r
     |-- feature_extraction
     |   `-- pyradiomics_index.py
     |-- orcestra
