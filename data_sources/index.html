@@ -50,27 +50,19 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Data Sources</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#cc-radiomics-phantom">CC-Radiomics-Phantom</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#nsclc-radiomics">NSCLC-Radiomics</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#radcure">RADCURE</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#how-to-document-your-data">How to Document Your Data</a>
+    <li class="toctree-l2"><a class="reference internal" href="#external-data-sources">External Data Sources</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#1-external-data-sources">1. External Data Sources</a>
+    <li class="toctree-l3"><a class="reference internal" href="#cc-radiomics-phantom">CC-Radiomics-Phantom</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2-internalgenerated-data">2. Internal/Generated Data</a>
+    <li class="toctree-l3"><a class="reference internal" href="#nsclc-radiomics">NSCLC-Radiomics</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#3-data-dictionary">3. Data Dictionary</a>
+    <li class="toctree-l3"><a class="reference internal" href="#head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#radcure">RADCURE</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a>
+    <li class="toctree-l2"><a class="reference internal" href="#internalgenerated-data">Internal/Generated Data</a>
     </li>
     </ul>
                 </li>
@@ -104,7 +96,9 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="data-sources">Data Sources</h1>
-<h2 id="cc-radiomics-phantom">CC-Radiomics-Phantom</h2>
+<p>This section documents all data sources used in READII-2-ROQC.</p>
+<h2 id="external-data-sources">External Data Sources</h2>
+<h3 id="cc-radiomics-phantom">CC-Radiomics-Phantom</h3>
 <ul>
 <li><strong>Name</strong>: Credence Cartridge Radiomics Phantom CT Scans</li>
 <li><strong>Version/Date</strong>: Version 1: Updated 2017/07/28</li>
@@ -120,7 +114,7 @@
 </li>
 <li><strong>Sample Size</strong>: 17 subjects</li>
 </ul>
-<h2 id="nsclc-radiomics">NSCLC-Radiomics</h2>
+<h3 id="nsclc-radiomics">NSCLC-Radiomics</h3>
 <ul>
 <li><strong>Name</strong>: NSCLC-Radiomics (or Lung1)</li>
 <li><strong>Version/Date</strong>: Version 4: Updated 2020/10/22</li>
@@ -139,7 +133,7 @@
 <li><strong>ROI Name</strong>: Tumour = GTV-1</li>
 <li><strong>Notes</strong>: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.</li>
 </ul>
-<h2 id="head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</h2>
+<h3 id="head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</h3>
 <ul>
 <li><strong>Name</strong>: HEAD-NECK-RADIOMICS-HN1 (or H&amp;N1)</li>
 <li><strong>Version/Date</strong>: Version 3: Updated 2020/07/29</li>
@@ -161,7 +155,7 @@
 <li><strong>Sample Size</strong>: 137 subjects</li>
 <li><strong>ROI Name</strong>: Tumour = GTV-1</li>
 </ul>
-<h2 id="radcure">RADCURE</h2>
+<h3 id="radcure">RADCURE</h3>
 <ul>
 <li><strong>Name</strong>: RADCURE</li>
 <li><strong>Version/Date</strong>: Clinical: Version 4: Updated 2024/12/19 / Images: Version 3: Updated 2024/03/27</li>
@@ -184,95 +178,19 @@
 <li><strong>ROI Name</strong>: Tumour = GTVp$ (regex to just get first primary tumour)</li>
 </ul>
 <hr />
-<h2 id="overview">Overview</h2>
-<p>This section should document all data sources used in your project.
-Proper documentation ensures reproducibility and helps others
-understand your research methodology.</p>
-<h2 id="how-to-document-your-data">How to Document Your Data</h2>
-<p>For each data source, include the following information:</p>
-<h3 id="1-external-data-sources">1. External Data Sources</h3>
-<ul>
-<li><strong>Name</strong>: Official name of the dataset</li>
-<li><strong>Version/Date</strong>: Version number or access date</li>
-<li><strong>URL</strong>: Link to the data source</li>
-<li><strong>Access Method</strong>: How the data was obtained (direct download, API, etc.)</li>
-<li><strong>Access Date</strong>: When the data was accessed/retrieved</li>
-<li><strong>Data Format</strong>: Format of the data (FASTQ, DICOM, CSV, etc.)</li>
-<li><strong>Citation</strong>: Proper academic citation if applicable</li>
-<li><strong>License</strong>: Usage restrictions and attribution requirements</li>
-</ul>
-<p>Example:</p>
-<pre><code class="language-markdown">## TCGA RNA-Seq Data
+<h2 id="internalgenerated-data">Internal/Generated Data</h2>
+<p>-- </p>
+<!--
+### Data Dictionary
 
-- **Name**: The Cancer Genome Atlas RNA-Seq Data
-- **Version**: Data release 28.0 - March 2021
-- **URL**: https://portal.gdc.cancer.gov/
-- **Access Method**: GDC Data Transfer Tool
-- **Access Date**: 2021-03-15
-- **Citation**: The Cancer Genome Atlas Network. (2012). Comprehensive molecular portraits of human breast tumours. Nature, 490(7418), 61-70.
-- **License**: [NIH Genomic Data Sharing Policy](https://sharing.nih.gov/genomic-data-sharing-policy)
-</code></pre>
-<h3 id="2-internalgenerated-data">2. Internal/Generated Data</h3>
-<ul>
-<li><strong>Name</strong>: Descriptive name of the dataset</li>
-<li><strong>Creation Date</strong>: When the data was generated</li>
-<li><strong>Creation Method</strong>: Brief description of how the data was created</li>
-<li><strong>Input Data</strong>: What source data was used</li>
-<li><strong>Processing Scripts</strong>: References to scripts/Github Repo used to generate this data</li>
-</ul>
-<p>Example:</p>
-<pre><code class="language-markdown">## Processed RNA-Seq Data
-- **Name**: Processed RNA-Seq Data for TCGA-BRCA
-- **Creation Date**: 2021-04-01
-- **Creation Method**: Processed using kallisto and DESeq2
-- **Input Data**: FASTQ Data obtained from the SRA database
-- **Processing Scripts**: [GitHub Repo](https://github.com/tcga-brca-rnaseq)
-</code></pre>
-<h3 id="3-data-dictionary">3. Data Dictionary</h3>
-<p>For complex datasets, include a data dictionary that explains:</p>
-<table>
-<thead>
-<tr>
-<th>Column Name</th>
-<th>Data Type</th>
-<th>Description</th>
-<th>Units</th>
-<th>Possible Values</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>patient_id</td>
-<td>string</td>
-<td>Unique patient identifier</td>
-<td>N/A</td>
-<td>TCGA-XX-XXXX format</td>
-</tr>
-<tr>
-<td>age</td>
-<td>integer</td>
-<td>Patient age at diagnosis</td>
-<td>years</td>
-<td>18-100</td>
-</tr>
-<tr>
-<td>expression</td>
-<td>float</td>
-<td>Gene expression value</td>
-<td>TPM</td>
-<td>Any positive value</td>
-</tr>
-</tbody>
-</table>
-<h2 id="best-practices">Best Practices</h2>
-<ul>
-<li>Store raw data in <code>data/rawdata/</code> and never modify it</li>
-<li>Store processed data in <code>data/procdata/</code> and all code used to generate it should be in <code>workflow/scripts/</code></li>
-<li>Document all processing steps</li>
-<li>Track data provenance (where data came from and how it was modified)</li>
-<li>Respect data usage agreements and licenses!
-    This is especially important for data that should not be shared publicly</li>
-</ul>
+For complex datasets, include a data dictionary that explains:
+
+| Column Name | Data Type | Description | Units | Possible Values |
+|-------------|-----------|-------------|-------|-----------------|
+| patient_id  | string    | Unique patient identifier | N/A | TCGA-XX-XXXX format |
+| age         | integer   | Patient age at diagnosis | years | 18-100 |
+| expression  | float     | Gene expression value | TPM | Any positive value |
+-->
               
             </div>
           </div><footer>

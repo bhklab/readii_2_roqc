@@ -55,8 +55,28 @@
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Developer Notes</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#data-processing-notes">Data Processing Notes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-05-pyradiomics-original_all_features-extraction-tracking">[2025-05-05] PyRadiomics original_all_features extraction tracking</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-07-updated-with-completed-hn1-runs">[2025-05-07] Updated with completed HN1 runs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-12-tracking-extraction-of-all-features-for-aerts-signature">[2025-05-12] Tracking extraction of all features for Aerts signature</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-13-processing-data-for-signature-prediction-models">[2025-05-13] Processing data for signature prediction models</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#manuscript-notes">Manuscript Notes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-14-manuscript-review-feedback-notes">[2025-05-14] Manuscript Review Feedback Notes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#project-repo-organization-notes">Project Repo Organization Notes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-14-data-and-workflow-organization">[2025-05-14] data and workflow organization</a>
+    </li>
+        </ul>
     </li>
     </ul>
                 </li>
@@ -87,8 +107,8 @@
               
                 <h1 id="developer-notes">Developer Notes</h1>
 <h2 id="data-processing-notes">Data Processing Notes</h2>
-<p>[2025-05-05] PyRadiomics original_all_features extraction tracking
-[2025-05-07] Updated with completed HN1 runs</p>
+<h4 id="2025-05-05-pyradiomics-original_all_features-extraction-tracking">[2025-05-05] PyRadiomics original_all_features extraction tracking</h4>
+<h4 id="2025-05-07-updated-with-completed-hn1-runs">[2025-05-07] Updated with completed HN1 runs</h4>
 <table>
 <thead>
 <tr>
@@ -161,8 +181,8 @@
 </tr>
 </tbody>
 </table>
-<p>[2025-05-12] Tracking extraction of all features for Aerts signature
-|Feature / Dataset                        | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE |
+<h4 id="2025-05-12-tracking-extraction-of-all-features-for-aerts-signature">[2025-05-12] Tracking extraction of all features for Aerts signature</h4>
+<p>|Feature / Dataset                        | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE |
 |original_firstorder_Energy               |             X           |        X        |    X    |
 |original_shape_Compactness1              |             X           |        X        |    X    |
 |original_glrlm_GrayLevelNonUniformity    |             X           |        X        |    X    |
@@ -173,10 +193,14 @@
 <li>tried the scikit-survival implementation of the concordance index with bootstrapping, but results don't match Mattea's exactly</li>
 <li>trying with R now</li>
 </ul>
-<p>[2025-05-13] Processing data for signature prediction models
-* Since RADCURE was processed with old med-imagetools, manually set up mit_index from dataset.csv
-    * Change the column <code>patient_ID</code> to <code>PatientID</code>
-    * Add index column label <code>SampleID</code></p>
+<h4 id="2025-05-13-processing-data-for-signature-prediction-models">[2025-05-13] Processing data for signature prediction models</h4>
+<ul>
+<li>Since RADCURE was processed with old med-imagetools, manually set up mit_index from dataset.csv<ul>
+<li>Change the column <code>patient_ID</code> to <code>PatientID</code></li>
+<li>Add index column label <code>SampleID</code></li>
+</ul>
+</li>
+</ul>
 <p>|File / Dataset       | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE             |
 | clinical            | id                      | PatientID       | patient_id          |
 | mit index file      | SampleID, PatientID     | PatientID       | SampleID, PatientID |
@@ -186,42 +210,110 @@
 <li>Rerunning all the MIT and feature extraction</li>
 </ul>
 <h2 id="manuscript-notes">Manuscript Notes</h2>
-<p>[2025-05-14] Manuscript Review Feedback Notes</p>
+<h4 id="2025-05-14-manuscript-review-feedback-notes">[2025-05-14] Manuscript Review Feedback Notes</h4>
 <p><strong>Introduction/Background</strong></p>
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Paragraph around biological/clinical application of radiomics (why do we do it?)</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Literature review for other quality control methods for radiomics</li>
+<li class="task-list-item"><input type="checkbox"/> Paragraph around biological/clinical application of radiomics (why do we do it?)</li>
+<li class="task-list-item"><input type="checkbox"/> Literature review for other quality control methods for radiomics</li>
 </ul>
 <p><strong>Methods</strong></p>
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Add prediction of HPV status model</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Include section about saving out the negative control images</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Explain modular implementation of the negative controls such that users can construct their own</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Add ability to save out the changed mask from the contraction/expansion NCs</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Look for synonyms for transformation<ul>
-<li>Intensity transformation?</li>
+<li class="task-list-item"><input type="checkbox"/> Add prediction of HPV status model</li>
+<li class="task-list-item"><input type="checkbox"/> Include section about saving out the negative control images</li>
+<li class="task-list-item"><input type="checkbox"/> Explain modular implementation of the negative controls such that users can construct their own</li>
+<li class="task-list-item"><input type="checkbox"/> Add ability to save out the changed mask from the contraction/expansion NCs</li>
+<li class="task-list-item"><input type="checkbox" checked/> Look for synonyms for transformation<ul>
+<li>Intensity transformation? --&gt; permutation?</li>
 </ul>
 </li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Sisira asked for an example of the RadiomicSet data to understand what it looks like</li>
+<li class="task-list-item"><input type="checkbox"/> Sisira asked for an example of the RadiomicSet data to understand what it looks like</li>
 </ul>
 <p><strong>Results</strong></p>
 <ul class="task-list">
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> Josh liked the new abstract figure more</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Get p-value calculation code from Caryn</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Save out bootstrap hazards so they don't get recalculated</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Keep the diagonal self-correlation plots, will go in supplemental</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Calculate and plot average correlations between clusters of features (shape vs. first order)</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Hierarchical clustering between the feature class clusters</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Correlation plot of the Aerts signature + volume features</li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Compare distribution of correlation values in a line plot<ul>
+<li class="task-list-item"><input type="checkbox" checked/> Josh liked the new abstract figure more</li>
+<li class="task-list-item"><input type="checkbox"/> Get p-value calculation code from Caryn</li>
+<li class="task-list-item"><input type="checkbox"/> Save out bootstrap hazards so they don't get recalculated</li>
+<li class="task-list-item"><input type="checkbox"/> Keep the diagonal self-correlation plots, will go in supplemental</li>
+<li class="task-list-item"><input type="checkbox"/> Calculate and plot average correlations between clusters of features (shape vs. first order)</li>
+<li class="task-list-item"><input type="checkbox"/> Hierarchical clustering between the feature class clusters</li>
+<li class="task-list-item"><input type="checkbox"/> Correlation plot of the Aerts signature + volume features</li>
+<li class="task-list-item"><input type="checkbox"/> Compare distribution of correlation values in a line plot<ul>
 <li>Line for each image type</li>
 <li>x-axis is the feature types, colourblock behind the plot for each imagetype</li>
 </ul>
 </li>
-<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Plot correlations with outcome before and after QC</li>
+<li class="task-list-item"><input type="checkbox"/> Plot correlations with outcome before and after QC</li>
 </ul>
-<p><em>Plots</em>
-- [ ] Box plot of hazards for each image type and dataset to compare</p>
+<p><em>Plots</em></p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox"/> Box plot of hazards for each image type and dataset to compare</li>
+</ul>
+<h2 id="project-repo-organization-notes">Project Repo Organization Notes</h2>
+<h4 id="2025-05-14-data-and-workflow-organization">[2025-05-14] data and workflow organization</h4>
+<div class="highlight"><pre><span></span><code>data
+<span class="p">|</span>--<span class="w"> </span>procdata
+<span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>correlations
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>features
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>images
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span>mit_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>SegmentationModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>readii_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span>signatures
+<span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span>full_original_signature_features.csv
+<span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_signature_features.csv
+<span class="p">|</span>--<span class="w"> </span>rawdata
+<span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/srcdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>clinical
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>Clinical<span class="w"> </span>Data<span class="w"> </span>File<span class="o">}</span>.csv<span class="w"> </span>OR<span class="w"> </span><span class="o">{</span>Clinical<span class="w"> </span>Data<span class="w"> </span>File<span class="o">}</span>.xlsx
+<span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span>images
+<span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>Sample1<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>Sample2<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span>...
+<span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>SampleN<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
+<span class="sb">`</span>--<span class="w"> </span>results
+<span class="w">    </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="w">        </span><span class="p">|</span>--<span class="w"> </span>correlation_figures
+<span class="w">        </span><span class="p">|</span>--<span class="w"> </span>features
+<span class="w">        </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="w">        </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span><span class="w">        </span>
+<span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>signature_performance
+<span class="w">            </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>.csv
+<span class="w">                </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
+<span class="w">                </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="w">                </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>workflow
+<span class="p">|</span>--<span class="w"> </span>notebooks
+<span class="sb">`</span>--<span class="w"> </span>scripts
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>analysis
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>predictive_signature_testing.py
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>feature_extraction
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>pyradiomics_index.py
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>orcestra
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>read_radiomicset.r
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>mit
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>run_autopipeline.sh
+<span class="w">    </span><span class="sb">`</span>--<span class="w"> </span>readii
+<span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>run_readii.py
+</code></pre></div>
               
             </div>
           </div><footer>

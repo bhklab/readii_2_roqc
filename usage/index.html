@@ -47,6 +47,30 @@
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Usage</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#project-configuration">Project Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#datasets">datasets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#extraction">extraction</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#pyradiomics">PyRadiomics</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#signatures">signatures</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-setup">Data Setup</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#aliasing-rawdata-and-procdata">Aliasing rawdata and procdata</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#documenting-datasets">Documenting datasets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#project-data-directory-tree">Project data Directory Tree</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#running-your-analysis">Running Your Analysis</a>
     </li>
@@ -105,22 +129,153 @@
               
                 <h1 id="usage-guide">Usage Guide</h1>
 <h2 id="project-configuration">Project Configuration</h2>
-<p>TODO:: discuss how to edit the configuration files in the <code>config/</code> directory to match your research parameters</p>
-<p>TODO:: discuss how to add your input data to the <code>data/rawdata/</code> directory and document it properly in the <code>docs/data_sources/</code> directory</p>
-<p>TODO:: discuss how to manage and organize your data sources effectively</p>
+<p><code>config</code> should have three subdirectories: <code>datasets/</code>, <code>extraction/</code>, and <code>signatures/</code></p>
+<h3 id="datasets">datasets</h3>
+<p>Each dataset needs a configuration file with the following settings filled in</p>
+<div class="highlight"><pre><span></span><code>`DATA_SOURCE` - where the data came from, will be used for data organization
+`DATASET_NAME` - the name of the dataset , will be use for data organization
+
+`MIT_INDEX_FILE` - name of the Med-ImageTools index file output by autopipeline when run on the image data.
+
+`CLINICAL_FILE` - name of the clinical data file associated with the data. Not a full path, just the name including the file suffix.
+`OUTCOME_VARIABLES`:
+    `time_label`: &quot;overall_survival_in_days&quot; - column name for survival time in the `CLINICAL_FILE`
+    `event_label`: &quot;event_overall_survival&quot; - column name for survival event in the `CLINICAL_FILE`
+    `convert_to_years`: True - boolean, whether the `time_label` needs to be converted from days to years
+    `event_value_mapping`: `{int: string | bool}` - if `event_label` values are not numeric, a dictionary can be provided to map the boolean or string to numbers. Ex: `{0: &quot;Alive&quot;, 1: &quot;Dead&quot;}`
+
+`EXCLUSION_VARIABLES`: `{column_name: [val1, val2]}` - column values of rows to drop in the clinical data 
+
+`TRAIN_TEST_SPLIT`: 
+    `split`: False - whether to apply a train test split to the data
+    `split_variable`: `{split_label: [&#39;train&#39;, &#39;test&#39;]}` - what column to use to split the data, and what values each of the subsets should have
+    `impute`: null - value to impute any missing values in `split_variable` with so that all the data is categorized
+</code></pre></div>
+<h3 id="extraction">extraction</h3>
+<p>This directory should store any configuration settings used for feature extraction. They should be named/organized by the feature extraction method.</p>
+<p>Example: <code>pyradiomics_original_all_features.yaml</code></p>
+<p>Different configuration set-ups can be documented here.</p>
+<h4 id="pyradiomics">PyRadiomics</h4>
+<p>PyRadiomics feature extraction settings yaml files should be kept here. See the PyRadiomics <a href="https://pyradiomics.readthedocs.io/en/latest/customization.html#parameter-file">'Parameter File'</a> documentation for details about this file.</p>
+<h3 id="signatures">signatures</h3>
+<p>Files in this directory should list selected features in a radiomic signature and the corresponding weights from a fitted prediction model. </p>
+<div class="admonition example">
+<p class="admonition-title">PyRadiomics CoxPH signature</p>
+<div class="highlight"><pre><span></span><code>signature:
+    &#39;original_firstorder_Energy&#39;: 1.74e-11
+    &#39;original_shape_Compactness1&#39;: -1.65e+01
+    &#39;original_glrlm_GrayLevelNonUniformity&#39;: 4.95e-05
+    &#39;wavelet-HLH_glrlm_GrayLevelNonUniformity&#39;: 2.81e-06
+</code></pre></div>
+</div>
+<hr />
+<h2 id="data-setup">Data Setup</h2>
+<p>All data should be stored in a Data directory separate from this project directory. Within the project repo, there's a <code>data</code> directory containing <code>rawdata</code>, <code>procdata</code>, and <code>results</code> directories. The <code>rawdata</code> and <code>procdata</code> directories should by <strong>symbolic links</strong> pointing to the corresponding data directory in your separate Data directory.</p>
+<h3 id="aliasing-rawdata-and-procdata">Aliasing <code>rawdata</code> and <code>procdata</code></h3>
+<p>To set up the symbolic links for the <code>rawdata</code> and <code>procdata</code> directories, run the following commands, starting from your project directory:</p>
+<div class="highlight"><pre><span></span><code>ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/rawdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>data/rawdata/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+
+ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>data/procdata/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You will need to perform this step for each dataset you wish to process with the READII-2-ROQC pipeline.</p>
+</div>
+<h3 id="documenting-datasets">Documenting datasets</h3>
+<p>When a new dataset has been added to the <code>rawdata</code> directory, you <strong>MUST</strong> document it on the <a href="../data_sources/">Data Sources</a> page. </p>
+<p>Copy the following template and fill it in accordingly for each dataset. If anything about the dataset changes, make sure to keep this page up to date.</p>
+<div class="admonition example">
+<p class="admonition-title">Data Source Template</p>
+<div class="highlight"><pre><span></span><code>NSCLC-Radiomics
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Name**</span>: NSCLC-Radiomics (or Lung1)
+<span class="k">-</span><span class="w"> </span><span class="gs">**Version/Date**</span>: Version 4: Updated 2020/10/22
+<span class="k">-</span><span class="w"> </span><span class="gs">**URL**</span>: &lt;https://www.cancerimagingarchive.net/collection/nsclc-radiomics/&gt;
+<span class="k">-</span><span class="w"> </span><span class="gs">**Access Method**</span>: NBIA Data Retriever
+<span class="k">-</span><span class="w"> </span><span class="gs">**Access Date**</span>: 2025-04-23
+<span class="k">-</span><span class="w"> </span><span class="gs">**Data Format**</span>: DICOM
+<span class="k">-</span><span class="w"> </span><span class="gs">**Citation**</span>: Aerts, H. J. W. L., Wee, L., Rios Velazquez, E., Leijenaar, R. T. H., Parmar, C., Grossmann, P., Carvalho, S., Bussink, J., Monshouwer, R., Haibe-Kains, B., Rietveld, D., Hoebers, F., Rietbergen, M. M., Leemans, C. R., Dekker, A., Quackenbush, J., Gillies, R. J., Lambin, P. (2014). Data From NSCLC-Radiomics (version 4) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2015.PF0M9REI 
+<span class="k">-</span><span class="w"> </span><span class="gs">**License**</span>: [<span class="nt">CC BY-NC 3.0</span>](<span class="na">https://creativecommons.org/licenses/by-nc/3.0/</span>)
+<span class="k">-</span><span class="w"> </span><span class="gs">**Data Types**</span>: 
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>Images: CT, RTSTRUCT
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>Clinical: CSV
+<span class="k">-</span><span class="w"> </span><span class="gs">**Sample Size**</span>: 422 subjects
+<span class="k">-</span><span class="w"> </span><span class="gs">**ROI Name**</span>: Tumour = GTV-1
+<span class="k">-</span><span class="w"> </span><span class="gs">**Notes**</span>: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.
+</code></pre></div>
+</div>
+<h3 id="project-data-directory-tree">Project <code>data</code> Directory Tree</h3>
+<div class="highlight"><pre><span></span><code>data
+<span class="p">|</span>--<span class="w"> </span>procdata
+<span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>correlations
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>features
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>images
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span>mit_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>SegmentationModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>readii_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span>signatures
+<span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span>full_original_signature_features.csv
+<span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_signature_features.csv
+<span class="p">|</span>--<span class="w"> </span>rawdata
+<span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/srcdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>clinical
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>Clinical<span class="w"> </span>Data<span class="w"> </span>File<span class="o">}</span>.csv<span class="w"> </span>OR<span class="w"> </span><span class="o">{</span>Clinical<span class="w"> </span>Data<span class="w"> </span>File<span class="o">}</span>.xlsx
+<span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span>images
+<span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>Sample1<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>Sample2<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
+<span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span>...
+<span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>SampleN<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
+<span class="sb">`</span>--<span class="w"> </span>results
+<span class="w">    </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="w">        </span><span class="p">|</span>--<span class="w"> </span>correlation_figures
+<span class="w">        </span><span class="p">|</span>--<span class="w"> </span>features
+<span class="w">        </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="w">        </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span><span class="w">        </span>
+<span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>signature_performance
+<span class="w">            </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>.csv
+<span class="w">                </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
+<span class="w">                </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="w">                </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+</code></pre></div>
+<h3 id="best-practices">Best Practices</h3>
+<ul>
+<li>Store raw data in <code>data/rawdata/</code> and never modify it</li>
+<li>Store processed data in <code>data/procdata/</code> and all code used to generate it should be in <code>workflow/scripts/</code></li>
+<li>Track data provenance (where data came from and how it was modified)</li>
+<li>Respect data usage agreements and licenses!
+    This is especially important for data that should not be shared publicly</li>
+</ul>
 <h2 id="running-your-analysis">Running Your Analysis</h2>
 <h2 id="data-splitting">Data splitting</h2>
 <h3 id="aerts_original">aerts_original</h3>
-<p>Train: NSCLC-Radiomics
+<p>Train: NSCLC-Radiomics<br />
 Validation: HN1, RADCURE-test</p>
 <h3 id="aerts_radcure_refit">aerts_RADCURE_refit</h3>
-<p>Train: RADCURE-train
+<p>Train: RADCURE-train<br />
 Validation: HN1, RADCURE-test</p>
 <h3 id="r2r_nsclc">r2r_NSCLC</h3>
-<p>Train: NSCLC-Radiomics
+<p>Train: NSCLC-Radiomics<br />
 Validation: HN1, RADCURE-test</p>
 <h3 id="r2r_radcure">r2r_RADCURE</h3>
-<p>Train: RADCURE-train
+<p>Train: RADCURE-train<br />
 Validation: HN1, RADCURE-test</p>
 <h2 id="survival-modelling">Survival Modelling</h2>
 <h3 id="resources">Resources</h3>
