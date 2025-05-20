@@ -44,6 +44,9 @@ readii = ">=1.35.1, <2"
 [target.linux-64.dependencies]
 bioconductor-survcomp = ">=1.56.0,<2"
 
+[tasks]
+example_script = {cmd="python $SCRIPTS/example_script.py"}
+
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
 [feature.quality.dependencies]
