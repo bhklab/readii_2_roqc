@@ -1,0 +1,36 @@
+from damply import dirs as dmpdirs
+
+
+# could alternatively pass this in the CLI via `--configfile $CONFIG/config.yaml`
+# configfile: dmpdirs.CONFIG / "config.yaml"
+
+# print(config)
+# would print:
+# {'DATASET_NAME': 'BHK-Snakemake', 'MODALITIES': ['image', 'text']}
+
+rule all:
+    input:
+        dmpdirs.RESULTS / config["DATASET_NAME"] / "all_results.txt",
+    
+
+rule collect_files:
+    input:
+        expand(
+            dmpdirs.PROCDATA / config["DATASET_NAME"] / "{file_num}.txt",
+            file_num=[f"{i:02d}" for i in range(1, 11)] # 01...10
+        )
+    output:
+        dmpdirs.RESULTS / config["DATASET_NAME"] / "all_results.txt"
+    shell:
+        """
+        cat {input} > {output}
+        """
+
+rule create_numbered_file:
+    output:
+        dmpdirs.PROCDATA / config["DATASET_NAME"] / "{file_num}.txt"
+    params:
+        modalities = ",".join(config["MODALITIES"])
+    shell:
+        """
+        echo "This is a file with number {wildcards.file_num} and modalities: {params.modalities}" > {output}
