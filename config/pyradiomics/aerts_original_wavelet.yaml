@@ -1,0 +1,15 @@
+imageType:
+    Original: {}
+    Wavelet: {}
+
+featureClass:
+    shape:
+        - Compactness1
+    firstorder:
+        - Energy
+    glrlm:
+        - GrayLevelNonUniformity
+
+setting:
+    binWidth: 25
+    resampledPixelSpacing: [1., 1., 1.]

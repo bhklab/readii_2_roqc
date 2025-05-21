@@ -22,7 +22,8 @@ nav:
   - Home: index.md
   - Usage: usage.md
   - Data Sources: data_sources.md
-  - Developer Notes: devnotes.md
+  - Katy's Notes: devnotes/katy_notes.md
+  - Shabnam's Notes: devnotes/shabnam_notes.md
 
 theme: readthedocs
 
