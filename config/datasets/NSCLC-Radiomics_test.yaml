@@ -1,0 +1,35 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "NSCLC-Radiomics_test"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: ""
+    OUTCOME_VARIABLES:
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
+        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}
+
+### MED-IMAGETOOLS settings
+MIT:
+    #COMMAND: "imgtools autopipeline ~/bhklab/radiomics/PublicDatasets/srcdata/HeadNeck/TCIA_HEAD-NECK-RADIOMICS-HN1/images/HEAD-NECK-RADIOMICS-HN1/unzipped/ ~/bhklab/radiomics/PublicDatasets/procdata/HeadNeck/TCIA_HEAD-NECK-RADIOMICS-HN1/mit2_HEAD-NECK-RADIOMICS-HN1 --modalities \"CT,RTSTRUCT\" -rmap \"GTV:GTV-1\" --roi-strategy MERGE --update-crawl -f {PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz"
+    ROI_MATCH_MAP:
+        GTV:GTV-1
+    MODALITIES: CT,RTSTRUCT
+    INDEX_FILE: "mit_NSCLC-Radiomics_test_index.csv"
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+        permutations:
+            - "original"
+        crop:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
+
+RANDOM_SEED: 10
