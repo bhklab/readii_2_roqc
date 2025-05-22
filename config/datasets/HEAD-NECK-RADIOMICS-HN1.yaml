@@ -15,7 +15,7 @@ CLINICAL:
 MIT:
     #COMMAND: "imgtools autopipeline ~/bhklab/radiomics/PublicDatasets/srcdata/HeadNeck/TCIA_HEAD-NECK-RADIOMICS-HN1/images/HEAD-NECK-RADIOMICS-HN1/unzipped/ ~/bhklab/radiomics/PublicDatasets/procdata/HeadNeck/TCIA_HEAD-NECK-RADIOMICS-HN1/mit2_HEAD-NECK-RADIOMICS-HN1 --modalities \"CT,RTSTRUCT\" -rmap \"GTV:GTV-1\" --roi-strategy MERGE --update-crawl -f {PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz"
     ROI_MATCH_MAP:
-        GTV: GTV-1
+        GTV:GTV-1
     MODALITIES: CT,RTSTRUCT
     INDEX_FILE: "mit2_HEAD-NECK-RADIOMICS-HN1_index.csv"
 
