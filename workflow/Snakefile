@@ -1,36 +1,32 @@
 from damply import dirs as dmpdirs
-
+from pathlib import Path
 
 # could alternatively pass this in the CLI via `--configfile $CONFIG/config.yaml`
-# configfile: dmpdirs.CONFIG / "config.yaml"
+configfile: dmpdirs.CONFIG / "datasets" / "HEAD-NECK-RADIOMICS-HN1.yaml"
 
-# print(config)
-# would print:
-# {'DATASET_NAME': 'BHK-Snakemake', 'MODALITIES': ['image', 'text']}
+COMBINED_DATA_NAME = config["DATA_SOURCE"] + "_" + config["DATASET_NAME"]
 
-rule all:
+# print(COMBINED_DATA_NAME)
+
+# rule run_mit_autopipeline:
+#     input:
+#         input_directory=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images" / config["DATASET_NAME"]
+#         output_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}"
+#     output:
+#         output_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" 
+#     shell:
+#         """
+#         imgtools autopipeline 
+#         """   
+
+rule run_mit_index:
     input:
-        dmpdirs.RESULTS / config["DATASET_NAME"] / "all_results.txt",
-    
-
-rule collect_files:
-    input:
-        expand(
-            dmpdirs.PROCDATA / config["DATASET_NAME"] / "{file_num}.txt",
-            file_num=[f"{i:02d}" for i in range(1, 11)] # 01...10
-        )
+        dicom_dir=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images" / config["DATASET_NAME"],
     output:
-        dmpdirs.RESULTS / config["DATASET_NAME"] / "all_results.txt"
-    shell:
-        """
-        cat {input} > {output}
-        """
-
-rule create_numbered_file:
-    output:
-        dmpdirs.PROCDATA / config["DATASET_NAME"] / "{file_num}.txt"
+        directory(dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"])
     params:
-        modalities = ",".join(config["MODALITIES"])
+        dataset_name= config["DATASET_NAME"]
     shell:
         """
-        echo "This is a file with number {wildcards.file_num} and modalities: {params.modalities}" > {output}
+        imgtools index --dicom-dir {input.dicom_dir} --dataset-name {params.dataset_name} --force
+        """
