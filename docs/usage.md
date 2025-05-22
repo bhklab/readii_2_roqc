@@ -8,24 +8,40 @@
 Each dataset needs a configuration file with the following settings filled in
 
 ```
-`DATA_SOURCE` - where the data came from, will be used for data organization
-`DATASET_NAME` - the name of the dataset , will be use for data organization
+DATA_SOURCE: ""    # where the data came from, will be used for data organization
+DATASET_NAME: ""   # the name of the dataset , will be use for data organization
 
-`MIT_INDEX_FILE` - name of the Med-ImageTools index file output by autopipeline when run on the image data.
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: ""                     # Name of the clinical data file associated with the data. Not a full path, just the name including the file suffix.
+    OUTCOME_VARIABLES:
+        time_label: ""           # Column name for survival time in the `FILE`, should be a numeric type
+        event_label: ""          # Column name for survival event in the `FILE`, can be numeric, string, or bool
+        convert_to_years: False  # Boolean, whether the `time_label` needs to be converted from days to years
+        event_value_mapping: {}  # Customize the `event_label` bool or string mapping to numeric type. Should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}      # Column values of rows to drop in the clinical data (Ex. `{column_name: [val1, val2]}` )
 
-`CLINICAL_FILE` - name of the clinical data file associated with the data. Not a full path, just the name including the file suffix.
-`OUTCOME_VARIABLES`:
-    `time_label`: "overall_survival_in_days" - column name for survival time in the `CLINICAL_FILE`
-    `event_label`: "event_overall_survival" - column name for survival event in the `CLINICAL_FILE`
-    `convert_to_years`: True - boolean, whether the `time_label` needs to be converted from days to years
-    `event_value_mapping`: `{int: string | bool}` - if `event_label` values are not numeric, a dictionary can be provided to map the boolean or string to numbers. Ex: `{0: "Alive", 1: "Dead"}`
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: CT,RTSTRUCT     # Modalities to process with autopipeline
+    ROI_STRATEGY: MERGE         # How to handle multiple ROI matches 
+    ROI_MATCH_MAP:              # Matching map for ROIs in dataset (use if you only want to process some of the masks in a segmentation)
+        KEY:ROI_NAME            # NOTE: there can be no spaces in KEY:ROI_NAME
 
-`EXCLUSION_VARIABLES`: `{column_name: [val1, val2]}` - column values of rows to drop in the clinical data 
+### READII settings
+READII:
+    IMAGE_TYPES:                # Selection of image types to generate and perform feature extraction on (negative control settings)
+        regions:                # Areas of image to apply permutation to
+            - "full"
+        permutations:           # Permutation type to apply to region
+            - "original"
+        crop:                   # How to crop the image prior to feature extraction
+    TRAIN_TEST_SPLIT:           # If using data for modelling, set up method of data splitting here
+        split: False            # Whether to split the data
+        split_variable: {}      # What variable from `CLINICAL.FILE` to use to split the data and values to group by (Ex. {'split_var': ['training', 'test']})
+        impute: null            # What to impute values in `split_variable` with. Should be one of the values provided in `split_variable`. If none provided, won't impute, samples with no split value will be dropped.
 
-`TRAIN_TEST_SPLIT`: 
-    `split`: False - whether to apply a train test split to the data
-    `split_variable`: `{split_label: ['train', 'test']}` - what column to use to split the data, and what values each of the subsets should have
-    `impute`: null - value to impute any missing values in `split_variable` with so that all the data is categorized
+RANDOM_SEED: 10                 # Seed for reproducibility of analysis.
 ```
 
 ### extraction

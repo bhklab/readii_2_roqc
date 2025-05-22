@@ -1,14 +1,14 @@
-DATA_SOURCE: "TCIA"
-DATASET_NAME: "NSCLC-Radiomics"
+DATA_SOURCE: ""
+DATASET_NAME: ""
 
 ### CLINICAL VARIABLE INFORMATION ###
 CLINICAL:
-    FILE: "NSCLC-Radiomics-Lung1.clinical-version3-Oct-2019.csv"
+    FILE: ""
     OUTCOME_VARIABLES:
-        time_label: "Survival.time"
-        event_label: "deadstatus.event"
-        convert_to_years: True
-        event_value_mapping: {}
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
+        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
 
 ### MED-IMAGETOOLS settings
@@ -16,7 +16,7 @@ MIT:
     MODALITIES: CT,RTSTRUCT
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        GTV:GTV-1
+        KEY:ROI_NAME
 
 ### READII settings
 READII:

@@ -158,3 +158,7 @@ workflow
     `-- readii
         `-- run_readii.py
 ```
+
+#### [2025-05-22] MIT Snakemake and config updates
+* wrote Snakemake script to run autopipeline for the dataset
+* Updated the datasets/config file format and updated usage documentation.
