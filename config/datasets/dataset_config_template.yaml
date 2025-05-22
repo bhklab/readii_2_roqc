@@ -15,7 +15,7 @@ CLINICAL:
 MIT:
     MODALITIES: CT,RTSTRUCT
     ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP:
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
         KEY:ROI_NAME
 
 ### READII settings
