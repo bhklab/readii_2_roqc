@@ -1,13 +1,13 @@
 DATA_SOURCE: "TCIA"
-DATASET_NAME: "HEAD-NECK-RADIOMICS-HN1"
+DATASET_NAME: "NSCLC-Radiomics_test"
 
 ### CLINICAL VARIABLE INFORMATION ###
 CLINICAL:
-    FILE: "Copy of HEAD-NECK-RADIOMICS-HN1 Clinical data updated July 2020 2.csv"
+    FILE: ""
     OUTCOME_VARIABLES:
-        time_label: "overall_survival_in_days"
-        event_label: "event_overall_survival"
-        convert_to_years: True
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
         event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
 
@@ -17,7 +17,7 @@ MIT:
     ROI_MATCH_MAP:
         GTV:GTV-1
     MODALITIES: CT,RTSTRUCT
-    INDEX_FILE: "mit2_HEAD-NECK-RADIOMICS-HN1_index.csv"
+    INDEX_FILE: "mit_NSCLC-Radiomics_test_index.csv"
 
 ### READII settings
 READII:

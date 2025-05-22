@@ -1,36 +1,43 @@
 from damply import dirs as dmpdirs
-
+from pathlib import Path
+import pandas as pd
 
 # could alternatively pass this in the CLI via `--configfile $CONFIG/config.yaml`
-# configfile: dmpdirs.CONFIG / "config.yaml"
+# configfile: dmpdirs.CONFIG / "datasets" / "NSCLC-Radiomics_test.yaml"
 
-# print(config)
-# would print:
-# {'DATASET_NAME': 'BHK-Snakemake', 'MODALITIES': ['image', 'text']}
+COMBINED_DATA_NAME = config["DATA_SOURCE"] + "_" + config["DATASET_NAME"]
 
-rule all:
+
+rule run_mit_autopipeline:
     input:
-        dmpdirs.RESULTS / config["DATASET_NAME"] / "all_results.txt",
-    
-
-rule collect_files:
-    input:
-        expand(
-            dmpdirs.PROCDATA / config["DATASET_NAME"] / "{file_num}.txt",
-            file_num=[f"{i:02d}" for i in range(1, 11)] # 01...10
-        )
+        input_directory=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images" / config["DATASET_NAME"],
+        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"] / "index.csv"
     output:
-        dmpdirs.RESULTS / config["DATASET_NAME"] / "all_results.txt"
-    shell:
-        """
-        cat {input} > {output}
-        """
-
-rule create_numbered_file:
-    output:
-        dmpdirs.PROCDATA / config["DATASET_NAME"] / "{file_num}.txt"
+        mit_autopipeline_index=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index.csv",
+        output_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}")
     params:
-        modalities = ",".join(config["MODALITIES"])
+        modalities=config["MIT"]["MODALITIES"],
+        roi_match_map=config["MIT"]["ROI_MATCH_MAP"]
     shell:
         """
-        echo "This is a file with number {wildcards.file_num} and modalities: {params.modalities}" > {output}
+        imgtools autopipeline {input.input_directory} {output.output_directory} \
+        --modalities {params.modalities} \
+        --roi-match-map {params.roi_match_map} \
+        --roi-strategy MERGE \
+        --filename-format "{{PatientID}}_{{SampleNumber}}/{{Modality}}_{{SeriesInstanceUID}}/{{ImageID}}.nii.gz"
+        """
+
+
+rule run_mit_index:
+    input:
+        dicom_dir=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images" / config["DATASET_NAME"]
+    output:
+        directory(dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"]),
+        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"] / "index.csv"
+    params:
+        dataset_name= config["DATASET_NAME"]
+    shell:
+        """
+        imgtools index --dicom-dir {input.dicom_dir} --dataset-name {params.dataset_name} --force
+        """
+
