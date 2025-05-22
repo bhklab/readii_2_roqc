@@ -1,22 +1,34 @@
 DATA_SOURCE: "TCIA"
 DATASET_NAME: "NSCLC-Radiomics"
 
-CLINICAL_FILE: "NSCLC-Radiomics-Lung1.clinical-version3-Oct-2019.csv"
-
-MIT_COMMAND: "imgtools autopipeline ~/bhklab/radiomics/PublicDatasets/srcdata/Lung/TCIA_NSCLC-Radiomics/NSCLC-Radiomics ~/bhklab/radiomics/PublicDatasets/procdata/Lung/TCIA_NSCLC-Radiomics/mit2_NSCLC-Radiomics --modalities \"CT,RTSTRUCT\" -rmap \"GTV:GTV-1\" --roi-strategy MERGE --update-crawl -f {PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz"
-MIT_INDEX_FILE: "mit2_NSCLC-Radiomics_index.csv"
-
 ### CLINICAL VARIABLE INFORMATION ###
-# Event values should be in the order [Alive_value, Dead_value]
-OUTCOME_VARIABLES:
-    time_label: "Survival.time"
-    event_label: "deadstatus.event"
-    convert_to_years: True
-    event_value_mapping: {}
+CLINICAL:
+    FILE: "NSCLC-Radiomics-Lung1.clinical-version3-Oct-2019.csv"
+    OUTCOME_VARIABLES:
+        time_label: "Survival.time"
+        event_label: "deadstatus.event"
+        convert_to_years: True
+        event_value_mapping: {}
+    EXCLUSION_VARIABLES: {}
 
-EXCLUSION_VARIABLES: {}
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: CT,RTSTRUCT
+    ROI_STRATEGY: MERGE
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        GTV:GTV-1
 
-TRAIN_TEST_SPLIT:
-    split: False
-    split_variable: {}
-    impute:
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+        permutations:
+            - "original"
+        crop:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
+
+RANDOM_SEED: 10
