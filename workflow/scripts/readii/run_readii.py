@@ -13,27 +13,8 @@ from collections import OrderedDict
 import itertools
 
 from readii.negative_controls_refactor.manager import NegativeControlManager
-
-# from readii.utils import logger
-
-def flattenImage(image: sitk.Image) -> sitk.Image:
-    """Remove axes of image with size one. (ex. shape is [1, 100, 256, 256])
-
-    Parameters
-    ----------
-    image : sitk.Image
-        Image to remove axes with size one.
-
-    Returns
-    -------
-    sitk.Image
-        image with axes of length one removed.
-    """
-    imageArr = sitk.GetArrayFromImage(image)
-
-    imageArr = np.squeeze(imageArr)
-
-    return sitk.GetImageFromArray(imageArr)
+from readii.image_processing import flattenImage
+from readii.utils import logger
 
 
 def pyradiomics_extraction(extractor: radiomics.featureextractor,
