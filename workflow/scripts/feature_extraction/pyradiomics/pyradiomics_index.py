@@ -1,9 +1,32 @@
 import pandas as pd
+import click
+from damply import dmpdirs
 from pathlib import Path
 
+from readii.io.loaders import loadImageDatasetConfig
+from readii.utils import logger
 
-def generate_dataset_index(image_directory:Path,
-                           output_file_path:Path):
+from workflow.scripts.helpers.config import get_full_data_name
+
+
+def generate_pyradiomics_index(image_directory:Path,
+                               output_file_path:Path
+                               ) -> pd.DataFrame:
+    """Set up index file for PyRadiomics feature extraction. Output file contains columns for ID, Image, and Mask.
+        - ID = patient identifier
+        - Image = path to image file to load for feature extraction, such as a CT or MRI
+        - Mask = path to binary label mask file to load for feature extraction, such as a segmentation
+    
+    Parameters
+    ----------
+    image_directory : Path
+
+    output_file_path : Path
+
+    Returns
+    -------
+    dataset_index : pd.DataFrame
+    """
     # Construct file path lists for images and masks
     image_files = sorted(image_directory.rglob(pattern="*/CT*/CT.nii.gz"))
     mask_files = sorted(image_directory.rglob(pattern="*/RT*/GTV.nii.gz"))
@@ -23,26 +46,41 @@ def generate_dataset_index(image_directory:Path,
 
     dataset_index.to_csv(output_file_path, index=False)
 
-    return
+    return dataset_index
+
+
+
+@click.command()
+@click.option('--config', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
+def generate_dataset_index(config):
+    """
+    """
+    # Load in dataset configuration settings from provided file
+    dataset_config = loadImageDatasetConfig(config) 
+
+    data_name = get_full_data_name(dataset_config)
+    
+    # Construct image directory from DMP and config
+    image_directory = dmpdirs.PROCDATA / data_name / "images" / f"mit+{data_name}"
+
+    # Construct output file path from DMP and feature extraction type
+    feature_extraction_type = "pyradiomics"
+    output_file_path = dmpdirs.PROCDATA / data_name / "features" / feature_extraction_type / f"{feature_extraction_type}_{data_name}_index.csv"
+
+    match feature_extraction_type:
+        case "pyradiomics":
+            dataset_index = generate_pyradiomics_index(image_directory, output_file_path)
+        case _:
+            message = f"Index generator doesn't exist for {feature_extraction_type}."
+            logger.debug(message)
+            raise ValueError(message)
+    
+    return dataset_index
+
+
 
 if __name__ == "__main__":
-    # general data directory path setup
-    DATA_DIR_PATH = Path("../../data")
-    RAW_DATA_PATH = DATA_DIR_PATH / "rawdata"
-    PROC_DATA_PATH = DATA_DIR_PATH / "procdata"
-    RESULTS_DATA_PATH = DATA_DIR_PATH / "results"
-
-    DATA_SOURCE = "TCIA"
-    DATASET_NAME = "HEAD-NECK-RADIOMICS-HN1"
-
-    dataset = f"{DATA_SOURCE}_{DATASET_NAME}"
-
-    image_directory = RAW_DATA_PATH / dataset / "images"
-    output_file_path = PROC_DATA_PATH / dataset / f"pyrad_{dataset}_index.csv"
-
-    output_file_path.parent.mkdir(parents=True, exist_ok=True)
-
-    generate_dataset_index(image_directory, output_file_path)
+    generate_dataset_index()
     
 
 
