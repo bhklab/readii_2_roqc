@@ -125,6 +125,7 @@ data
 |       |-- correlations
 |       |-- features
 |       |   `-- {extraction_method}
+|       |       |-- extraction_method_index.csv
 |       |       `-- {extraction_configuration_file_name}
 |       |           `-- {PatientID}_{SampleNumber}
 |       |               `-- {ROI_name}
