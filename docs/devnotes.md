@@ -162,3 +162,7 @@ workflow
 #### [2025-05-22] MIT Snakemake and config updates
 * wrote Snakemake script to run autopipeline for the dataset
 * Updated the datasets/config file format and updated usage documentation.
+
+
+#### [2025=05-23] MIT Snakemake reorg
+* Made smk file just for MIT rules, made run_MIT rule in main Snakefile
