@@ -164,5 +164,11 @@ workflow
 * Updated the datasets/config file format and updated usage documentation.
 
 
-#### [2025=05-23] MIT Snakemake reorg
+#### [2025=05-23] MIT Snakemake reorg + pyradiomics_index refactor
 * Made smk file just for MIT rules, made run_MIT rule in main Snakefile
+
+`pyradiomics_index --> index`
+
+* Added click CLI input
+* Made a genral index function that calls the pyradiomics index function
+* Want to add a dataset config variable or CLI argument that sets the method of feature extraction
