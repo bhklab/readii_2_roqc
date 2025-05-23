@@ -4,21 +4,21 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Katy Scott" />
-      <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Usage - READII-2-ROQC</title>
-    <link rel="stylesheet" href="../css/theme.css" />
-    <link rel="stylesheet" href="../css/theme_extra.css" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Katy's Notes - READII-2-ROQC</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Usage";
-        var mkdocs_page_input_path = "usage.md";
+        var mkdocs_page_name = "Katy\u0027s Notes";
+        var mkdocs_page_input_path = "devnotes/katy_notes.md";
         var mkdocs_page_url = null;
       </script>
     
     <!--[if lt IE 9]>
-      <script src="../js/html5shiv.min.js"></script>
+      <script src="../../js/html5shiv.min.js"></script>
     <![endif]-->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
       <script>hljs.highlightAll();</script> 
@@ -30,9 +30,9 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href=".." class="icon icon-home"> READII-2-ROQC
+          <a href="../.." class="icon icon-home"> READII-2-ROQC
         </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -40,55 +40,41 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../usage/">Usage</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../data_sources/">Data Sources</a>
                 </li>
               </ul>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Usage</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Katy's Notes</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#project-configuration">Project Configuration</a>
+    <li class="toctree-l2"><a class="reference internal" href="#data-processing-notes">Data Processing Notes</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#datasets">datasets</a>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-05-pyradiomics-original_all_features-extraction-tracking">[2025-05-05] PyRadiomics original_all_features extraction tracking</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#extraction">extraction</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#pyradiomics">PyRadiomics</a>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-07-updated-with-completed-hn1-runs">[2025-05-07] Updated with completed HN1 runs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-12-tracking-extraction-of-all-features-for-aerts-signature">[2025-05-12] Tracking extraction of all features for Aerts signature</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-13-processing-data-for-signature-prediction-models">[2025-05-13] Processing data for signature prediction models</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#signatures">signatures</a>
+    <li class="toctree-l2"><a class="reference internal" href="#manuscript-notes">Manuscript Notes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-14-manuscript-review-feedback-notes">[2025-05-14] Manuscript Review Feedback Notes</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#data-setup">Data Setup</a>
+    <li class="toctree-l2"><a class="reference internal" href="#project-repo-organization-notes">Project Repo Organization Notes</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#aliasing-rawdata-and-procdata">Aliasing rawdata and procdata</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#documenting-datasets">Documenting datasets</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#project-data-directory-tree">Project data Directory Tree</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#best-practices">Best Practices</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#running-your-analysis">Running Your Analysis</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#data-splitting">Data splitting</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#aerts_original">aerts_original</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#aerts_radcure_refit">aerts_RADCURE_refit</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#r2r_nsclc">r2r_NSCLC</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#r2r_radcure">r2r_RADCURE</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#survival-modelling">Survival Modelling</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#resources">Resources</a>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-14-data-and-workflow-organization">[2025-05-14] data and workflow organization</a>
     </li>
         </ul>
     </li>
@@ -96,15 +82,7 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../data_sources/">Data Sources</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../devnotes/katy_notes/">Katy's Notes</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../devnotes/shabnam_notes/">Shabnam's Notes</a>
+                <li class="toctree-l1"><a class="reference internal" href="../shabnam_notes/">Shabnam's Notes</a>
                 </li>
               </ul>
       </div>
@@ -114,16 +92,16 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="..">READII-2-ROQC</a>
+          <a href="../..">READII-2-ROQC</a>
         
       </nav>
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Usage</li>
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Katy's Notes</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/bhklab/readii_2_roqc/edit/master/docs/usage.md">Edit on readii_2_roqc</a>
+          <a href="https://github.com/bhklab/readii_2_roqc/edit/master/docs/devnotes/katy_notes.md">Edit on readii_2_roqc</a>
     </li>
   </ul>
   <hr/>
@@ -131,84 +109,151 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="usage-guide">Usage Guide</h1>
-<h2 id="project-configuration">Project Configuration</h2>
-<p><code>config</code> should have three subdirectories: <code>datasets/</code>, <code>extraction/</code>, and <code>signatures/</code></p>
-<h3 id="datasets">datasets</h3>
-<p>Each dataset needs a configuration file with the following settings filled in</p>
-<div class="highlight"><pre><span></span><code>`DATA_SOURCE` - where the data came from, will be used for data organization
-`DATASET_NAME` - the name of the dataset , will be use for data organization
-
-`MIT_INDEX_FILE` - name of the Med-ImageTools index file output by autopipeline when run on the image data.
-
-`CLINICAL_FILE` - name of the clinical data file associated with the data. Not a full path, just the name including the file suffix.
-`OUTCOME_VARIABLES`:
-    `time_label`: &quot;overall_survival_in_days&quot; - column name for survival time in the `CLINICAL_FILE`
-    `event_label`: &quot;event_overall_survival&quot; - column name for survival event in the `CLINICAL_FILE`
-    `convert_to_years`: True - boolean, whether the `time_label` needs to be converted from days to years
-    `event_value_mapping`: `{int: string | bool}` - if `event_label` values are not numeric, a dictionary can be provided to map the boolean or string to numbers. Ex: `{0: &quot;Alive&quot;, 1: &quot;Dead&quot;}`
-
-`EXCLUSION_VARIABLES`: `{column_name: [val1, val2]}` - column values of rows to drop in the clinical data 
-
-`TRAIN_TEST_SPLIT`: 
-    `split`: False - whether to apply a train test split to the data
-    `split_variable`: `{split_label: [&#39;train&#39;, &#39;test&#39;]}` - what column to use to split the data, and what values each of the subsets should have
-    `impute`: null - value to impute any missing values in `split_variable` with so that all the data is categorized
-</code></pre></div>
-<h3 id="extraction">extraction</h3>
-<p>This directory should store any configuration settings used for feature extraction. They should be named/organized by the feature extraction method.</p>
-<p>Example: <code>pyradiomics_original_all_features.yaml</code></p>
-<p>Different configuration set-ups can be documented here.</p>
-<h4 id="pyradiomics">PyRadiomics</h4>
-<p>PyRadiomics feature extraction settings yaml files should be kept here. See the PyRadiomics <a href="https://pyradiomics.readthedocs.io/en/latest/customization.html#parameter-file">'Parameter File'</a> documentation for details about this file.</p>
-<h3 id="signatures">signatures</h3>
-<p>Files in this directory should list selected features in a radiomic signature and the corresponding weights from a fitted prediction model. </p>
-<div class="admonition example">
-<p class="admonition-title">PyRadiomics CoxPH signature</p>
-<div class="highlight"><pre><span></span><code>signature:
-    &#39;original_firstorder_Energy&#39;: 1.74e-11
-    &#39;original_shape_Compactness1&#39;: -1.65e+01
-    &#39;original_glrlm_GrayLevelNonUniformity&#39;: 4.95e-05
-    &#39;wavelet-HLH_glrlm_GrayLevelNonUniformity&#39;: 2.81e-06
-</code></pre></div>
-</div>
-<hr />
-<h2 id="data-setup">Data Setup</h2>
-<p>All data should be stored in a Data directory separate from this project directory. Within the project repo, there's a <code>data</code> directory containing <code>rawdata</code>, <code>procdata</code>, and <code>results</code> directories. The <code>rawdata</code> and <code>procdata</code> directories should by <strong>symbolic links</strong> pointing to the corresponding data directory in your separate Data directory.</p>
-<h3 id="aliasing-rawdata-and-procdata">Aliasing <code>rawdata</code> and <code>procdata</code></h3>
-<p>To set up the symbolic links for the <code>rawdata</code> and <code>procdata</code> directories, run the following commands, starting from your project directory:</p>
-<div class="highlight"><pre><span></span><code>ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/rawdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>data/rawdata/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
-
-ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>data/procdata/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
-</code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You will need to perform this step for each dataset you wish to process with the READII-2-ROQC pipeline.</p>
-</div>
-<h3 id="documenting-datasets">Documenting datasets</h3>
-<p>When a new dataset has been added to the <code>rawdata</code> directory, you <strong>MUST</strong> document it on the <a href="../data_sources/">Data Sources</a> page. </p>
-<p>Copy the following template and fill it in accordingly for each dataset. If anything about the dataset changes, make sure to keep this page up to date.</p>
-<div class="admonition example">
-<p class="admonition-title">Data Source Template</p>
-<div class="highlight"><pre><span></span><code>NSCLC-Radiomics
-
-<span class="k">-</span><span class="w"> </span><span class="gs">**Name**</span>: NSCLC-Radiomics (or Lung1)
-<span class="k">-</span><span class="w"> </span><span class="gs">**Version/Date**</span>: Version 4: Updated 2020/10/22
-<span class="k">-</span><span class="w"> </span><span class="gs">**URL**</span>: &lt;https://www.cancerimagingarchive.net/collection/nsclc-radiomics/&gt;
-<span class="k">-</span><span class="w"> </span><span class="gs">**Access Method**</span>: NBIA Data Retriever
-<span class="k">-</span><span class="w"> </span><span class="gs">**Access Date**</span>: 2025-04-23
-<span class="k">-</span><span class="w"> </span><span class="gs">**Data Format**</span>: DICOM
-<span class="k">-</span><span class="w"> </span><span class="gs">**Citation**</span>: Aerts, H. J. W. L., Wee, L., Rios Velazquez, E., Leijenaar, R. T. H., Parmar, C., Grossmann, P., Carvalho, S., Bussink, J., Monshouwer, R., Haibe-Kains, B., Rietveld, D., Hoebers, F., Rietbergen, M. M., Leemans, C. R., Dekker, A., Quackenbush, J., Gillies, R. J., Lambin, P. (2014). Data From NSCLC-Radiomics (version 4) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2015.PF0M9REI 
-<span class="k">-</span><span class="w"> </span><span class="gs">**License**</span>: [<span class="nt">CC BY-NC 3.0</span>](<span class="na">https://creativecommons.org/licenses/by-nc/3.0/</span>)
-<span class="k">-</span><span class="w"> </span><span class="gs">**Data Types**</span>: 
-<span class="w">    </span><span class="k">-</span><span class="w"> </span>Images: CT, RTSTRUCT
-<span class="w">    </span><span class="k">-</span><span class="w"> </span>Clinical: CSV
-<span class="k">-</span><span class="w"> </span><span class="gs">**Sample Size**</span>: 422 subjects
-<span class="k">-</span><span class="w"> </span><span class="gs">**ROI Name**</span>: Tumour = GTV-1
-<span class="k">-</span><span class="w"> </span><span class="gs">**Notes**</span>: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.
-</code></pre></div>
-</div>
-<h3 id="project-data-directory-tree">Project <code>data</code> Directory Tree</h3>
+                <h1 id="developer-notes">Developer Notes</h1>
+<h2 id="data-processing-notes">Data Processing Notes</h2>
+<h4 id="2025-05-05-pyradiomics-original_all_features-extraction-tracking">[2025-05-05] PyRadiomics original_all_features extraction tracking</h4>
+<h4 id="2025-05-07-updated-with-completed-hn1-runs">[2025-05-07] Updated with completed HN1 runs</h4>
+<table>
+<thead>
+<tr>
+<th>NC / Dataset</th>
+<th style="text-align: center;">CC-Radiomics-Phantom</th>
+<th style="text-align: center;">HEAD-NECK-RADIOMICS-HN1</th>
+<th style="text-align: center;">NSCLC-Radiomics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>full original</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>full randomized</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>full sampled</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>full shuffled</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>non_roi randomized</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>non_roi sampled</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>non_roi shuffled</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>roi randomized</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>roi sampled</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+<tr>
+<td>roi shuffled</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+<td style="text-align: center;">X</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2025-05-12-tracking-extraction-of-all-features-for-aerts-signature">[2025-05-12] Tracking extraction of all features for Aerts signature</h4>
+<p>|Feature / Dataset                        | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE |
+|original_firstorder_Energy               |             X           |        X        |    X    |
+|original_shape_Compactness1              |             X           |        X        |    X    |
+|original_glrlm_GrayLevelNonUniformity    |             X           |        X        |    X    |
+|wavelet-HLH_glrlm_GrayLevelNonUniformity |          running        |   running       |    X    |</p>
+<ul>
+<li>Bootstrapping help came from: https://acclab.github.io/bootstrap-confidence-intervals.html</li>
+<li>survcomp R package only works for linux and osx-64</li>
+<li>tried the scikit-survival implementation of the concordance index with bootstrapping, but results don't match Mattea's exactly</li>
+<li>trying with R now</li>
+</ul>
+<h4 id="2025-05-13-processing-data-for-signature-prediction-models">[2025-05-13] Processing data for signature prediction models</h4>
+<ul>
+<li>Since RADCURE was processed with old med-imagetools, manually set up mit_index from dataset.csv<ul>
+<li>Change the column <code>patient_ID</code> to <code>PatientID</code></li>
+<li>Add index column label <code>SampleID</code></li>
+</ul>
+</li>
+</ul>
+<p>|File / Dataset       | HEAD-NECK-RADIOMICS-HN1 | NSCLC-Radiomics | RADCURE             |
+| clinical            | id                      | PatientID       | patient_id          |
+| mit index file      | SampleID, PatientID     | PatientID       | SampleID, PatientID |
+| radiomics           | ID ==                      | ID              | ID                  |</p>
+<ul>
+<li>HN1 - going to make a SampleID column in the mit2_index </li>
+<li>Rerunning all the MIT and feature extraction</li>
+</ul>
+<h2 id="manuscript-notes">Manuscript Notes</h2>
+<h4 id="2025-05-14-manuscript-review-feedback-notes">[2025-05-14] Manuscript Review Feedback Notes</h4>
+<p><strong>Introduction/Background</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox"/> Paragraph around biological/clinical application of radiomics (why do we do it?)</li>
+<li class="task-list-item"><input type="checkbox"/> Literature review for other quality control methods for radiomics</li>
+</ul>
+<p><strong>Methods</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox"/> Add prediction of HPV status model</li>
+<li class="task-list-item"><input type="checkbox"/> Include section about saving out the negative control images</li>
+<li class="task-list-item"><input type="checkbox"/> Explain modular implementation of the negative controls such that users can construct their own</li>
+<li class="task-list-item"><input type="checkbox"/> Add ability to save out the changed mask from the contraction/expansion NCs</li>
+<li class="task-list-item"><input type="checkbox" checked/> Look for synonyms for transformation<ul>
+<li>Intensity transformation? --&gt; permutation?</li>
+</ul>
+</li>
+<li class="task-list-item"><input type="checkbox"/> Sisira asked for an example of the RadiomicSet data to understand what it looks like</li>
+</ul>
+<p><strong>Results</strong></p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox" checked/> Josh liked the new abstract figure more</li>
+<li class="task-list-item"><input type="checkbox"/> Get p-value calculation code from Caryn</li>
+<li class="task-list-item"><input type="checkbox"/> Save out bootstrap hazards so they don't get recalculated</li>
+<li class="task-list-item"><input type="checkbox"/> Keep the diagonal self-correlation plots, will go in supplemental</li>
+<li class="task-list-item"><input type="checkbox"/> Calculate and plot average correlations between clusters of features (shape vs. first order)</li>
+<li class="task-list-item"><input type="checkbox"/> Hierarchical clustering between the feature class clusters</li>
+<li class="task-list-item"><input type="checkbox"/> Correlation plot of the Aerts signature + volume features</li>
+<li class="task-list-item"><input type="checkbox"/> Compare distribution of correlation values in a line plot<ul>
+<li>Line for each image type</li>
+<li>x-axis is the feature types, colourblock behind the plot for each imagetype</li>
+</ul>
+</li>
+<li class="task-list-item"><input type="checkbox"/> Plot correlations with outcome before and after QC</li>
+</ul>
+<p><em>Plots</em></p>
+<ul class="task-list">
+<li class="task-list-item"><input type="checkbox"/> Box plot of hazards for each image type and dataset to compare</li>
+</ul>
+<h2 id="project-repo-organization-notes">Project Repo Organization Notes</h2>
+<h4 id="2025-05-14-data-and-workflow-organization">[2025-05-14] data and workflow organization</h4>
 <div class="highlight"><pre><span></span><code>data
 <span class="p">|</span>--<span class="w"> </span>procdata
 <span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
@@ -259,38 +304,26 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
 <span class="w">                </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
 <span class="w">                </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
 </code></pre></div>
-<h3 id="best-practices">Best Practices</h3>
-<ul>
-<li>Store raw data in <code>data/rawdata/</code> and never modify it</li>
-<li>Store processed data in <code>data/procdata/</code> and all code used to generate it should be in <code>workflow/scripts/</code></li>
-<li>Track data provenance (where data came from and how it was modified)</li>
-<li>Respect data usage agreements and licenses!
-    This is especially important for data that should not be shared publicly</li>
-</ul>
-<h2 id="running-your-analysis">Running Your Analysis</h2>
-<h2 id="data-splitting">Data splitting</h2>
-<h3 id="aerts_original">aerts_original</h3>
-<p>Train: NSCLC-Radiomics<br />
-Validation: HN1, RADCURE-test</p>
-<h3 id="aerts_radcure_refit">aerts_RADCURE_refit</h3>
-<p>Train: RADCURE-train<br />
-Validation: HN1, RADCURE-test</p>
-<h3 id="r2r_nsclc">r2r_NSCLC</h3>
-<p>Train: NSCLC-Radiomics<br />
-Validation: HN1, RADCURE-test</p>
-<h3 id="r2r_radcure">r2r_RADCURE</h3>
-<p>Train: RADCURE-train<br />
-Validation: HN1, RADCURE-test</p>
-<h2 id="survival-modelling">Survival Modelling</h2>
-<h3 id="resources">Resources</h3>
-<p>https://scikit-survival.readthedocs.io/en/stable/user_guide/evaluating-survival-models.html#</p>
-<p>Harrell's C-index: https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.metrics.concordance_index_censored.html</p>
+<div class="highlight"><pre><span></span><code>workflow
+<span class="p">|</span>--<span class="w"> </span>notebooks
+<span class="sb">`</span>--<span class="w"> </span>scripts
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>analysis
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>predictive_signature_testing.py
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>feature_extraction
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>pyradiomics_index.py
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>orcestra
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>read_radiomicset.r
+<span class="w">    </span><span class="p">|</span>--<span class="w"> </span>mit
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>run_autopipeline.sh
+<span class="w">    </span><span class="sb">`</span>--<span class="w"> </span>readii
+<span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>run_readii.py
+</code></pre></div>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../data_sources/" class="btn btn-neutral float-right" title="Data Sources">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../data_sources/" class="btn btn-neutral float-left" title="Data Sources"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../shabnam_notes/" class="btn btn-neutral float-right" title="Shabnam's Notes">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -317,18 +350,18 @@ Validation: HN1, RADCURE-test</p>
         </span>
     
     
-      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../../data_sources/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../data_sources/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../shabnam_notes/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
-    <script src="../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "..";</script>
-    <script src="../js/theme_extra.js"></script>
-    <script src="../js/theme.js"></script>
-      <script src="../search/main.js"></script>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
