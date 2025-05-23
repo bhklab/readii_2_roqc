@@ -50,7 +50,8 @@ def generate_pyradiomics_index(image_directory:Path,
 
 @click.command()
 @click.option('--config', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
-def generate_dataset_index(config):
+@click.option('--method', default='pyradiomics', help='Feature extraction method to use.')
+def generate_dataset_index(config, method):
     """
     """
     # Load in dataset configuration settings from provided file
@@ -62,7 +63,7 @@ def generate_dataset_index(config):
     image_directory = dmpdirs.PROCDATA / data_name / "images" / f"mit+{data_name}"
 
     # Construct output file path from DMP and feature extraction type
-    feature_extraction_type = "pyradiomics"
+    feature_extraction_type = method
     output_file_path = dmpdirs.PROCDATA / data_name / "features" / feature_extraction_type / f"{feature_extraction_type}_{data_name}_index.csv"
 
     match feature_extraction_type:
