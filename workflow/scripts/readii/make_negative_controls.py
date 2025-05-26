@@ -47,6 +47,7 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
 
 
 def save_out_negative_controls(nifti_writer: NIFTIWriter,
+                               patient_id: str,
                                image: sitk.Image,
                                region: str,
                                permutation: str):
@@ -55,6 +56,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
     try:
         nifti_writer.save(
                         image,
+                        PatientID=patient_id,
                         region=region,
                         permutation=permutation
                     )
@@ -112,7 +114,7 @@ def make_negative_controls(dataset: str,
         
         # Set up writer for saving out the negative controls
         nifti_writer = NIFTIWriter(
-            root_directory = mit_images_dir_path.parent / image_path.parent,
+            root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent,
             filename_format = "{region}_{permutation}.nii.gz",
             overwrite = False,
             create_dirs = True
@@ -120,7 +122,8 @@ def make_negative_controls(dataset: str,
         
         Parallel(n_jobs=-1, require="sharedmem")(
             delayed(save_out_negative_controls)(
-                nifti_writer,
+                nifti_writer, 
+                patient_id = study_data['PatientID'].unique()[0],
                 image = neg_image,
                 region = region,
                 permutation = permutation
