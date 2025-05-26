@@ -164,5 +164,18 @@ workflow
 * Updated the datasets/config file format and updated usage documentation.
 
 
-#### [2025=05-23] MIT Snakemake reorg
+#### [2025-05-23] MIT Snakemake reorg
 * Made smk file just for MIT rules, made run_MIT rule in main Snakefile
+
+
+#### [2025-05-26] Index and run READII reorg, start of correlation coding
+`katys/refactor-pyradiomics-index` - has updated code for generating the index file for PyRadiomics using click for CLI
+
+`katys/refactor-run_readii` - has new file called `make_negative_controls.py` that just generates and saves the negative control images, no feature extraction
+* uses click
+* has function to get just the Image Type settings from the READII section of the config
+
+`katys/add-correlation-calculation` - copied the `run_analysis.ipynb` notebook from `readii-fmcib`
+* Started updating the config settings at the top of the file to hopefully run the correlation analysis and start generating figures
+
+All of these are waiting on readii 1.36.2 to be able to install from PyPI to work
