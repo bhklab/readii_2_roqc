@@ -40,7 +40,7 @@ openpyxl = ">=3.1.5,<4"
 snakemake = ">=9.4.0,<10"
 
 [pypi-dependencies]
-readii = ">=1.35.1, <2"
+readii = ">=1.36.1, <2"
 damply = ">=0.10.0, <0.11"
 
 [target.linux-64.dependencies]
