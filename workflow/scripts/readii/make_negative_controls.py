@@ -1,5 +1,6 @@
 import click
 import SimpleITK as sitk
+import pandas as pd
 
 from pathlib import Path
 from damply import dirs
@@ -85,7 +86,7 @@ def make_negative_controls(dataset: str,
     logger.info(f"Creating negative controls for dataset: {dataset_name}")
 
     # Extract READII settings
-    regions, permutations, _crop = get_readii_settings()
+    regions, permutations, _crop = get_readii_settings(dataset_config)
 
     # Set up negative control manager with settings from config
     manager = NegativeControlManager.from_strings(
@@ -96,17 +97,16 @@ def make_negative_controls(dataset: str,
 
     mit_images_dir_path = dirs.PROCDATA / full_data_name / 'images' /f'mit_{dataset_name}'
    
-    dataset_index = mit_images_dir_path / f'mit_{dataset_name}_index.csv'
+    dataset_index = pd.read_csv(Path(mit_images_dir_path, f'mit_{dataset_name}_index.csv'))
 
     # StudyInstanceUID
     for study, study_data in dataset_index.groupby('StudyInstanceUID'):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
-
-        image_path = f"{study_data[study_data['Modality'] == 'CT'].at[0,'filepath']}"
+        image_path = Path(f"{study_data[study_data['Modality'] == 'CT'].loc[0,'filepath']}")
         image = flattenImage(sitk.ReadImage(mit_images_dir_path / image_path))
 
-        mask_path = f"{study_data[study_data['Modality'] == 'RTSTRUCT'].at[0,'filepath']}"
+        mask_path = Path(f"{study_data[study_data['Modality'] == 'RTSTRUCT'].loc[1,'filepath']}")
         mask = flattenImage(sitk.ReadImage(mit_images_dir_path / mask_path))
 
         
@@ -118,7 +118,7 @@ def make_negative_controls(dataset: str,
             create_dirs = True
         )
         
-        Parallel(n_jobs=-1, require="shared_mem")(
+        Parallel(n_jobs=-1, require="sharedmem")(
             delayed(save_out_negative_controls)(
                 nifti_writer,
                 image = neg_image,
