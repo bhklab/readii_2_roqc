@@ -123,6 +123,10 @@ data
 |-- procdata
 |   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/procdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
 |       |-- correlations
+|       |   `-- {extraction_method}
+|       |       `-- {extraction_configuration_file_name}
+|       |           |-- {image_type}_{correlation_method}_matrix.csv
+|       |           `-- {image_type}_v_{image_type}_{correlation_method}_matrix.csv
 |       |-- features
 |       |   `-- {extraction_method}
 |       |       `-- {extraction_configuration_file_name}
