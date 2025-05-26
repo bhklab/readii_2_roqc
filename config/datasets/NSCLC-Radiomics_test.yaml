@@ -32,4 +32,11 @@ READII:
         split_variable: {}
         impute: null
 
+
+### EXTRACTION settings
+EXTRACTION:
+    METHOD: pyradiomics
+    SETTINGS: pyradiomics_original_all_features.yaml
+    
+
 RANDOM_SEED: 10
