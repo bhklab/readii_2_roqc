@@ -179,3 +179,9 @@ workflow
 * Started updating the config settings at the top of the file to hopefully run the correlation analysis and start generating figures
 
 All of these are waiting on readii 1.36.2 to be able to install from PyPI to work
+
+
+#### [2025-05-27] 
+* Debugging the overwrite issue with make_negative_controls
+* Solved by using Series to get image metadata
+* Also need to run alignImages whenever flattenImage is run so that origin, direction, and **spacing** are maintained -- made this an issue in READII as well
