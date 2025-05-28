@@ -23,9 +23,9 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
-            - "full"
+            - "roi"
         permutations:
-            - "shuffled"
+            - "sampled"
         crop:
     TRAIN_TEST_SPLIT:
         split: False
