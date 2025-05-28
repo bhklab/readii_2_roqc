@@ -69,8 +69,11 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
 
 @click.command()
 @click.option('--dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
+@click.option('--overwrite', help='Whether to overwrite existing readii image files', default=False)
+@click.option('--seed', help='Random seed used for negative control generation.', default=10)
 def make_negative_controls(dataset: str,
-                           random_seed: int = 10):
+                           overwrite : bool = False,
+                           seed: int = 10):
     """Create negative control images and save them out as niftis"""
 
     if dataset is None:
@@ -93,7 +96,7 @@ def make_negative_controls(dataset: str,
     manager = NegativeControlManager.from_strings(
         negative_control_types=permutations,
         region_types=regions,
-        random_seed=random_seed
+        random_seed=seed
     )
 
     mit_images_dir_path = dirs.PROCDATA / full_data_name / 'images' /f'mit_{dataset_name}'
@@ -123,7 +126,7 @@ def make_negative_controls(dataset: str,
         nifti_writer = NIFTIWriter(
             root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent,
             filename_format = "{permutation}_{region}.nii.gz",
-            overwrite = False,
+            overwrite = overwrite,
             create_dirs = True
         )
         
