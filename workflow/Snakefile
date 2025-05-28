@@ -19,6 +19,6 @@ rule run_readii:
         mit_niftis_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}",
         dataset=config["DATASET_NAME"]
     output:
-        readii_images_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}")
+        readii_images_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}")
     shell:
         "python scripts/readii/make_negative_controls.py --dataset {input.dataset} --overwrite True --seed 10"
