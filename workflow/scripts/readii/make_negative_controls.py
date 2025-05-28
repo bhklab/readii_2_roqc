@@ -6,9 +6,9 @@ from pathlib import Path
 from damply import dirs
 from joblib import Parallel, delayed
 
-from readii.image_processing import flattenImage
+from readii.image_processing import flattenImage, alignImages
 from readii.io.loaders import loadImageDatasetConfig
-from readii.io.writers.nifti_writer import NIFTIWriter
+from readii.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
 from readii.negative_controls_refactor import NegativeControlManager
 from readii.process.config import get_full_data_name
 from readii.utils import logger
@@ -60,10 +60,9 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                         region=region,
                         permutation=permutation
                     )
-    except Exception as e:
-        message = f"Failed to save negative control for {region}, {permutation}: {e}"
-        logger.error(message)
-        raise RuntimeError(message)
+    except NiftiWriterIOError as e:
+        message = f"{permutation} {region} negative control file already exists for {patient_id}. If you wish to overwrite, set overwrite to true in the NIFTIWriter."
+        logger.debug(message)
 
     return image
 
@@ -105,25 +104,34 @@ def make_negative_controls(dataset: str,
     for study, study_data in dataset_index.groupby('StudyInstanceUID'):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
-        image_path = Path(f"{study_data[study_data['Modality'] == 'CT'].loc[0,'filepath']}")
-        image = flattenImage(sitk.ReadImage(mit_images_dir_path / image_path))
+        # Get image metadata as a pd.Series
+        image_metadata = study_data[study_data['Modality'] == 'CT'].squeeze()
+        image_path = Path(image_metadata['filepath'])
+        # Load in image
+        raw_image = sitk.ReadImage(mit_images_dir_path / image_path)
+        # Remove extra dimension of image, set origin, spacing, direction to original
+        image = alignImages(raw_image, flattenImage(raw_image))
 
-        mask_path = Path(f"{study_data[study_data['Modality'] == 'RTSTRUCT'].loc[1,'filepath']}")
-        mask = flattenImage(sitk.ReadImage(mit_images_dir_path / mask_path))
+        # Get mask metadata as a pd.Series
+        mask_metadata = study_data[study_data['Modality'] == 'RTSTRUCT'].squeeze()
+        mask_path = Path(mask_metadata['filepath'])
+        # Load in mask
+        raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
+        mask = alignImages(raw_mask, flattenImage(raw_mask))
 
-        
         # Set up writer for saving out the negative controls
         nifti_writer = NIFTIWriter(
             root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent,
-            filename_format = "{region}_{permutation}.nii.gz",
+            filename_format = "{permutation}_{region}.nii.gz",
             overwrite = False,
             create_dirs = True
         )
         
+        # Generate each image type and save it out with the nifti writer
         Parallel(n_jobs=-1, require="sharedmem")(
             delayed(save_out_negative_controls)(
                 nifti_writer, 
-                patient_id = study_data['PatientID'].unique()[0],
+                patient_id = image_metadata['PatientID'],
                 image = neg_image,
                 region = region,
                 permutation = permutation
