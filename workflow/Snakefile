@@ -10,7 +10,7 @@ include: "scripts/mit/run_mit.smk"
 rule all:
     # Target rule
     input:
-        readii_images_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}"
+        readii_images_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}"
 
 
 rule run_readii:
