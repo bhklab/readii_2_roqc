@@ -172,3 +172,31 @@ workflow
 * Added click CLI input
 * Made a genral index function that calls the pyradiomics index function
 * Want to add a dataset config variable or CLI argument that sets the method of feature extraction
+
+
+#### [2025-05-26] Index and run READII reorg, start of correlation coding
+`katys/refactor-pyradiomics-index` - has updated code for generating the index file for PyRadiomics using click for CLI
+
+`katys/refactor-run_readii` - has new file called `make_negative_controls.py` that just generates and saves the negative control images, no feature extraction
+* uses click
+* has function to get just the Image Type settings from the READII section of the config
+
+`katys/add-correlation-calculation` - copied the `run_analysis.ipynb` notebook from `readii-fmcib`
+* Started updating the config settings at the top of the file to hopefully run the correlation analysis and start generating figures
+
+All of these are waiting on readii 1.36.2 to be able to install from PyPI to work
+
+
+#### [2025-05-27] 
+* Debugging the overwrite issue with make_negative_controls
+* Solved by using Series to get image metadata
+* Also need to run alignImages whenever flattenImage is run so that origin, direction, and **spacing** are maintained -- made this an issue in READII as well
+
+
+#### [2025-05-28]
+* Added make_negative_controls to Snakefile in run_readii rule
+* Need to figure out how to list all the output files 
+* From Jermiah:
+    * https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#data-dependent-conditional-execution 
+    * you would make the autopipeline rule a checkpoint then you can create an input function for another rule that parses the index file to generate all the files you want
+* Trying to run it as is with full NSCLC-Radiomics dataset
