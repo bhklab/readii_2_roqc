@@ -7,14 +7,21 @@ COMBINED_DATA_NAME = config["DATA_SOURCE"] + "_" + config["DATASET_NAME"]
 
 include: "scripts/mit/run_mit.smk"
 
-rule run_mit:
-    # Target rule - coordinates MIT processing workflow
+rule all:
+    # Target rule
+    input:
+        readii_images_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}"
+
+
+rule run_readii:
     input:
         mit_autopipeline_index=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index.csv",
-        mit_niftis_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}"
-
-
-
-
-
-
+        mit_niftis_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}",
+        
+    output:
+        readii_images_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}")
+    params:
+        dataset=config["DATASET_NAME"],
+        seed=config["RANDOM_SEED"]
+    shell:
+        "python workflow/scripts/readii/make_negative_controls.py --dataset {params.dataset} --overwrite True --seed {params.seed}"

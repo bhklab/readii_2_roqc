@@ -129,8 +129,8 @@ data
 |       |           `-- {PatientID}_{SampleNumber}
 |       |               `-- {ROI_name}
 |       |                   |-- full_original_features.csv
-|       |                   |-- {neg_control_region}_{neg_control_permutation}_features.csv
-|       |                   `-- {neg_control_region}_{neg_control_permutation}_features.csv
+|       |                   |-- {permutation}_{region}_features.csv
+|       |                   `-- {permutation}_{region}_features.csv
 |       |-- images
 |       |   |-- mit_{DATASET_NAME}
 |       |   |   `-- {PatientID}_{SampleNumber}
@@ -141,12 +141,12 @@ data
 |       |   `-- readii_{DATASET_NAME}
 |       |       `-- {PatientID}_{SampleNumber}
 |       |           `-- {ImageModality}_{SeriesInstanceUID}
-|       |               |-- {neg_control_region}_{neg_control_permutation}.nii.gz
-|       |               `-- {neg_control_region}_{neg_control_permutation}.nii.gz
+|       |               |-- {permutation}_{region}.nii.gz
+|       |               `-- {permutation}_{region}.nii.gz
 |       `-- signatures
 |           `-- {signature_name}
 |               |-- full_original_signature_features.csv
-|               `-- {neg_control_region}_{neg_control_permutation}_signature_features.csv
+|               `-- {permutation}_{region}_signature_features.csv
 |-- rawdata
 |   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/srcdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
 |       |-- clinical
@@ -166,8 +166,8 @@ data
         `-- signature_performance
             `-- {signature_name}.csv
                 |-- full_original_features.csv
-                |-- {neg_control_region}_{neg_control_permutation}_features.csv
-                `-- {neg_control_region}_{neg_control_permutation}_features.csv
+                |-- {permutation}_{region}_features.csv
+                `-- {permutation}_{region}_features.csv
 ```
 
 

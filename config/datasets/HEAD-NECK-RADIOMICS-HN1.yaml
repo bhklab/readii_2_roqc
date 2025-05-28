@@ -23,8 +23,12 @@ READII:
     IMAGE_TYPES:
         regions:
             - "full"
+            - "roi"
+            - "non_roi"
         permutations:
-            - "original"
+            - "shuffled"
+            - "sampled"
+            - "randomized"
         crop:
     TRAIN_TEST_SPLIT:
         split: False
