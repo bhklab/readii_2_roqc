@@ -13,7 +13,9 @@ CLINICAL:
 
 ### MED-IMAGETOOLS settings
 MIT:
-    MODALITIES: CT,RTSTRUCT
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
         GTV:GTV-1
