@@ -4,7 +4,8 @@ from damply import dmpdirs
 from pathlib import Path
 
 from readii.io.loaders import loadImageDatasetConfig
-from readii.utils import logger, get_full_data_name
+from readii.utils import logger
+from readii.process.config import get_full_data_name
 
 
 def generate_pyradiomics_index(image_directory:Path,
