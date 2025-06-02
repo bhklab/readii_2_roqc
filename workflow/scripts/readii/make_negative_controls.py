@@ -103,12 +103,15 @@ def make_negative_controls(dataset: str,
    
     dataset_index = pd.read_csv(Path(mit_images_dir_path, f'mit_{dataset_name}_index.csv'))
 
+    image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
+    mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
+
     # StudyInstanceUID
     for study, study_data in dataset_index.groupby('StudyInstanceUID'):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
         # Get image metadata as a pd.Series
-        image_metadata = study_data[study_data['Modality'] == 'CT'].squeeze()
+        image_metadata = study_data[study_data['Modality'] == image_modality].squeeze()
         image_path = Path(image_metadata['filepath'])
         # Load in image
         raw_image = sitk.ReadImage(mit_images_dir_path / image_path)
@@ -116,7 +119,7 @@ def make_negative_controls(dataset: str,
         image = alignImages(raw_image, flattenImage(raw_image))
 
         # Get mask metadata as a pd.Series
-        mask_metadata = study_data[study_data['Modality'] == 'RTSTRUCT'].squeeze()
+        mask_metadata = study_data[study_data['Modality'] == mask_modality].squeeze()
         mask_path = Path(mask_metadata['filepath'])
         # Load in mask
         raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
