@@ -1,6 +1,6 @@
 import pandas as pd
 import click
-from damply import dmpdirs
+from damply import dirs
 from pathlib import Path
 
 from readii.io.loaders import loadImageDatasetConfig
@@ -50,22 +50,31 @@ def generate_pyradiomics_index(image_directory:Path,
 
 
 @click.command()
-@click.option('--config', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
+@click.option('--dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
 @click.option('--method', default='pyradiomics', help='Feature extraction method to use.')
-def generate_dataset_index(config, method):
-    """
-    """
-    # Load in dataset configuration settings from provided file
-    dataset_config = loadImageDatasetConfig(config) 
+def generate_dataset_index(dataset:str, method):
+    """Create data index file for feature extraction listing image and mask file pairs.
 
-    data_name = get_full_data_name(dataset_config)
+    """
+    if dataset is None:
+        message = "Dataset name must be provided."
+        logger.error(message)
+        raise ValueError(message)
+
+    # Load in dataset configuration settings from provided file
+    config_dir_path = dirs.CONFIG / 'datasets'
+    dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
+
+    dataset_name = dataset_config['DATASET_NAME']
+    full_data_name = get_full_data_name(config_dir_path / dataset)
     
     # Construct image directory from DMP and config
-    image_directory = dmpdirs.PROCDATA / data_name / "images" / f"mit+{data_name}"
+    image_directory = dirs.PROCDATA / full_data_name / "images" / f"mit_{dataset_name}"
 
     # Construct output file path from DMP and feature extraction type
     feature_extraction_type = method
-    output_file_path = dmpdirs.PROCDATA / data_name / "features" / feature_extraction_type / f"{feature_extraction_type}_{data_name}_index.csv"
+    output_file_path = dirs.PROCDATA / full_data_name / "features" / feature_extraction_type / f"{feature_extraction_type}_{dataset_name}_index.csv"
+    output_file_path.parent.mkdir(parents=True, exist_ok=True)
 
     match feature_extraction_type:
         case "pyradiomics":
