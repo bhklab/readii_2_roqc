@@ -16,7 +16,9 @@ MIT:
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP:
         GTV:GTV-1
-    MODALITIES: CT,RTSTRUCT
+    MODALITIES: 
+        image: MR
+        mask: RTSTRUCT
     
 
 ### READII settings
