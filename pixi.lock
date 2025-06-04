@@ -6103,7 +6103,6 @@ packages:
   - python >=3.9
   - python
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/configargparse?source=hash-mapping
   size: 40511
@@ -7894,7 +7893,6 @@ packages:
   - referencing >=0.28.4
   - rpds-py >=0.7.1
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/jsonschema?source=hash-mapping
   size: 75124
@@ -7926,7 +7924,6 @@ packages:
   - uri-template
   - webcolors >=24.6.0
   license: MIT
-  license_family: MIT
   purls: []
   size: 7717
   timestamp: 1748294391013
@@ -16282,7 +16279,6 @@ packages:
   - python >=3.9
   - python
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/typer?source=compressed-mapping
   size: 77232
@@ -16300,7 +16296,6 @@ packages:
   - rich >=10.11.0
   - shellingham >=1.3.0
   license: MIT
-  license_family: MIT
   purls:
   - pkg:pypi/typer-slim?source=compressed-mapping
   size: 46798
@@ -16313,7 +16308,6 @@ packages:
   - rich
   - shellingham
   license: MIT
-  license_family: MIT
   purls: []
   size: 5271
   timestamp: 1748304246569

@@ -164,8 +164,14 @@ workflow
 * Updated the datasets/config file format and updated usage documentation.
 
 
-#### [2025-05-23] MIT Snakemake reorg
+#### [2025=05-23] MIT Snakemake reorg + pyradiomics_index refactor
 * Made smk file just for MIT rules, made run_MIT rule in main Snakefile
+
+`pyradiomics_index --> index`
+
+* Added click CLI input
+* Made a genral index function that calls the pyradiomics index function
+* Want to add a dataset config variable or CLI argument that sets the method of feature extraction
 
 
 #### [2025-05-26] Index and run READII reorg, start of correlation coding
@@ -198,3 +204,8 @@ All of these are waiting on readii 1.36.2 to be able to install from PyPI to wor
     * Will generate an index for each image type - ID, Image, Mask
     * Make Snakemake rule run per image type
     * Feature extraction script will parallelize by patient 
+
+#### [2025-05-29]
+* Need to add MRI handling to make_negative_controls
+* Changing how config MODALITIES is set up so that image and mask are separate
+

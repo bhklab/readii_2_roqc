@@ -14,7 +14,7 @@ CLINICAL:
 ### MED-IMAGETOOLS settings
 MIT:
     MODALITIES: 
-        image: MR
+        image: CT
         mask: RTSTRUCT
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME

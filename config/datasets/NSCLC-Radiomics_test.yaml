@@ -17,7 +17,7 @@ MIT:
     ROI_MATCH_MAP:
         GTV:GTV-1
     MODALITIES: 
-        image: MR
+        image: CT
         mask: RTSTRUCT
     
 
