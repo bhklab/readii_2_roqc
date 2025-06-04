@@ -23,7 +23,9 @@ CLINICAL:
 
 ### MED-IMAGETOOLS settings
 MIT:
-    MODALITIES: CT,RTSTRUCT     # Modalities to process with autopipeline
+    MODALITIES:                 # Modalities to process with autopipeline
+        image: CT
+        mask: RTSTRUCT     
     ROI_STRATEGY: MERGE         # How to handle multiple ROI matches 
     ROI_MATCH_MAP:              # Matching map for ROIs in dataset (use if you only want to process some of the masks in a segmentation)
         KEY:ROI_NAME            # NOTE: there can be no spaces in KEY:ROI_NAME
