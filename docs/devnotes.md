@@ -209,3 +209,31 @@ All of these are waiting on readii 1.36.2 to be able to install from PyPI to wor
 * Need to add MRI handling to make_negative_controls
 * Changing how config MODALITIES is set up so that image and mask are separate
 
+
+#### [2025-06-04]
+* Actually need the READII index earlier, for the negative control creation even
+* Essentially making the edges file MIT used to make
+* Need to generate ID for unique image-mask pair 
+    * OR process all masks with a single image. The full would be the same for each of them
+    * Will end up with duplicates of the full mask for each mask - unless I rearrange the outputs
+
+```bash
+data
+|-- procdata
+|   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/procdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
+|       |-- images
+|       |   |-- mit_{DATASET_NAME}
+|       |   |   `-- {PatientID}_{SampleNumber}
+|       |   |       |-- {ImageModality}_{SeriesInstanceUID}
+|       |   |       |   `-- {ImageModality}.nii.gz
+|       |   |       `-- {SegmentationModality}_{SeriesInstanceUID}
+|       |   |           `-- {ROI_name}.nii.gz
+|       |   `-- readii_{DATASET_NAME}
+|       |       `-- {PatientID}_{SampleNumber}
+|       |           `-- {ImageModality}_{SeriesInstanceUID}
+|       |               |-- {SegmentationModality}_{SeriesInstanceUID}
+|       |               |   |-- roi_{neg_control_permutation}.nii.gz
+|       |               |   `-- non_roi_{neg_control_permutation}.nii.gz 
+|       |               |-- full_{neg_control_permutation}.nii.gz
+|       |               `-- full_{neg_control_permutation}.nii.gz
+```
