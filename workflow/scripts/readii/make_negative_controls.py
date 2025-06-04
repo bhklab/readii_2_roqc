@@ -5,6 +5,7 @@ import pandas as pd
 from pathlib import Path
 from damply import dirs
 from joblib import Parallel, delayed
+from typing import Optional
 
 from readii.image_processing import flattenImage, alignImages
 from readii.io.loaders import loadImageDatasetConfig
@@ -46,6 +47,62 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
     return regions, permutations, crop
 
 
+def get_masked_image_metadata(dataset_index:pd.DataFrame,
+                              dataset_config:Optional[dict] = None,
+                              image_modality:Optional[str] = None,
+                              mask_modality:Optional[str] = None):
+    """Get rows of Med-ImageTools index.csv with the mask modality and the corresponding image modality and create a new index with just these rows for READII
+    
+    Parameters
+    ----------
+    dataset_index : pd.DataFrame
+        DataFrame loaded from a Med-ImageTools index.csv containing image metadata. Must have columns for Modality, ReferencedSeriesUID, and SeriesInstanceUID.
+    dataset_config : Optional[dict]
+        Dictionary of configuration settings to get image and mask modality from for filtering dataset_index. Must include MIT MODALITIES image and MIT MODALITIES mask. Expected output from running loadImageDatasetConfig.
+    image_modality : Optional[str]
+        Image modality to filter dataset_index with. Will override dataset_config setting.
+    mask_modality : Optional[str]
+        Mask modality to filter dataset_index with. Will override dataset_config setting.
+
+    Returns
+    -------
+    pd.DataFrame
+        Subset of the dataset_index with just the masks and their reference images' metadata.
+    """
+
+    if image_modality is None:
+        if dataset_config is None:
+            message = "No image modality setting passed. Must pass a image_modality or dataset_config with an image modality setting."
+            logger.error(message)
+            raise ValueError(message)
+        
+        # Get the image modality from config to retrieve from the metadata
+        image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
+    
+    if mask_modality is None:
+        if dataset_config is None:
+            message = "No mask modality setting passed. Must pass a mask_modality or dataset_config with a mask modality setting."
+            logger.error(message)
+            raise ValueError(message)
+        
+        # Get the mask modality from config to retrieve from the metadata
+        mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
+
+    # Get all metadata rows with the mask modality
+    mask_metadata = dataset_index[dataset_index['Modality'] == mask_modality]
+
+    # Get a Series of ReferenceSeriesUIDs from the masks - these point to the images the masks were made on
+    referenced_series_ids = mask_metadata['ReferencedSeriesUID']
+    
+    # Get image metadata rows with a SeriesInstanceUID matching one of the ReferenceSeriesUIDS of the masks
+    image_metadata = dataset_index[dataset_index['Modality'] == image_modality]
+    masked_image_metadata = image_metadata[image_metadata['SeriesInstanceUID'].isin(referenced_series_ids)]
+
+    # Return the subsetted metadata
+    return pd.concat([masked_image_metadata, mask_metadata], sort=True)
+
+
+
 def save_out_negative_controls(nifti_writer: NIFTIWriter,
                                patient_id: str,
                                image: sitk.Image,
@@ -65,6 +122,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
         logger.debug(message)
 
     return image
+
 
 
 @click.command()
@@ -106,8 +164,12 @@ def make_negative_controls(dataset: str,
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
     mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
 
+    masked_image_index = get_masked_image_metadata(dataset_index = dataset_index,
+                                                   image_modality = image_modality,
+                                                   mask_modality = mask_modality)
+
     # StudyInstanceUID
-    for study, study_data in dataset_index.groupby('StudyInstanceUID'):
+    for study, study_data in masked_image_index.groupby('StudyInstanceUID'):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
         # Get image metadata as a pd.Series
@@ -118,31 +180,34 @@ def make_negative_controls(dataset: str,
         # Remove extra dimension of image, set origin, spacing, direction to original
         image = alignImages(raw_image, flattenImage(raw_image))
 
-        # Get mask metadata as a pd.Series
-        mask_metadata = study_data[study_data['Modality'] == mask_modality].squeeze()
-        mask_path = Path(mask_metadata['filepath'])
-        # Load in mask
-        raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
-        mask = alignImages(raw_mask, flattenImage(raw_mask))
-
-        # Set up writer for saving out the negative controls
-        nifti_writer = NIFTIWriter(
-            root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent,
-            filename_format = "{permutation}_{region}.nii.gz",
-            overwrite = overwrite,
-            create_dirs = True
-        )
         
-        # Generate each image type and save it out with the nifti writer
-        Parallel(n_jobs=-1, require="sharedmem")(
-            delayed(save_out_negative_controls)(
-                nifti_writer, 
-                patient_id = image_metadata['PatientID'],
-                image = neg_image,
-                region = region,
-                permutation = permutation
-            ) for neg_image, permutation, region in manager.apply(image, mask)
-        )
+        # Get mask metadata as a pd.Series
+        all_mask_metadata = study_data[study_data['Modality'] == mask_modality]
+
+        for mask_metadata in all_mask_metadata.iterrows():
+            mask_path = Path(mask_metadata['filepath'])
+            # Load in mask
+            raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
+            mask = alignImages(raw_mask, flattenImage(raw_mask))
+
+            # Set up writer for saving out the negative controls
+            nifti_writer = NIFTIWriter(
+                root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent / mask_path.parent,
+                filename_format = "{permutation}_{region}.nii.gz",
+                overwrite = overwrite,
+                create_dirs = True
+            )
+            
+            # Generate each image type and save it out with the nifti writer
+            Parallel(n_jobs=-1, require="sharedmem")(
+                delayed(save_out_negative_controls)(
+                    nifti_writer, 
+                    patient_id = image_metadata['PatientID'],
+                    image = neg_image,
+                    region = region,
+                    permutation = permutation
+                ) for neg_image, permutation, region in manager.apply(image, mask)
+            )
                 
     return
 
