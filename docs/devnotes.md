@@ -200,7 +200,12 @@ All of these are waiting on readii 1.36.2 to be able to install from PyPI to wor
     * https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#data-dependent-conditional-execution 
     * you would make the autopipeline rule a checkpoint then you can create an input function for another rule that parses the index file to generate all the files you want
 * Trying to run it as is with full NSCLC-Radiomics dataset
+* Plan for feature extraction refactor:
+    * Will generate an index for each image type - ID, Image, Mask
+    * Make Snakemake rule run per image type
+    * Feature extraction script will parallelize by patient 
 
 #### [2025-05-29]
 * Need to add MRI handling to make_negative_controls
 * Changing how config MODALITIES is set up so that image and mask are separate
+
