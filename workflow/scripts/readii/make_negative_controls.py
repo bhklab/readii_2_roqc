@@ -190,9 +190,10 @@ def make_negative_controls(dataset: str,
             raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
             mask = alignImages(raw_mask, flattenImage(raw_mask))
 
+            mask_roi_name = mask_metadata['ImageID']
             # Set up writer for saving out the negative controls
             nifti_writer = NIFTIWriter(
-                root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent / mask_path.parent,
+                root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent / mask_roi_name,
                 filename_format = "{permutation}_{region}.nii.gz",
                 overwrite = overwrite,
                 create_dirs = True
