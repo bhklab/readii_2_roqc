@@ -232,8 +232,13 @@ data
 |       |       `-- {PatientID}_{SampleNumber}
 |       |           `-- {ImageModality}_{SeriesInstanceUID}
 |       |               |-- {SegmentationModality}_{SeriesInstanceUID}
-|       |               |   |-- roi_{neg_control_permutation}.nii.gz
-|       |               |   `-- non_roi_{neg_control_permutation}.nii.gz 
+|       |               |   |-- {neg_control_permutation}_roi_.nii.gz
+|       |               |   `-- {neg_control_permutation}_non_roi_.nii.gz 
 |       |               |-- full_{neg_control_permutation}.nii.gz
 |       |               `-- full_{neg_control_permutation}.nii.gz
 ```
+This is what I want to end up with eventually, but for now am going to leave the full directories inside the segmentation file
+
+#### [2025-06-09]
+* Could also see about making the roi region name the actual roi name
+    * That might make processing difficult though, since every ROI negative control image will have a different name
