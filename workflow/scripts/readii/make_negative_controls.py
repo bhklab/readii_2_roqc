@@ -184,7 +184,7 @@ def make_negative_controls(dataset: str,
         # Get mask metadata as a pd.Series
         all_mask_metadata = study_data[study_data['Modality'] == mask_modality]
 
-        for mask_metadata in all_mask_metadata.iterrows():
+        for row_idx, mask_metadata in all_mask_metadata.iterrows():
             mask_path = Path(mask_metadata['filepath'])
             # Load in mask
             raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
