@@ -18,7 +18,7 @@ MIT:
         mask: RTSTRUCT
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        GTV:GTV-1
+        'GTV:GTV-1,gtv-pre-op'
 
 ### READII settings
 READII:
