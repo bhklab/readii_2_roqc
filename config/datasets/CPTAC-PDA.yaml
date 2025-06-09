@@ -16,8 +16,8 @@ MIT:
     MODALITIES: 
         image: MR
         mask: RTSTRUCT
-    ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: GTV:.* # NOTE: there can be no spaces in KEY:ROI_NAME
         
 
 ### READII settings
