@@ -242,3 +242,8 @@ This is what I want to end up with eventually, but for now am going to leave the
 #### [2025-06-09]
 * Could also see about making the roi region name the actual roi name
     * That might make processing difficult though, since every ROI negative control image will have a different name
+
+#### [2025-06-10]
+* So the NIFTIWriter has an index saver portion of it from Med-ImageTools
+* Using that during negative control generation
+* Just need to add the Mask paths to it
