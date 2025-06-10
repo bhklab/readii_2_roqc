@@ -7,9 +7,9 @@ from damply import dirs
 from joblib import Parallel, delayed
 from typing import Optional
 
+from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
 from readii.image_processing import flattenImage, alignImages
 from readii.io.loaders import loadImageDatasetConfig
-from readii.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
 from readii.negative_controls_refactor import NegativeControlManager
 from readii.process.config import get_full_data_name
 from readii.utils import logger
@@ -111,7 +111,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
     """Save out negative control images using the NIFTIWriter."""
 
     try:
-        nifti_writer.save(
+        out_path = nifti_writer.save(
                         image,
                         PatientID=patient_id,
                         region=region,
@@ -121,7 +121,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
         message = f"{permutation} {region} negative control file already exists for {patient_id}. If you wish to overwrite, set overwrite to true in the NIFTIWriter."
         logger.debug(message)
 
-    return image
+    return out_path
 
 
 
@@ -139,15 +139,17 @@ def make_negative_controls(dataset: str,
         logger.error(message)
         raise ValueError(message)
 
+    # get path to dataset config directory
     config_dir_path = dirs.CONFIG / 'datasets'
     
+    # Load in dataset configuration settings from provided dataset name
     dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
 
     dataset_name = dataset_config['DATASET_NAME']
     full_data_name = get_full_data_name(config_dir_path / dataset)
     logger.info(f"Creating negative controls for dataset: {dataset_name}")
 
-    # Extract READII settings
+    # Extract READII settings from config file
     regions, permutations, _crop = get_readii_settings(dataset_config)
 
     # Set up negative control manager with settings from config
@@ -157,18 +159,33 @@ def make_negative_controls(dataset: str,
         random_seed=seed
     )
 
+    # Get path to the images output by med-imagetools autopipeline run
     mit_images_dir_path = dirs.PROCDATA / full_data_name / 'images' /f'mit_{dataset_name}'
    
+    # Load in mit_index file
     dataset_index = pd.read_csv(Path(mit_images_dir_path, f'mit_{dataset_name}_index.csv'))
 
+    # Get just the rows with the desired image and mask modalities specified in the dataset config
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
     mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
-
     masked_image_index = get_masked_image_metadata(dataset_index = dataset_index,
                                                    image_modality = image_modality,
                                                    mask_modality = mask_modality)
 
-    # StudyInstanceUID
+    # Set up directory to save out the negative controls
+    readii_image_dir = mit_images_dir_path.parent / f'readii_{dataset_name}'
+
+    # Set up writer for saving out the negative controls and index file
+    nifti_writer = NIFTIWriter(
+            root_directory = readii_image_dir,
+            filename_format = "{orig_image_dirs}/{mask_roi_name}/" + f"{image_modality}" + "_{permutation}_{region}.nii.gz",
+            create_dirs = True,
+            existing_file_mode = 'SKIP',
+            sanitize_filenames = True,
+            index_filename = readii_image_dir /f"readii_{dataset_name}_index.csv",
+        )
+
+    # Loop over each study in the masked image index
     for study, study_data in masked_image_index.groupby('StudyInstanceUID'):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
@@ -180,37 +197,33 @@ def make_negative_controls(dataset: str,
         # Remove extra dimension of image, set origin, spacing, direction to original
         image = alignImages(raw_image, flattenImage(raw_image))
 
-        
         # Get mask metadata as a pd.Series
         all_mask_metadata = study_data[study_data['Modality'] == mask_modality]
 
+        # Process each mask for the current study and generate negative control versions of the image
         for row_idx, mask_metadata in all_mask_metadata.iterrows():
+            # Get path to the mask image file
             mask_path = Path(mask_metadata['filepath'])
             # Load in mask
             raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
             mask = alignImages(raw_mask, flattenImage(raw_mask))
-
+            # Get the ROI name for this mask
             mask_roi_name = mask_metadata['ImageID']
-            # Set up writer for saving out the negative controls
-            nifti_writer = NIFTIWriter(
-                root_directory = mit_images_dir_path.parent / f'readii_{dataset_name}' / image_path.parent / mask_roi_name,
-                filename_format = "{permutation}_{region}.nii.gz",
-                overwrite = overwrite,
-                create_dirs = True
-            )
             
             # Generate each image type and save it out with the nifti writer
-            Parallel(n_jobs=-1, require="sharedmem")(
-                delayed(save_out_negative_controls)(
-                    nifti_writer, 
-                    patient_id = image_metadata['PatientID'],
-                    image = neg_image,
-                    region = region,
-                    permutation = permutation
-                ) for neg_image, permutation, region in manager.apply(image, mask)
-            )
-                
-    return
+            readii_image_paths = [save_out_negative_controls(nifti_writer, 
+                                                             patient_id = image_metadata['PatientID'],
+                                                             image = neg_image,
+                                                             mask_roi_name = mask_roi_name,
+                                                             region = region,
+                                                             permutation = permutation,
+                                                             orig_image_dirs = image_path.parent
+                                        ) for neg_image, permutation, region in manager.apply(image, mask)]
+
+    # TODO: load the index created by the NIFTIWriter in, add column for Mask filepaths, save it out
+    
+
+    return readii_image_paths
 
 
 
