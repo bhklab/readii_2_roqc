@@ -108,20 +108,20 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                                image: sitk.Image,
                                region: str,
                                permutation: str,
-                               mask_roi_name: str,
-                               orig_image_dir: Path,
-                               mask_dir: Path) -> Path:
+                               original_image_path: Path,
+                               mask_path: Path,
+                               mask_image_id: str) -> Path:
     """Save out negative control images using the NIFTIWriter."""
 
     try:
         out_path = nifti_writer.save(
                         image,
                         PatientID=patient_id,
-                        region=region,
-                        permutation=permutation,
-                        mask_roi_name=mask_roi_name,
-                        orig_image_dir=orig_image_dir,
-                        mask_dir=mask_dir
+                        Region=region,
+                        Permutation=permutation,
+                        ImageID_mask=mask_image_id,
+                        dir_original_image=original_image_path.parent,
+                        dirname_mask=mask_path.parent.name,
                     )
     except NiftiWriterIOError as e:
         message = f"{permutation} {region} negative control file already exists for {patient_id}. If you wish to overwrite, set overwrite to true in the NIFTIWriter."
@@ -184,7 +184,7 @@ def make_negative_controls(dataset: str,
     # Set up writer for saving out the negative controls and index file
     nifti_writer = NIFTIWriter(
             root_directory = readii_image_dir,
-            filename_format = "{orig_image_dir}/{mask_dir}_{mask_roi_name}/" + f"{image_modality}" + "_{permutation}_{region}.nii.gz",
+            filename_format = "{dir_original_image}/{dirname_mask}_{ImageID_mask}/" + f"{image_modality}" + "_{Permutation}_{Region}.nii.gz",
             create_dirs = True,
             existing_file_mode = 'SKIP',
             sanitize_filenames = True,
@@ -220,11 +220,11 @@ def make_negative_controls(dataset: str,
             readii_image_paths = [save_out_negative_controls(nifti_writer, 
                                                              patient_id = image_metadata['PatientID'],
                                                              image = neg_image,
-                                                             mask_roi_name = mask_roi_name,
                                                              region = region,
                                                              permutation = permutation,
-                                                             orig_image_dir = image_path.parent,
-                                                             mask_dir = mask_path.parent.name
+                                                             original_image_path = image_path,
+                                                             mask_image_id = mask_metadata['ImageID'],
+                                                             mask_path = mask_path
                                         ) for neg_image, permutation, region in manager.apply(image, mask)]
 
     return readii_image_paths
