@@ -107,7 +107,10 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                                patient_id: str,
                                image: sitk.Image,
                                region: str,
-                               permutation: str):
+                               permutation: str,
+                               mask_roi_name: str,
+                               orig_image_dir: Path,
+                               mask_dir: Path) -> Path:
     """Save out negative control images using the NIFTIWriter."""
 
     try:
@@ -115,7 +118,10 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                         image,
                         PatientID=patient_id,
                         region=region,
-                        permutation=permutation
+                        permutation=permutation,
+                        mask_roi_name=mask_roi_name,
+                        orig_image_dir=orig_image_dir,
+                        mask_dir=mask_dir
                     )
     except NiftiWriterIOError as e:
         message = f"{permutation} {region} negative control file already exists for {patient_id}. If you wish to overwrite, set overwrite to true in the NIFTIWriter."
@@ -178,7 +184,7 @@ def make_negative_controls(dataset: str,
     # Set up writer for saving out the negative controls and index file
     nifti_writer = NIFTIWriter(
             root_directory = readii_image_dir,
-            filename_format = "{orig_image_dirs}/{mask_roi_name}/" + f"{image_modality}" + "_{permutation}_{region}.nii.gz",
+            filename_format = "{orig_image_dir}/{mask_dir}_{mask_roi_name}/" + f"{image_modality}" + "_{permutation}_{region}.nii.gz",
             create_dirs = True,
             existing_file_mode = 'SKIP',
             sanitize_filenames = True,
@@ -217,11 +223,9 @@ def make_negative_controls(dataset: str,
                                                              mask_roi_name = mask_roi_name,
                                                              region = region,
                                                              permutation = permutation,
-                                                             orig_image_dirs = image_path.parent
+                                                             orig_image_dir = image_path.parent,
+                                                             mask_dir = mask_path.parent.name
                                         ) for neg_image, permutation, region in manager.apply(image, mask)]
-
-    # TODO: load the index created by the NIFTIWriter in, add column for Mask filepaths, save it out
-    
 
     return readii_image_paths
 
