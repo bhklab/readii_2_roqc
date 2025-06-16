@@ -10,7 +10,11 @@ include: "scripts/mit/run_mit.smk"
 rule all:
     # Target rule
     input:
-        readii_images_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}"
+        mit_autopipeline_index=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index.csv",
+        mit_niftis_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}",
+        readii_images_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}",
+        feature_extraction_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "features" / f"{config["EXTRACTION"]["METHOD"]}" / f"{config["EXTRACTION"]["METHOD"]}_{config["DATASET_NAME"]}_index.csv"
+
 
 
 rule run_readii:
@@ -19,9 +23,23 @@ rule run_readii:
         mit_niftis_directory=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}",
         
     output:
-        readii_images_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}")
+        readii_images_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}"),
+        readii_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}" / f"readii_{config["DATASET_NAME"]}_index.csv",
     params:
         dataset=config["DATASET_NAME"],
         seed=config["RANDOM_SEED"]
     shell:
         "python workflow/scripts/readii/make_negative_controls.py --dataset {params.dataset} --overwrite True --seed {params.seed}"
+
+
+rule run_index:
+    input:
+        mit_simple_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index-simple.csv",
+        readii_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"readii_{config["DATASET_NAME"]}" / f"readii_{config["DATASET_NAME"]}_index.csv"
+    output:
+        feature_extraction_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "features" / f"{config["EXTRACTION"]["METHOD"]}" / f"{config["EXTRACTION"]["METHOD"]}_{config["DATASET_NAME"]}_index.csv"
+    params:
+        dataset=config["DATASET_NAME"],
+        method=config["EXTRACTION"]["METHOD"]
+    shell:
+        "python workflow/scripts/feature_extraction/index.py --dataset {params.dataset} --method {params.method}"
