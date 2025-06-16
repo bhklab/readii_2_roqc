@@ -48,7 +48,7 @@ damply = ">=0.10.0, <0.11"
 bioconductor-survcomp = ">=1.56.0,<2"
 
 [tasks]
-example_script = {cmd="python $SCRIPTS/example_script.py"}
+example_script = {cmd="python $SCRIPTS/example_script.py", description="Run an example script"}
 
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
@@ -77,14 +77,11 @@ mkdocs-material = ">=9.6.12,<10"
 
 [feature.docs.tasks.doc-build]
 cmd = "mkdocs build -f mkdocs.yaml"
-inputs = ["docs"]
-outputs = ["site"]
 description = "Build documentation with mkdocs"
 
 [feature.docs.tasks.doc-serve]
 cmd = "mkdocs serve -f mkdocs.yaml"
 depends-on = ["doc-build"]
-inputs = ["docs"]
 description = "Serve documentation with mkdocs, runs doc-build first"
 
 

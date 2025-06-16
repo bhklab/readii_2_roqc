@@ -6,6 +6,7 @@ rule run_mit_autopipeline:
         mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"] / "index.csv"
     output:
         mit_autopipeline_index=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index.csv",
+        mit_simple_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index-simple.csv",
         output_directory=directory(dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}")
     params:
         modalities=f"{config["MIT"]["MODALITIES"]["image"]},{config["MIT"]["MODALITIES"]["mask"]}",

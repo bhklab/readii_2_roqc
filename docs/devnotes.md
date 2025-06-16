@@ -242,3 +242,16 @@ This is what I want to end up with eventually, but for now am going to leave the
 #### [2025-06-09]
 * Could also see about making the roi region name the actual roi name
     * That might make processing difficult though, since every ROI negative control image will have a different name
+
+#### [2025-06-10]
+* So the NIFTIWriter has an index saver portion of it from Med-ImageTools
+* Using that during negative control generation
+* Just need to add the Mask paths to it
+
+
+#### [2025-06-16]
+* Figured out how to use the NIFTIWriter the way I want
+* Updated the values used for saving the negative control NIFTI's so index file has columns I can use like Med-ImageTools
+* Should talk to Jermiah about making original image a READII filetype
+* Updated generate_pyradiomics_index
+    * Currently set up to expect the original image index from med-imagetools always and can pass the readii index if available

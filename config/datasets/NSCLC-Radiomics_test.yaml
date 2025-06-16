@@ -14,9 +14,8 @@ CLINICAL:
 ### MED-IMAGETOOLS settings
 MIT:
     ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP:
-        GTV:GTV-1
-    MODALITIES: 
+    ROI_MATCH_MAP: 'GTV:GTV-1'
+    MODALITIES:
         image: CT
         mask: RTSTRUCT
     
@@ -25,13 +24,22 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
+            - "full"
             - "roi"
+            - "non_roi"
         permutations:
             - "sampled"
+            - "shuffled"
+            - "randomized"
         crop:
     TRAIN_TEST_SPLIT:
         split: False
         split_variable: {}
         impute: null
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_original_single_feature.yaml
 
 RANDOM_SEED: 10
