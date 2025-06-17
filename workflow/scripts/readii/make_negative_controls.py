@@ -181,14 +181,28 @@ def make_negative_controls(dataset: str,
     # Set up directory to save out the negative controls
     readii_image_dir = mit_images_dir_path.parent / f'readii_{dataset_name}'
 
+    # Check for index file existence and overwrite status to determine if continuing to negative control creation
+    readii_index_file = readii_image_dir / f'readii_{dataset_name}_index.csv'
+    if readii_index_file.exits() and not overwrite:
+        logger.info("READII index file present and no overwrite requested. Skipping negative control generation.")
+        return
+    
+    if overwrite:
+        existing_file_mode = 'OVERWRITE'
+        overwrite_index = True
+    else:
+        existing_file_mode = 'SKIP'
+        overwrite_index = False
+
     # Set up writer for saving out the negative controls and index file
     nifti_writer = NIFTIWriter(
             root_directory = readii_image_dir,
             filename_format = "{dir_original_image}/{dirname_mask}_{ImageID_mask}/" + f"{image_modality}" + "_{Permutation}_{Region}.nii.gz",
             create_dirs = True,
-            existing_file_mode = 'SKIP',
+            existing_file_mode = existing_file_mode,
             sanitize_filenames = True,
             index_filename = readii_image_dir /f"readii_{dataset_name}_index.csv",
+            overwrite_index = overwrite_index
         )
 
     # Loop over each study in the masked image index
@@ -213,8 +227,6 @@ def make_negative_controls(dataset: str,
             # Load in mask
             raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
             mask = alignImages(raw_mask, flattenImage(raw_mask))
-            # Get the ROI name for this mask
-            mask_roi_name = mask_metadata['ImageID']
             
             # Generate each image type and save it out with the nifti writer
             readii_image_paths = [save_out_negative_controls(nifti_writer, 
@@ -227,7 +239,7 @@ def make_negative_controls(dataset: str,
                                                              mask_path = mask_path
                                         ) for neg_image, permutation, region in manager.apply(image, mask)]
 
-    return readii_image_paths
+    return
 
 
 
