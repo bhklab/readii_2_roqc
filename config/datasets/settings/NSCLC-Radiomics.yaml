@@ -1,0 +1,36 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "NSCLC-Radiomics_test"
+MIT:
+    MODALITIES:
+        image: CT
+        mask: RTSTRUCT
+    ROI_MATCHER:
+        match_map:
+            GTV:
+                - GTV-1
+            LUNG:
+                - Lung
+        handling_strategy: merge
+        ignore_case: true
+        allow_multi_key_matches: true
+        on_missing_regex: warn
+READII:
+    IMAGE_TYPES:
+        regions:
+            - full
+            - roi
+            - non-roi
+        permutations:
+            - shuffle
+            - sample
+            - randomize
+        crop:
+            crop_bbox:
+                min_dim_size: 4
+                pad: 0
+            crop_centroid:
+                size: 50
+    TRAIN_TEST_SPLIT:
+        split: false
+        split_variable: {}
+        impute: null

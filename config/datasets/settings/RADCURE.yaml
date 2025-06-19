@@ -1,0 +1,46 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "RADCURE"
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES:
+        image: CT
+        mask: RTSTRUCT
+    ROI_MATCHER:
+        match_map:
+            GTV: ["GTVp"]
+            NODES: ["GTVn_.*"]
+            LPLEXUS: ["BrachialPlex_L"]
+            RPLEXUS: ["BrachialPlex_R"]
+            BRAINSTEM: ["Brainstem"]
+            LACOUSTIC: ["Cochlea_L"]
+            RACOUSTIC: ["Cochlea_R"]
+            ESOPHAGUS: ["Esophagus"]
+            LEYE: ["Eye_L"]
+            REYE: ["Eye_R"]
+            LARYNX: ["Larynx"]
+            LLENS: ["Lens_L"]
+            RLENS: ["Lens_R"]
+            LIPS: ["Lips"]
+            MANDIBLE: ["Mandible_Bone"]
+            LOPTIC: ["Nrv_Optic_L"]
+            ROPTIC: ["Nrv_Optic_R"]
+            CHIASM: ["OpticChiasm"]
+            LPAROTID: ["Parotid_L"]
+            RPAROTID: ["Parotid_R"]
+            CORD: ["SpinalCord"]
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+        permutations:
+            - "shuffle"
+        # crop:
+    TRAIN_TEST_SPLIT:
+        split: True
+        split_variable: { "RADCURE-challenge": ["training", "test"] }
+        impute: "training"
+
+RANDOM_SEED: 10
