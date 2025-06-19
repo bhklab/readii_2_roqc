@@ -183,7 +183,7 @@ def make_negative_controls(dataset: str,
 
     # Check for index file existence and overwrite status to determine if continuing to negative control creation
     readii_index_file = readii_image_dir / f'readii_{dataset_name}_index.csv'
-    if readii_index_file.exits() and not overwrite:
+    if readii_index_file.exists() and not overwrite:
         logger.info("READII index file present and no overwrite requested. Skipping negative control generation.")
         return
     
