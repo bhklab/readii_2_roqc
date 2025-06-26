@@ -8,13 +8,24 @@ from readii.utils import logger
 
 from damply import dirs
 
-def sample_feature_writer(feature_vector : pd.Series,
+def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
                           extraction_settings_name : str):
     
+    
+
+    # TODO: construct rest of path with elements from metadata
+    
     output_path = dirs.PROCDATA / "features" /  extraction_settings_name 
 
-
+    # Set up metadata as an OrderedDict to be combined with the features
+    if not isinstance(metadata, OrderedDict):
+        metadata = metadata_setup(metadata)
+    
+    # Combine metadata and feature vector
+    metadata.update(feature_vector)
+    
+    # TODO: save out the metadata to a csv
 
     return
 
@@ -87,11 +98,10 @@ def pyradiomics_extract(settings: Path | str,
     except Exception as e:
         print(f"Feature extraction failed for this sample: {e}")
 
-    # Set up metadata as an OrderedDict to be combined with the features
-    if not isinstance(metadata, OrderedDict):
-        metadata = metadata_setup(metadata)
-    
-    metadata.update(sample_feature_vector)
+    # TODO: add saving out the feature vector here
+    sample_feature_writer(feature_vector = sample_feature_vector, 
+                          metadata = metadata, 
+                          extraction_settings_name=settings.name)
 
-    
-    return metadata
+    # Returning this vector of features on its own with no metadata on the front
+    return sample_feature_vector
