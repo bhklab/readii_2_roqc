@@ -104,11 +104,16 @@ def generate_pyradiomics_index(dataset_config: dict,
     # Set up the data from the mit index to point to the original images for feature extraction
     original_images_index = pd.DataFrame(
         data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
-          "MaskID": mit_edges_index['ImageID_mask'],
-          "Permutation": "original",
-          "Region": "full",
-          "Image": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_image}", axis=1),
-          "Mask": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_mask}", axis=1)
+              "Image": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_image}", axis=1),
+              "Mask": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_mask}", axis=1),
+              "DatasetName": dataset_name,
+              "SeriesInstanceUID_Image": mit_edges_index['SeriesInstanceUID_image'],
+              "Modality_Image": mit_edges_index['Modality_image'],
+              "SeriesInstanceUID_Mask": mit_edges_index['SeriesInstanceUID_mask'],
+              "Modality_Mask": mit_edges_index['Modality_mask'],
+              "MaskID": mit_edges_index['ImageID_mask'],
+              "readii_Permutation": "original",
+              "readii_Region": "full"
           }
     )
 
@@ -116,11 +121,16 @@ def generate_pyradiomics_index(dataset_config: dict,
         # Set up the data from the readii index to point to the negative control images for feature extraction
         readii_images_index = pd.DataFrame(
             data={"SampleID": readii_index.apply(lambda x: f"{Path(x.dir_original_image).parent}", axis=1),
-            "MaskID": readii_index['ImageID_mask'],
-            "Permutation": readii_index["Permutation"],
-            "Region": readii_index["Region"],
-            "Image": readii_index.apply(lambda x: f"{Path(f"readii_{dataset_name}") / x.filepath}", axis=1),
-            "Mask": readii_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
+                  "Image": readii_index.apply(lambda x: f"{Path(f"readii_{dataset_name}") / x.filepath}", axis=1),
+                  "Mask": readii_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
+                  "DatasetName": dataset_name,
+                  "SeriesInstanceUID_Image": "",
+                  "Modality_Image": image_modality,
+                  "SeriesInstanceUID_Mask": "",
+                  "Modality_Mask": mask_modality,
+                  "MaskID": readii_index['ImageID_mask'],
+                  "readii_Permutation": readii_index["Permutation"],
+                  "readii_Region": readii_index["Region"],
             }
         )
 
@@ -128,7 +138,7 @@ def generate_pyradiomics_index(dataset_config: dict,
         pyradiomics_index = pd.concat([original_images_index, readii_images_index], ignore_index=True, axis=0)
 
         # Sort the resulting index by negative control settings, then SampleID and MaskID
-        pyradiomics_index.sort_values(by=['Permutation', 'Region', 'SampleID', 'MaskID', ], inplace=True, ignore_index=True)
+        pyradiomics_index.sort_values(by=['readii_Permutation', 'readii_Region', 'SampleID', 'MaskID', ], inplace=True, ignore_index=True)
 
     else:
         # No negative control images to process, just use original images index
