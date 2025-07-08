@@ -25,8 +25,8 @@ rule run_mit_index:
     input:
         dicom_dir=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images"
     output:
-        directory(dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"]),
-        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images/.imgtools" / config["DATASET_NAME"] / "index.csv"
+        directory(dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / config["DATASET_NAME"]),
+        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / config["DATASET_NAME"] / "index.csv"
     params:
         dataset_name= config["DATASET_NAME"]
     shell:
