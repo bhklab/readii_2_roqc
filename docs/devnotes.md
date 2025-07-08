@@ -255,3 +255,9 @@ This is what I want to end up with eventually, but for now am going to leave the
 * Should talk to Jermiah about making original image a READII filetype
 * Updated generate_pyradiomics_index
     * Currently set up to expect the original image index from med-imagetools always and can pass the readii index if available
+
+
+#### [2025-07-08]
+* In sample_feature_writer, use a semi-colon to separate the keys and values of the feature vector so it can be read in easier by pandas
+    * With the comma, the pyradiomic settings lines confuse it.
+* Could also transpose this and have the keys on line 1 and vals on line 2, not sure it would solve the problem
