@@ -44,7 +44,6 @@ ipywidgets = ">=8.1.7,<9"
 [pypi-dependencies]
 readii = ">=1.35.1, <2"
 damply = ">=0.10.0, <0.11"
-med-imagetools = { path = "../med-imagetools", editable = true }
 
 [target.linux-64.dependencies]
 bioconductor-survcomp = ">=1.56.0,<2"
