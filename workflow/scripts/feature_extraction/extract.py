@@ -192,7 +192,7 @@ def extract_sample_features(sample_data: pd.Series,
 def compile_dataset_features(dataset_index: pd.DataFrame,
                              method: str,
                              settings_name: str 
-                             ) -> pd.DataFrame:
+                             ) -> dict[str, pd.DataFrame]:
     """Compile features from all samples of each image type in a directory into a single DataFrame and save it to a CSV file.
     
     Parameters
@@ -207,8 +207,8 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
     Returns
     -------
-    compiled_dataset_feature_files : list[Path]
-        List of paths to the compiled feature files for each image type in the dataset.
+    compiled_dataset_features : dict[str, pd.DataFrame]
+        A dictionary where keys are image type identifiers (e.g., "original_full", "original_partial") and values are DataFrames containing the compiled features for each image type.
     """
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
     features_dir_struct = Path(f"{dataset_index.iloc[0]['DataSource']}_{dataset_index.iloc[0]['DatasetName']}") / "features" / method / settings_name
@@ -219,8 +219,8 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
     # Get each of the image types in the dataset index
     readii_image_classes = set(product(dataset_index['readii_Permutation'].unique(), dataset_index['readii_Region'].unique()))
 
-    # Initialize list to store output file paths in
-    compiled_dataset_feature_files = []
+    # Initialize dictionary to store compiled feature dataframes
+    compiled_dataset_features = {}
 
     for permutation, region in readii_image_classes:
         # Filter the dataset index for this image class
@@ -237,7 +237,6 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         filename_pattern = f"**/{permutation}_{region}_features.csv"
         # Recursively search for sample feature files for this image type and sort them into a list
         sample_feature_files = sorted(sample_features_dir.rglob(filename_pattern))
-        print(sample_feature_files)
 
         # Set up output file path for this image type
         dataset_features_path = dirs.RESULTS / features_dir_struct / f"{permutation}_{region}_features.csv"
@@ -248,7 +247,7 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         def non_empty_dfs(file_list):
             for file in file_list:
                 try:
-                    df = pd.read_csv(file, index_col=0)
+                    df = pd.read_csv(file, index_col=0, header=None, sep=";")
                     if not df.empty:
                         empty_files.append(file)
                         yield df.T
@@ -259,35 +258,36 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
             # Find all non-empty feature dataframes in the globbed list and concatenate them
             dataset_features = pd.concat(non_empty_dfs(sample_feature_files))
             # Sort the dataframes by the sample ID column
-            dataset_features.sort_values(by="ID", inplace=True)
+            dataset_features.sort_values(by="SampleID", inplace=True)
             # Save out the combined feature dataframe
             dataset_features.to_csv(dataset_features_path, index=False)
 
         except ValueError:
             # Handle case where all dataframes are empty
-            logger.error("No non-empty dataframes found.")
+            logger.error(f"No non-empty dataframes found for {permutation} {region}.")
             # write empty file to the output file
             with open(dataset_features_path, "w") as f:
                 # write an empty file
                 f.write("")
             logger.error(f"Empty file written to {dataset_features_path}")
 
-        compiled_dataset_feature_files.append(dataset_features_path)
-    
+        compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
 
-    return compiled_dataset_feature_files
+    return compiled_dataset_features
 
 
-# @click.command()
-# @click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform extraction on.')
-# @click.option('--method', type=click.Choice(['pyradiomics']), required=True, help='Feature extraction method to use.')
-# @click.option('--settings', type=click.STRING, required=True, help='Name of the feature extraction settings file in config/<method>.')
-# @click.option('--overwrite', is_flag=True, default=False, help='Overwrite existing feature files.')
+
+@click.command()
+@click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform extraction on.')
+@click.option('--method', type=click.Choice(['pyradiomics']), required=True, help='Feature extraction method to use.')
+@click.option('--settings', type=click.STRING, required=True, help='Name of the feature extraction settings file in config/<method>.')
+@click.option('--overwrite', is_flag=True, default=False, help='Overwrite existing feature files.')
+@click.option('--parallel', is_flag=True, default=False, help='Run feature extraction in parallel.')
 def extract_dataset_features(dataset: str,
-            method: str,
-            settings: str | Path,
-            overwrite: bool = False,
-            parallel: bool = False) -> Path:
+                             method: str,
+                             settings: str | Path,
+                             overwrite: bool = False,
+                             parallel: bool = False) -> Path:
     """Extract features from a dataset using the specified method and settings.
 
     Parameters
@@ -355,13 +355,13 @@ def extract_dataset_features(dataset: str,
             for _, sample_data in dataset_index.iterrows()
         ]
 
+    # Collect all the sample feature vectors for the dataset into a DataFrame for each image type
     dataset_feature_vectors = compile_dataset_features(dataset_index,
                                                        method,
                                                        settings_name=Path(settings).stem)
     
+    return dataset_feature_vectors
 
-    # Implement feature extraction logic here
-    return feature_vectors
 
 
 if __name__ == "__main__":
