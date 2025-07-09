@@ -224,6 +224,7 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
     compiled_dataset_features = {}
 
     for permutation, region in readii_image_classes:
+        logger.info(f"Compiling features for {permutation} {region} images.")
         # Filter the dataset index for this image class
         filtered_class_index = dataset_index[(dataset_index['readii_Permutation'] == permutation) & 
                                        (dataset_index['readii_Region'] == region)]
@@ -336,6 +337,7 @@ def extract_dataset_features(dataset: str,
     if 'DataSource' not in dataset_index.columns:
         dataset_index['DataSource'] = dataset_config['DATA_SOURCE']
 
+    logger.info("Starting feature extraction for individual image type + mask pairs.")
     # Extract features for each sample in the dataset index
     if parallel:
         # Use joblib to parallelize feature extraction
@@ -356,6 +358,7 @@ def extract_dataset_features(dataset: str,
             for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
         ]
 
+    logger.info("Compiling sample feature vectors into complete dataset table.")
     # Collect all the sample feature vectors for the dataset into a DataFrame for each image type
     dataset_feature_vectors = compile_dataset_features(dataset_index,
                                                        method,
