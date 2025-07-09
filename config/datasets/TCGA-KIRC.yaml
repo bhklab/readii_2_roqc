@@ -1,5 +1,5 @@
-DATA_SOURCE: "TCIA"
-DATASET_NAME: "CPTAC-PDA"
+DATA_SOURCE: "TCGA-KIRC"
+DATASET_NAME: "TCIA"
 
 ### CLINICAL VARIABLE INFORMATION ###
 CLINICAL:
@@ -15,18 +15,18 @@ CLINICAL:
 MIT:
     MODALITIES: 
         image: CT
-        mask: RTSTRUCT
-    ROI_STRATEGY: SEPARATE
-    ROI_MATCH_MAP: GTV:.* # NOTE: there can be no spaces in KEY:ROI_NAME
+        mask: 
+    ROI_STRATEGY: MERGE
+    ROI_MATCH_MAP: KEY:ROI_NAME # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
         
 
 ### READII settings
 READII:
     IMAGE_TYPES:
         regions:
-
+            
         permutations:
-
+            
         crop:
     TRAIN_TEST_SPLIT:
         split: False
@@ -37,7 +37,6 @@ READII:
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_h4h_all_images_features.yaml
-
+    CONFIG: pyradiomics_original_single_feature.yaml
 
 RANDOM_SEED: 10
