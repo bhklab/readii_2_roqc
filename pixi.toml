@@ -51,6 +51,17 @@ bioconductor-survcomp = ">=1.56.0,<2"
 [tasks]
 example_script = {cmd="python $SCRIPTS/example_script.py", description="Run an example script"}
 
+[tasks.test]
+args = []
+cmd = {cmd="python $SCRIPTS/example_script.py", description="Run an example script"}
+
+[tasks.mit]
+args = ["dataset", "modalities", "strategy", "rmap"]
+cmd = "imgtools autopipeline $RAWDATA/TCIA_{{ dataset }} --modalities {{ modalities }} --roi-strategy {{ strategy }} -rmap {{ rmap }} --filename-format "{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz"" 
+
+
+
+
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
 [feature.quality.dependencies]
