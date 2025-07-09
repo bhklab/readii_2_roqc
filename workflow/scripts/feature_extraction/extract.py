@@ -6,6 +6,7 @@ import pandas as pd
 from collections import OrderedDict
 import click
 from joblib import Parallel, delayed
+from tqdm import tqdm
 
 from radiomics import featureextractor, setVerbosity
 from readii.utils import logger
@@ -343,7 +344,7 @@ def extract_dataset_features(dataset: str,
                                              method = method, 
                                              settings = settings, 
                                              overwrite = overwrite)
-            for _, sample_data in dataset_index.iterrows()
+            for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
         )
     else:
         # Sequentially extract features
@@ -352,7 +353,7 @@ def extract_dataset_features(dataset: str,
                                     method = method, 
                                     settings = settings, 
                                     overwrite = overwrite)
-            for _, sample_data in dataset_index.iterrows()
+            for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
         ]
 
     # Collect all the sample feature vectors for the dataset into a DataFrame for each image type
