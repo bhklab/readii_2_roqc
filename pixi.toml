@@ -52,7 +52,50 @@ bioconductor-survcomp = ">=1.56.0,<2"
 
 [tasks.mit]
 args = ["dataset", "modalities", "strategy", "rmap"]
-cmd = "imgtools autopipeline $RAWDATA/TCIA_{{ dataset }} $PROCDATA/TCIA_{{ dataset }}/images/mit_{{ dataset }} --modalities {{ modalities }} --roi-strategy {{ strategy }} -rmap {{ rmap }} --filename-format '{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz'" 
+cmd = ["imgtools",
+       "autopipeline",
+       "$RAWDATA/TCIA_{{ dataset }}",
+       "$PROCDATA/TCIA_{{ dataset }}/images/mit_{{ dataset }}",
+       "--modalities", "{{ modalities }}",
+       "--roi-strategy", "{{ strategy }}",
+       "-rmap", "{{ rmap }}",
+       "--filename-format",
+       "'{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz'"
+] 
+
+[tasks.readii_negative]
+args = ["dataset",
+         {arg = "overwrite", default = "false"},
+         {arg = "seed", default = "10"}
+]
+cwd = "workflow/scripts/readii"
+cmd = ["python",
+       "make_negative_controls.py",
+       "--dataset", "{{ dataset }}",
+       "--overwrite", "{{ overwrite }}",
+       "--seed", "{{ seed }}"
+]
+
+[tasks.index]
+args = ["dataset", "method"]
+cwd = "workflow/scripts/feature_extraction"
+cmd = ["python",
+       "index.py",
+       "--dataset", "{{ dataset }}",
+       "--method", "{{ method }}"
+]
+
+[tasks.extract]
+args = ["dataset", "method", "settings"]
+depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
+cwd = "workflow/scripts/feature_extraction"
+cmd = ["python",
+       "extract.py",
+       "--dataset", "{{ dataset }}",
+       "--method", "{{ method }}",
+       "--settings", "{{ settings }}",
+       "--parallel"
+]
 
 
 ############################################## QUALITY ###############################################
