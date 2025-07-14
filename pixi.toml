@@ -51,7 +51,7 @@ bioconductor-survcomp = ">=1.56.0,<2"
 [tasks]
 
 [tasks.mit]
-args = ["dataset", "modalities", "strategy", "rmap"]
+args = ["dataset", "modalities", "strategy", "rmap", {arg = "existing_file_mode", default = "skip"}]
 cmd = ["imgtools",
        "autopipeline",
        "$RAWDATA/TCIA_{{ dataset }}",
@@ -60,7 +60,10 @@ cmd = ["imgtools",
        "--roi-strategy", "{{ strategy }}",
        "-rmap", "{{ rmap }}",
        "--filename-format",
-       "'{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz'"
+       "'{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz'",
+       "--update-crawl",
+       "--existing-file-mode",
+       "{{ existing_file_mode }}"
 ] 
 
 [tasks.readii_negative]
