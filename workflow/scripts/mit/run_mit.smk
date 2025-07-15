@@ -3,7 +3,7 @@ from damply import dirs as dmpdirs
 rule run_mit_autopipeline:
     input:
         input_directory=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images",
-        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / config["DATASET_NAME"] / "index.csv"
+        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / "images" / "index.csv"
     output:
         mit_autopipeline_index=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index.csv",
         mit_simple_index_file=dmpdirs.PROCDATA / COMBINED_DATA_NAME / "images" / f"mit_{config["DATASET_NAME"]}" / f"mit_{config["DATASET_NAME"]}_index-simple.csv",
@@ -25,11 +25,11 @@ rule run_mit_index:
     input:
         dicom_dir=dmpdirs.RAWDATA / COMBINED_DATA_NAME / "images"
     output:
-        directory(dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / config["DATASET_NAME"]),
-        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / config["DATASET_NAME"] / "index.csv"
+        directory(dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / "images"),
+        mit_crawl_index=dmpdirs.RAWDATA / COMBINED_DATA_NAME / ".imgtools" / "images" / "index.csv"
     params:
         dataset_name= config["DATASET_NAME"]
     shell:
         """
-        imgtools index --dicom-dir {input.dicom_dir} --dataset-name {params.dataset_name} --force
+        imgtools index --dicom-dir {input.dicom_dir} --force
         """
