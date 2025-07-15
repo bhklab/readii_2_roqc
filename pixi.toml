@@ -90,7 +90,7 @@ cmd = ["python",
 
 [tasks.extract]
 args = ["dataset", "method", "settings"]
-# depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
+depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
 cwd = "workflow/scripts/feature_extraction"
 cmd = ["python",
        "extract.py",
