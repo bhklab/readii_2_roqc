@@ -33,4 +33,9 @@ READII:
         split_variable: {'RADCURE-challenge': ['training', 'test']}
         impute: 'training'
 
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_original_single_feature.yaml
+
 RANDOM_SEED: 10
