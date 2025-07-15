@@ -185,7 +185,31 @@ data
 
 
 ## Running Your Analysis
+The pipeline is currently being run via `pixi` tasks. The following example shows how to run the pipeline using the `NSCLC-Radiomics` data.
 
+# DICOM Image and Mask file processing with Med-ImageTools
+This step converts the DICOM image files to NIfTI files, creates a unique ID for Image and Mask pairs, and generates an index file containing relevant metadata.
+
+## Step 1: Run Med-ImageTools
+This step converts the DICOM files to NIfTIs, assigns unique SampleIDs to image and mask pairs, and generates an index table for each file with associated metadata (e.g. DICOM tags)
+
+```bash
+pixi run mit NSCLC-Radiomics 'CT,RTSTRUCT' SEPARATE 'GTV:GTV-1,gtv-pre-op'
+```
+
+## Step 2: Generate negative control images with READII
+This step creates and saves READII negative controls specified in the config file for the provided dataset. 
+
+```bash
+pixi run readii_negative NSCLC-Radiomics
+```
+
+### Step 3: Run feature extraction
+This step first generates an index file for the specific feature extraction method, where each row contains the information for the image and mask pair to use.
+
+```bash
+pixi run extract NSCLC-Radiomics pyradiomics pyradiomics_original_all_features.yaml
+```
 
 
 ## Data splitting
