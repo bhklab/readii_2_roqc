@@ -17,7 +17,7 @@ MIT:
         image: CT
         mask: RTSTRUCT
     ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP: KEY:ROI_NAME # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
+    ROI_MATCH_MAP: "KEY:ROI_NAME" # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
         
 
 ### READII settings
