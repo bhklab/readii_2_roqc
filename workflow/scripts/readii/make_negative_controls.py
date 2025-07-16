@@ -112,7 +112,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                                mask_path: Path,
                                mask_image_id: str) -> Path:
     """Save out negative control images using the NIFTIWriter."""
-
+    out_path = None
     try:
         out_path = nifti_writer.save(
                         image,
