@@ -110,13 +110,13 @@ def pyradiomics_extract(settings: Path | str,
         sample_feature_vector = extractor.execute(image, mask)
 
     except Exception as e:
-        print(f"Feature extraction failed for this sample: {e}")
+        logger.debug(f"Feature extraction failed for this sample: {e}")
 
     # Save out the feature vector with the metadata appended to the front
-    output_path = sample_feature_writer(feature_vector = sample_feature_vector, 
-                                        metadata = metadata,
-                                        extraction_method="pyradiomics", 
-                                        extraction_settings_name=Path(settings).stem)
+    sample_feature_writer(feature_vector=sample_feature_vector,
+                          metadata=metadata,
+                          extraction_method="pyradiomics",
+                          extraction_settings_name=Path(settings).stem)
 
     # Returning this vector of features on its own with no metadata on the front
     return sample_feature_vector
