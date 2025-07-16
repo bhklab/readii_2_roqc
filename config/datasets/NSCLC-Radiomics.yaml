@@ -13,7 +13,7 @@ CLINICAL:
 
 ### MED-IMAGETOOLS settings
 MIT:
-    MODALITIES: 
+    MODALITIES:
         image: CT
         mask: RTSTRUCT
     ROI_STRATEGY: MERGE
@@ -24,13 +24,9 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
-            - "full"
             - "roi"
-            - "non_roi"
         permutations:
             - "shuffled"
-            - "sampled"
-            - "randomized"
         crop:
     TRAIN_TEST_SPLIT:
         split: False
