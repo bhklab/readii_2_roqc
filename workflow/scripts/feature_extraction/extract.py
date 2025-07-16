@@ -260,7 +260,7 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
             # Find all non-empty feature dataframes in the globbed list and concatenate them
             dataset_features = pd.concat(non_empty_dfs(sample_feature_files))
             # Sort the dataframes by the sample ID column
-            dataset_features.sort_values(by="SampleID", inplace=True)
+            dataset_features = dataset_features.sort_values(by="SampleID")
             # Save out the combined feature dataframe
             dataset_features.to_csv(dataset_features_path, index=False)
 
