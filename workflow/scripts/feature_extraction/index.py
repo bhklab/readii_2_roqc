@@ -138,7 +138,7 @@ def generate_pyradiomics_index(dataset_config: dict,
         pyradiomics_index = pd.concat([original_images_index, readii_images_index], ignore_index=True, axis=0)
 
         # Sort the resulting index by negative control settings, then SampleID and MaskID
-        pyradiomics_index.sort_values(by=['readii_Permutation', 'readii_Region', 'SampleID', 'MaskID', ], inplace=True, ignore_index=True)
+        pyradiomics_index = pyradiomics_index.sort_values(by=['readii_Permutation', 'readii_Region', 'SampleID', 'MaskID'], ignore_index=True)
 
     else:
         # No negative control images to process, just use original images index
