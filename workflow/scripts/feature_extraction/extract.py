@@ -267,8 +267,10 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         except ValueError:
             # Handle case where all dataframes are empty
             logger.error(f"No non-empty dataframes found for {permutation} {region}.")
+            # Create empty dataframe for compiled dataset features
+            dataset_features = pd.DataFrame()
             # write empty file to the output file
-            with open(dataset_features_path, "w") as f:
+            with dataset_features_path.open("w") as f:
                 # write an empty file
                 f.write("")
             logger.error(f"Empty file written to {dataset_features_path}")
