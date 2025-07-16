@@ -45,14 +45,13 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
         except AssertionError as e:
             message = "Expected imgtools autopipeline index file ending in 'index.csv' or 'index-simple.csv'."
             logger.error(message)
-            raise e
+            raise
     
     # Get the image rows and mask rows from the MIT index and merge based on 
     #   - mask's ReferencedSeriesUID == image's SeriesInstanceUID
     #   - Matching SampleNumber
     #   - Matching PatientID
-    edges_df = pd.merge(
-        mit_index[mit_index.Modality == image_modality],
+    edges_df = mit_index[mit_index.Modality == image_modality].merge(
         mit_index[mit_index.Modality == mask_modality],
         left_on=['SeriesInstanceUID', 'SampleNumber', 'PatientID'],
         right_on=['ReferencedSeriesUID', 'SampleNumber', 'PatientID'],
@@ -163,7 +162,7 @@ def generate_pyradiomics_index(dataset_config: dict,
     except AssertionError as e:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
         logger.error(message)
-        raise e
+        raise
 
 
 
@@ -171,7 +170,8 @@ def generate_pyradiomics_index(dataset_config: dict,
 @click.option('--dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
 @click.option('--method', default='pyradiomics', help='Feature extraction method to use.')
 def generate_dataset_index(dataset: str, 
-                           method: str = 'pyradiomics'):
+                           method: str = 'pyradiomics'
+                           ) -> pd.DataFrame:
     """Create data index file for feature extraction listing image and mask file pairs.
     """
     if dataset is None:
