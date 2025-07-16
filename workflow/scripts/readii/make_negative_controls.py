@@ -1,19 +1,16 @@
-import click
-import SimpleITK as sitk
-import pandas as pd
-
 from pathlib import Path
-from damply import dirs
-from joblib import Parallel, delayed
 from typing import Optional
 
+import click
+import pandas as pd
+import SimpleITK as sitk
+from damply import dirs
 from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
-from readii.image_processing import flattenImage, alignImages
+from readii.image_processing import alignImages, flattenImage
 from readii.io.loaders import loadImageDatasetConfig
 from readii.negative_controls_refactor import NegativeControlManager
 from readii.process.config import get_full_data_name
 from readii.utils import logger
-
 
 
 def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
@@ -123,7 +120,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                         dir_original_image=original_image_path.parent,
                         dirname_mask=mask_path.parent.name,
                     )
-    except NiftiWriterIOError as e:
+    except NiftiWriterIOError:
         message = f"{permutation} {region} negative control file already exists for {patient_id}. If you wish to overwrite, set overwrite to true in the NIFTIWriter."
         logger.debug(message)
 

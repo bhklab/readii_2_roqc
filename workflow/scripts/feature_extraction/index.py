@@ -1,11 +1,11 @@
-import pandas as pd
-import click
-from damply import dirs
 from pathlib import Path
 
+import click
+import pandas as pd
+from damply import dirs
 from readii.io.loaders import loadImageDatasetConfig
-from readii.utils import logger
 from readii.process.config import get_full_data_name
+from readii.utils import logger
 
 
 def make_edges_df(mit_index: pd.DataFrame | Path,
@@ -42,7 +42,7 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
             # Load the file into a pandas DataFrame
             mit_index = pd.read_csv(mit_index)
 
-        except AssertionError as e:
+        except AssertionError:
             message = "Expected imgtools autopipeline index file ending in 'index.csv' or 'index-simple.csv'."
             logger.error(message)
             raise
@@ -159,7 +159,7 @@ def generate_pyradiomics_index(dataset_config: dict,
 
         return pyradiomics_index
     
-    except AssertionError as e:
+    except AssertionError:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
         logger.error(message)
         raise

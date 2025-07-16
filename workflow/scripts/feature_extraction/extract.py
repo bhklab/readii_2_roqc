@@ -1,19 +1,18 @@
-from importlib import metadata
+from collections import OrderedDict
 from itertools import product
 from pathlib import Path
-import SimpleITK as sitk
-import pandas as pd
-from collections import OrderedDict
-import click
-from joblib import Parallel, delayed
-from tqdm import tqdm
 
+import click
+import pandas as pd
+import SimpleITK as sitk
+from damply import dirs
+from joblib import Parallel, delayed
 from radiomics import featureextractor, setVerbosity
-from readii.utils import logger
 from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name
+from readii.utils import logger
+from tqdm import tqdm
 
-from damply import dirs
 
 def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
@@ -34,8 +33,7 @@ def sample_feature_writer(feature_vector : OrderedDict,
     
     # Save out the metadata to a csv
     with open(output_path, 'w') as f:
-        for key, value in metadata.items():
-            f.write(f"{key};{value}\n")
+        f.writelines(f"{key};{value}\n" for key, value in metadata.items())
 
     return metadata
 
