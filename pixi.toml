@@ -22,17 +22,6 @@ env.RESULTS = "${PIXI_PROJECT_ROOT}/data/results"
 env.SCRIPTS = "${PIXI_PROJECT_ROOT}/workflow/scripts"
 
 
-[activation]
-# convenient variables which can be used in scripts
-env.CONFIG = "${PIXI_PROJECT_ROOT}/config"
-env.METADATA = "${PIXI_PROJECT_ROOT}/metadata"
-env.LOGS = "${PIXI_PROJECT_ROOT}/logs"
-env.RAWDATA = "${PIXI_PROJECT_ROOT}/data/rawdata"
-env.PROCDATA = "${PIXI_PROJECT_ROOT}/data/procdata"
-env.RESULTS = "${PIXI_PROJECT_ROOT}/data/results"
-env.SCRIPTS = "${PIXI_PROJECT_ROOT}/workflow/scripts"
-
-
 [dependencies]
 python = ">=3.12"
 ipython = "*"
