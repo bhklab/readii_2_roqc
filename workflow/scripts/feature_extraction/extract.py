@@ -61,7 +61,7 @@ def metadata_setup(metadata : dict[str, str] | pd.Series) -> OrderedDict:
     """
     match metadata:
         case dict():
-            od_metdata = OrderedDict(metadata)
+            od_metadata = OrderedDict(metadata)
         case pd.Series():
             od_metadata = metadata.to_dict(into=OrderedDict)
         case _:
