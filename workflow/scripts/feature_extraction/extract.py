@@ -95,7 +95,7 @@ def pyradiomics_extract(settings: Path | str,
         assert Path(settings).exists()
     except AssertionError as e:
         logger.error(f"Settings file for PyRadiomics feature extraction at {settings} does not exist.")
-        raise e
+        raise
 
     # Convert settings Path to string for pyradiomics to read it
     if isinstance(settings, Path):
@@ -164,7 +164,7 @@ def extract_sample_features(sample_data: pd.Series,
         assert settings_path.exists()
     except AssertionError as e:
         logger.error(f"Settings file for {method} feature extraction does not exist at {settings_path}.")
-        raise e
+        raise
     
     data_dir = dirs.PROCDATA / f"{sample_data['DataSource']}_{sample_data['DatasetName']}" / "images"
 
@@ -331,7 +331,7 @@ def extract_dataset_features(dataset: str,
         dataset_index = pd.read_csv(dataset_index_path)
     except FileNotFoundError as e:
         logger.error(f"Dataset index file for {method} feature extraction does not exist at {dataset_index_path}.")
-        raise e
+        raise
 
     # Add dataset source to metadata for file loading and saving purposes
     if 'DataSource' not in dataset_index.columns:
