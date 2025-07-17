@@ -218,7 +218,7 @@ def make_negative_controls(dataset: str,
         all_mask_metadata = study_data[study_data['Modality'] == mask_modality]
 
         # Process each mask for the current study and generate negative control versions of the image
-        for row_idx, mask_metadata in all_mask_metadata.iterrows():
+        for _, mask_metadata in all_mask_metadata.iterrows():
             # Get path to the mask image file
             mask_path = Path(mask_metadata['filepath'])
             # Load in mask
@@ -236,7 +236,7 @@ def make_negative_controls(dataset: str,
                                                              mask_path = mask_path
                                         ) for neg_image, permutation, region in manager.apply(image, mask)]
 
-    return
+    return readii_image_paths
 
 
 
