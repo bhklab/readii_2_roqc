@@ -341,16 +341,16 @@ def extract_dataset_features(dataset: str,
     # Extract features for each sample in the dataset index
     if parallel:
         # Use joblib to parallelize feature extraction
-        feature_vectors = Parallel(n_jobs=-1)(
-            delayed(extract_sample_features)(sample_data = sample_data, 
-                                             method = method, 
-                                             settings = settings, 
-                                             overwrite = overwrite)
-            for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
+        Parallel(n_jobs=-1)(delayed(extract_sample_features)
+                            (sample_data = sample_data, 
+                             method = method, 
+                             settings = settings, 
+                             overwrite = overwrite)
+        for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
         )
     else:
         # Sequentially extract features
-        feature_vectors = [
+        [
             extract_sample_features(sample_data = sample_data, 
                                     method = method, 
                                     settings = settings, 
