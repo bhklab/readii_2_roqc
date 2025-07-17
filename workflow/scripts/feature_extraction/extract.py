@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from itertools import product
 from pathlib import Path
+from typing import Generator
 
 import click
 import pandas as pd
@@ -246,14 +247,12 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         dataset_features_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Generator
-        empty_files = [] 
-        def non_empty_dfs(file_list):
+        def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame]:
             for file in file_list:
                 try:
-                    df = pd.read_csv(file, index_col=0, header=None, sep=";")
-                    if not df.empty:
-                        empty_files.append(file)
-                        yield df.T
+                    file_df = pd.read_csv(file, index_col=0, header=None, sep=";")
+                    if not file_df.empty:
+                        yield file_df.T
                 except pd.errors.EmptyDataError:
                     pass
 
