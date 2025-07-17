@@ -74,24 +74,6 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#running-your-analysis">Running Your Analysis</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#data-splitting">Data splitting</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#aerts_original">aerts_original</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#aerts_radcure_refit">aerts_RADCURE_refit</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#r2r_nsclc">r2r_NSCLC</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#r2r_radcure">r2r_RADCURE</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#survival-modelling">Survival Modelling</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#resources">Resources</a>
-    </li>
-        </ul>
-    </li>
     </ul>
                 </li>
               </ul>
@@ -136,24 +118,42 @@
 <p><code>config</code> should have three subdirectories: <code>datasets/</code>, <code>extraction/</code>, and <code>signatures/</code></p>
 <h3 id="datasets">datasets</h3>
 <p>Each dataset needs a configuration file with the following settings filled in</p>
-<div class="highlight"><pre><span></span><code>`DATA_SOURCE` - where the data came from, will be used for data organization
-`DATASET_NAME` - the name of the dataset , will be use for data organization
+<div class="highlight"><pre><span></span><code>DATA_SOURCE: &quot;&quot;    # where the data came from, will be used for data organization
+DATASET_NAME: &quot;&quot;   # the name of the dataset , will be use for data organization
 
-`MIT_INDEX_FILE` - name of the Med-ImageTools index file output by autopipeline when run on the image data.
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: &quot;&quot;                     # Name of the clinical data file associated with the data. Not a full path, just the name including the file suffix.
+    OUTCOME_VARIABLES:
+        time_label: &quot;&quot;           # Column name for survival time in the `FILE`, should be a numeric type
+        event_label: &quot;&quot;          # Column name for survival event in the `FILE`, can be numeric, string, or bool
+        convert_to_years: False  # Boolean, whether the `time_label` needs to be converted from days to years
+        event_value_mapping: {}  # Customize the `event_label` bool or string mapping to numeric type. Should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}      # Column values of rows to drop in the clinical data (Ex. `{column_name: [val1, val2]}` )
 
-`CLINICAL_FILE` - name of the clinical data file associated with the data. Not a full path, just the name including the file suffix.
-`OUTCOME_VARIABLES`:
-    `time_label`: &quot;overall_survival_in_days&quot; - column name for survival time in the `CLINICAL_FILE`
-    `event_label`: &quot;event_overall_survival&quot; - column name for survival event in the `CLINICAL_FILE`
-    `convert_to_years`: True - boolean, whether the `time_label` needs to be converted from days to years
-    `event_value_mapping`: `{int: string | bool}` - if `event_label` values are not numeric, a dictionary can be provided to map the boolean or string to numbers. Ex: `{0: &quot;Alive&quot;, 1: &quot;Dead&quot;}`
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES:                 # Modalities to process with autopipeline
+        image: CT
+        mask: RTSTRUCT     
+    ROI_STRATEGY: MERGE         # How to handle multiple ROI matches 
+    ROI_MATCH_MAP:              # Matching map for ROIs in dataset (use if you only want to process some of the masks in a segmentation)
+        KEY:ROI_NAME            # NOTE: there can be no spaces in KEY:ROI_NAME
 
-`EXCLUSION_VARIABLES`: `{column_name: [val1, val2]}` - column values of rows to drop in the clinical data 
+### READII settings
+READII:
+    IMAGE_TYPES:                # Selection of image types to generate and perform feature extraction on (negative control settings)
+        regions:                # Areas of image to apply permutation to
+            - &quot;full&quot;
+        permutations:           # Permutation type to apply to region
+            - &quot;original&quot;
+        crop:                   # How to crop the image prior to feature extraction
+    TRAIN_TEST_SPLIT:           # If using data for modelling, set up method of data splitting here
+        split: False            # Whether to split the data
+        split_variable: {}      # What variable from `CLINICAL.FILE` to use to split the data and values to group by (Ex. {&#39;split_var&#39;: [&#39;training&#39;, &#39;test&#39;]})
+        impute: null            # What to impute values in `split_variable` with. Should be one of the values provided in `split_variable`. If none provided, won&#39;t impute, samples with no split value will be dropped.
 
-`TRAIN_TEST_SPLIT`: 
-    `split`: False - whether to apply a train test split to the data
-    `split_variable`: `{split_label: [&#39;train&#39;, &#39;test&#39;]}` - what column to use to split the data, and what values each of the subsets should have
-    `impute`: null - value to impute any missing values in `split_variable` with so that all the data is categorized
+RANDOM_SEED: 10                 # Seed for reproducibility of analysis.
 </code></pre></div>
 <h3 id="extraction">extraction</h3>
 <p>This directory should store any configuration settings used for feature extraction. They should be named/organized by the feature extraction method.</p>
@@ -215,12 +215,13 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>correlations
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>features
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>extraction_method_index.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
-<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
-<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>images
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span>mit_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
@@ -231,12 +232,12 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>readii_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
-<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
-<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>.nii.gz
 <span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span>signatures
 <span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>
 <span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span>full_original_signature_features.csv
-<span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_signature_features.csv
+<span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_signature_features.csv
 <span class="p">|</span>--<span class="w"> </span>rawdata
 <span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/srcdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>clinical
@@ -256,8 +257,8 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
 <span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>signature_performance
 <span class="w">            </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>.csv
 <span class="w">                </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
-<span class="w">                </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
-<span class="w">                </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_region<span class="o">}</span>_<span class="o">{</span>neg_control_permutation<span class="o">}</span>_features.csv
+<span class="w">                </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
+<span class="w">                </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
 </code></pre></div>
 <h3 id="best-practices">Best Practices</h3>
 <ul>
@@ -268,6 +269,21 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
     This is especially important for data that should not be shared publicly</li>
 </ul>
 <h2 id="running-your-analysis">Running Your Analysis</h2>
+<p>The pipeline is currently being run via <code>pixi</code> tasks. The following example shows how to run the pipeline using the <code>NSCLC-Radiomics</code> data.</p>
+<h1 id="dicom-image-and-mask-file-processing-with-med-imagetools">DICOM Image and Mask file processing with Med-ImageTools</h1>
+<p>This step converts the DICOM image files to NIfTI files, creates a unique ID for Image and Mask pairs, and generates an index file containing relevant metadata.</p>
+<h2 id="step-1-run-med-imagetools">Step 1: Run Med-ImageTools</h2>
+<p>This step converts the DICOM files to NIfTIs, assigns unique SampleIDs to image and mask pairs, and generates an index table for each file with associated metadata (e.g. DICOM tags)</p>
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>mit<span class="w"> </span>NSCLC-Radiomics<span class="w"> </span><span class="s1">&#39;CT,RTSTRUCT&#39;</span><span class="w"> </span>SEPARATE<span class="w"> </span><span class="s1">&#39;GTV:GTV-1,gtv-pre-op&#39;</span>
+</code></pre></div>
+<h2 id="step-2-generate-negative-control-images-with-readii">Step 2: Generate negative control images with READII</h2>
+<p>This step creates and saves READII negative controls specified in the config file for the provided dataset. </p>
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>readii_negative<span class="w"> </span>NSCLC-Radiomics
+</code></pre></div>
+<h3 id="step-3-run-feature-extraction">Step 3: Run feature extraction</h3>
+<p>This step first generates an index file for the specific feature extraction method, where each row contains the information for the image and mask pair to use.</p>
+<div class="highlight"><pre><span></span><code>pixi<span class="w"> </span>run<span class="w"> </span>extract<span class="w"> </span>NSCLC-Radiomics<span class="w"> </span>pyradiomics<span class="w"> </span>pyradiomics_original_all_features.yaml
+</code></pre></div>
 <h2 id="data-splitting">Data splitting</h2>
 <h3 id="aerts_original">aerts_original</h3>
 <p>Train: NSCLC-Radiomics<br />
