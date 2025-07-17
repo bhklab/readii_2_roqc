@@ -108,7 +108,7 @@ def pyradiomics_extract(settings: Path | str,
 
     # TODO: add check if feature file already exists and overwrite if specified
 
-     # Confirm settings file exists
+    # Confirm settings file exists
     try:
         assert Path(settings).exists()
     except AssertionError:
@@ -360,22 +360,32 @@ def extract_dataset_features(dataset: str,
     # Extract features for each sample in the dataset index
     if parallel:
         # Use joblib to parallelize feature extraction
-        Parallel(n_jobs=-1)(delayed(extract_sample_features)
-                            (sample_data = sample_data, 
-                             method = method, 
-                             settings = settings, 
-                             overwrite = overwrite)
-        for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
+        Parallel(n_jobs=-1)(
+            delayed(extract_sample_features)(
+                sample_data=sample_data,
+                method=method,
+                settings=settings,
+                overwrite=overwrite
+            )
+            for _, sample_data in tqdm(
+                dataset_index.iterrows(),
+                desc=f"Extracting {method} features",
+                total=len(dataset_index)
+            )
         )
     else:
         # Sequentially extract features
-        [
-            extract_sample_features(sample_data = sample_data, 
-                                    method = method, 
-                                    settings = settings, 
-                                    overwrite = overwrite)
-            for _, sample_data in tqdm(dataset_index.iterrows(), desc=f"Extracting {method} features", total=len(dataset_index))
-        ]
+        for _, sample_data in tqdm(
+            dataset_index.iterrows(),
+            desc=f"Extracting {method} features",
+            total=len(dataset_index)
+        ):
+            extract_sample_features(
+                sample_data=sample_data,
+                method=method,
+                settings=settings,
+                overwrite=overwrite
+            )
 
     logger.info("Compiling sample feature vectors into complete dataset table.")
     # Collect all the sample feature vectors for the dataset into a DataFrame for each image type
