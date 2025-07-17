@@ -93,7 +93,7 @@ def pyradiomics_extract(settings: Path | str,
      # Confirm settings file exists
     try:
         assert Path(settings).exists()
-    except AssertionError as e:
+    except AssertionError:
         logger.error(f"Settings file for PyRadiomics feature extraction at {settings} does not exist.")
         raise
 
@@ -110,11 +110,14 @@ def pyradiomics_extract(settings: Path | str,
     except Exception as e:
         logger.debug(f"Feature extraction failed for this sample: {e}")
 
-    # Save out the feature vector with the metadata appended to the front
-    sample_feature_writer(feature_vector=sample_feature_vector,
-                          metadata=metadata,
-                          extraction_method="pyradiomics",
-                          extraction_settings_name=Path(settings).stem)
+        sample_feature_vector = OrderedDict()
+    
+    if any(sample_feature_vector):
+        # Save out the feature vector with the metadata appended to the front
+        sample_feature_writer(feature_vector=sample_feature_vector,
+                            metadata=metadata,
+                            extraction_method="pyradiomics",
+                            extraction_settings_name=Path(settings).stem)
 
     # Returning this vector of features on its own with no metadata on the front
     return sample_feature_vector
@@ -162,7 +165,7 @@ def extract_sample_features(sample_data: pd.Series,
         # Load the settings file for the feature extraction method
         settings_path = dirs.CONFIG / method / settings
         assert settings_path.exists()
-    except AssertionError as e:
+    except AssertionError:
         logger.error(f"Settings file for {method} feature extraction does not exist at {settings_path}.")
         raise
     
@@ -329,7 +332,7 @@ def extract_dataset_features(dataset: str,
         # Load the dataset index
         dataset_index_path = dirs.PROCDATA / full_data_name / "features" / method / f"{method}_{dataset_name}_index.csv"
         dataset_index = pd.read_csv(dataset_index_path)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         logger.error(f"Dataset index file for {method} feature extraction does not exist at {dataset_index_path}.")
         raise
 
