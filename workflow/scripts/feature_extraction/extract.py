@@ -130,7 +130,7 @@ def pyradiomics_extract(settings: Path | str,
 
         sample_feature_vector = OrderedDict()
     
-    if any(sample_feature_vector):
+    if len(sample_feature_vector) > 0:
         # Save out the feature vector with the metadata appended to the front
         sample_feature_writer(feature_vector=sample_feature_vector,
                             metadata=metadata,
