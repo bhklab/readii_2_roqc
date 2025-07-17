@@ -266,3 +266,7 @@ This is what I want to end up with eventually, but for now am going to leave the
 * Existing code already performed the transpose, just needed to change the comma to a semi-colon and fix the sortby value
 * Extraction is working! Adding a tqdm progress bar then running CPTAC-CCRCC
 
+#### [2025-07-17]
+* Merged rearranged workflow into main branch
+* Pipeline can now be run with pixi tasks
+* Snakemake needs to be updated and tested
