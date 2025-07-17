@@ -1,24 +1,24 @@
 DATA_SOURCE: "TCIA"
-DATASET_NAME: "HEAD-NECK-RADIOMICS-HN1"
+DATASET_NAME: "NSCLC-Radiomics_test"
 
 ### CLINICAL VARIABLE INFORMATION ###
 CLINICAL:
-    FILE: "Copy of HEAD-NECK-RADIOMICS-HN1 Clinical data updated July 2020 2.csv"
+    FILE: ""
     OUTCOME_VARIABLES:
-        time_label: "overall_survival_in_days"
-        event_label: "event_overall_survival"
-        convert_to_years: True
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
         event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
 
 ### MED-IMAGETOOLS settings
 MIT:
-    MODALITIES: 
+    ROI_STRATEGY: MERGE
+    ROI_MATCH_MAP: 'GTV:GTV-1'
+    MODALITIES:
         image: CT
         mask: RTSTRUCT
-    ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        GTV:GTV-1
+    
 
 ### READII settings
 READII:
@@ -28,8 +28,8 @@ READII:
             - "roi"
             - "non_roi"
         permutations:
-            - "shuffled"
             - "sampled"
+            - "shuffled"
             - "randomized"
         crop:
     TRAIN_TEST_SPLIT:
@@ -40,6 +40,6 @@ READII:
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_h4h_all_images_feature.yaml
+    CONFIG: pyradiomics_original_single_feature.yaml
 
 RANDOM_SEED: 10
