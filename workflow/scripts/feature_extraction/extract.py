@@ -18,9 +18,26 @@ from tqdm import tqdm
 def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
                           extraction_method: str,
-                          extraction_settings_name : str):
+                          extraction_settings_name : str
+                          ) -> OrderedDict[str, str]:
+    """Write out the feature vector and metadata to a csv file.
     
-    """Write out the feature vector and metadata to a csv file."""
+    Parameters
+    ----------
+    feature_vector : OrderedDict
+        Dictionary of features extracted for the set of samples listed in metadata using the provided extraction method and settings.
+    metadata : dict[str, str]
+        Dictionary of metadata for each of the samples in feature_vector. At minimum, should include a SampleID.
+    extraction_method: str
+        Method of feature extraction being performed. Used to construct output path.
+    extraction_settings_name : str
+        Name of the settings used for feature extraction. Used to construct output path.
+    
+    Returns
+    -------
+        OrderedDict[str, str]
+            Combined metadata and features that was saved out.
+    """
     # Construct output path with elements from metadata
     output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
