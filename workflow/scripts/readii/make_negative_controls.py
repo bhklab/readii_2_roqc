@@ -47,7 +47,8 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
 def get_masked_image_metadata(dataset_index:pd.DataFrame,
                               dataset_config:Optional[dict] = None,
                               image_modality:Optional[str] = None,
-                              mask_modality:Optional[str] = None):
+                              mask_modality:Optional[str] = None
+                              ) -> pd.DataFrame:
     """Get rows of Med-ImageTools index.csv with the mask modality and the corresponding image modality and create a new index with just these rows for READII
     
     Parameters
@@ -134,9 +135,24 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
 @click.option('--seed', help='Random seed used for negative control generation.', default=10)
 def make_negative_controls(dataset: str,
                            overwrite : bool = False,
-                           seed: int = 10):
-    """Create negative control images and save them out as niftis"""
-
+                           seed: int = 10
+                           ) -> list[Path] :
+    """Create negative control images and save them out as niftis
+    
+    Parameters
+    ----------
+    dataset : str
+        Name of the dataset to perform extraction on. Must have a configuration file in the config/datasets directory.
+    overwrite : bool = False
+        Whether to overwrite existing feature files.
+    seed : int = 10
+        Random seed to use for negative control generation.
+    
+    Returns
+    -------
+    readii_image_paths : list[Path]
+        List of paths to the saved out negative control NIfTI files.
+    """
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
