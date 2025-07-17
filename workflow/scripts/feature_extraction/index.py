@@ -156,15 +156,13 @@ def generate_pyradiomics_index(dataset_config: dict,
 
         # Save out the index file
         pyradiomics_index.to_csv(output_file_path, index=False)
-
-        return pyradiomics_index
     
     except AssertionError:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
         logger.error(message)
         raise
 
-
+    return pyradiomics_index
 
 @click.command()
 @click.option('--dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
