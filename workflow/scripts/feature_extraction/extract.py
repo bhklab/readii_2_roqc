@@ -33,7 +33,7 @@ def sample_feature_writer(feature_vector : OrderedDict,
     metadata.update(feature_vector)
     
     # Save out the metadata to a csv
-    with open(output_path, 'w') as f:
+    with output_path.open('w') as f:
         f.writelines(f"{key};{value}\n" for key, value in metadata.items())
 
     return metadata
