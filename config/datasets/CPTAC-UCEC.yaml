@@ -1,0 +1,38 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "CPTAC-UCEC"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: ""
+    OUTCOME_VARIABLES:
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
+        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: MR
+        mask: RTSTRUCT
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        "GTV:.*" #ADRENAL - 1,AORTIC LYMPH NO,LEFT ADRENAL -,LEFT ILIAC NODE,LEFT PELVIC LYM,LIVER - 1,LIVER - 2,LT ADRENAL - 1,LT ADRENAL - 2,LT ILIAC CHAIN,LT ILIAC NODE -,LT INGUINAL LYM,LT LUNG - 1,LT NECK LYMPH N,LT OVARY - 2,LT OVARY - 2 -,LT PELVIC LYMPH,LT PELVIC NODE,LT RENAL - 1,LT RENAL - 1 -,LYMPH NODES - 1,PELVIC LYMPH NO,PELVIC MASS - 1,PERIHEPATIC NOD,RETROPERITONEAL,RIGHT ADRENAL -,RT ADRENAL  - 1,RT ADRENAL - 1,RT ILIAC CHAIN,RT INGUINAL LYM,RT OVARY - 1,RT OVARY - 1 -,RT PELVIC LYMPH,RT RETROPERITON,URTERUS - 1,UTERUS  - 1,UTERUS - 1,UTERUS - 2,UTERUS -1,VERTEBRAL BONE
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+            - "roi"
+            - "non_roi"
+        permutations:
+            - "sampled"
+        crop:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
+
+RANDOM_SEED: 10
