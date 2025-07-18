@@ -51,8 +51,9 @@
                 <li class="toctree-l1"><a class="reference internal" href="../../data_sources/">Data Sources</a>
                 </li>
               </ul>
+              <p class="caption"><span class="caption-text">Developer Notes</span></p>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Katy's Notes</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Katy's Notes</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#data-processing-notes">Data Processing Notes</a>
         <ul>
@@ -76,14 +77,38 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#2025-05-14-data-and-workflow-organization">[2025-05-14] data and workflow organization</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-22-mit-snakemake-and-config-updates">[2025-05-22] MIT Snakemake and config updates</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#202505-23-mit-snakemake-reorg-pyradiomics_index-refactor">[2025=05-23] MIT Snakemake reorg + pyradiomics_index refactor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-26-index-and-run-readii-reorg-start-of-correlation-coding">[2025-05-26] Index and run READII reorg, start of correlation coding</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-27">[2025-05-27]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-28">[2025-05-28]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-05-29">[2025-05-29]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-06-04">[2025-06-04]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-06-09">[2025-06-09]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-06-10">[2025-06-10]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-06-16">[2025-06-16]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-07-08">[2025-07-08]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-07-09">[2025-07-09]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-07-17">[2025-07-17]</a>
+    </li>
         </ul>
     </li>
     </ul>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../shabnam_notes/">Shabnam's Notes</a>
-                </li>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../shabnam_notes/">Shabnam's Notes</a>
+                  </li>
               </ul>
       </div>
     </div>
@@ -99,6 +124,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Developer Notes</li>
       <li class="breadcrumb-item active">Katy's Notes</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/bhklab/readii_2_roqc/edit/master/docs/devnotes/katy_notes.md">Edit on readii_2_roqc</a>
@@ -308,7 +334,11 @@
 <span class="p">|</span>--<span class="w"> </span>notebooks
 <span class="sb">`</span>--<span class="w"> </span>scripts
 <span class="w">    </span><span class="p">|</span>--<span class="w"> </span>analysis
-<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>predictive_signature_testing.py
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span>python
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>predictive_signature_testing.py
+<span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>r
+<span class="w">    </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>io.r
+<span class="w">    </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span>survival_prediction.r
 <span class="w">    </span><span class="p">|</span>--<span class="w"> </span>feature_extraction
 <span class="w">    </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>pyradiomics_index.py
 <span class="w">    </span><span class="p">|</span>--<span class="w"> </span>orcestra
@@ -318,6 +348,129 @@
 <span class="w">    </span><span class="sb">`</span>--<span class="w"> </span>readii
 <span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>run_readii.py
 </code></pre></div>
+<h4 id="2025-05-22-mit-snakemake-and-config-updates">[2025-05-22] MIT Snakemake and config updates</h4>
+<ul>
+<li>wrote Snakemake script to run autopipeline for the dataset</li>
+<li>Updated the datasets/config file format and updated usage documentation.</li>
+</ul>
+<h4 id="202505-23-mit-snakemake-reorg-pyradiomics_index-refactor">[2025=05-23] MIT Snakemake reorg + pyradiomics_index refactor</h4>
+<ul>
+<li>Made smk file just for MIT rules, made run_MIT rule in main Snakefile</li>
+</ul>
+<p><code>pyradiomics_index --&gt; index</code></p>
+<ul>
+<li>Added click CLI input</li>
+<li>Made a genral index function that calls the pyradiomics index function</li>
+<li>Want to add a dataset config variable or CLI argument that sets the method of feature extraction</li>
+</ul>
+<h4 id="2025-05-26-index-and-run-readii-reorg-start-of-correlation-coding">[2025-05-26] Index and run READII reorg, start of correlation coding</h4>
+<p><code>katys/refactor-pyradiomics-index</code> - has updated code for generating the index file for PyRadiomics using click for CLI</p>
+<p><code>katys/refactor-run_readii</code> - has new file called <code>make_negative_controls.py</code> that just generates and saves the negative control images, no feature extraction
+* uses click
+* has function to get just the Image Type settings from the READII section of the config</p>
+<p><code>katys/add-correlation-calculation</code> - copied the <code>run_analysis.ipynb</code> notebook from <code>readii-fmcib</code>
+* Started updating the config settings at the top of the file to hopefully run the correlation analysis and start generating figures</p>
+<p>All of these are waiting on readii 1.36.2 to be able to install from PyPI to work</p>
+<h4 id="2025-05-27">[2025-05-27]</h4>
+<ul>
+<li>Debugging the overwrite issue with make_negative_controls</li>
+<li>Solved by using Series to get image metadata</li>
+<li>Also need to run alignImages whenever flattenImage is run so that origin, direction, and <strong>spacing</strong> are maintained -- made this an issue in READII as well</li>
+</ul>
+<h4 id="2025-05-28">[2025-05-28]</h4>
+<ul>
+<li>Added make_negative_controls to Snakefile in run_readii rule</li>
+<li>Need to figure out how to list all the output files </li>
+<li>From Jermiah:<ul>
+<li>https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#data-dependent-conditional-execution </li>
+<li>you would make the autopipeline rule a checkpoint then you can create an input function for another rule that parses the index file to generate all the files you want</li>
+</ul>
+</li>
+<li>Trying to run it as is with full NSCLC-Radiomics dataset</li>
+<li>Plan for feature extraction refactor:<ul>
+<li>Will generate an index for each image type - ID, Image, Mask</li>
+<li>Make Snakemake rule run per image type</li>
+<li>Feature extraction script will parallelize by patient </li>
+</ul>
+</li>
+</ul>
+<h4 id="2025-05-29">[2025-05-29]</h4>
+<ul>
+<li>Need to add MRI handling to make_negative_controls</li>
+<li>Changing how config MODALITIES is set up so that image and mask are separate</li>
+</ul>
+<h4 id="2025-06-04">[2025-06-04]</h4>
+<ul>
+<li>Actually need the READII index earlier, for the negative control creation even</li>
+<li>Essentially making the edges file MIT used to make</li>
+<li>Need to generate ID for unique image-mask pair <ul>
+<li>OR process all masks with a single image. The full would be the same for each of them</li>
+<li>Will end up with duplicates of the full mask for each mask - unless I rearrange the outputs</li>
+</ul>
+</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>data
+<span class="p">|</span>--<span class="w"> </span>procdata
+<span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>images
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span>mit_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>SegmentationModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span>readii_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ImageModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>SegmentationModality<span class="o">}</span>_<span class="o">{</span>SeriesInstanceUID<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span><span class="w">   </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>neg_control_permutation<span class="o">}</span>_roi_.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>neg_control_permutation<span class="o">}</span>_non_roi_.nii.gz<span class="w"> </span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>--<span class="w"> </span>full_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span>full_<span class="o">{</span>neg_control_permutation<span class="o">}</span>.nii.gz
+</code></pre></div>
+This is what I want to end up with eventually, but for now am going to leave the full directories inside the segmentation file</p>
+<h4 id="2025-06-09">[2025-06-09]</h4>
+<ul>
+<li>Could also see about making the roi region name the actual roi name<ul>
+<li>That might make processing difficult though, since every ROI negative control image will have a different name</li>
+</ul>
+</li>
+</ul>
+<h4 id="2025-06-10">[2025-06-10]</h4>
+<ul>
+<li>So the NIFTIWriter has an index saver portion of it from Med-ImageTools</li>
+<li>Using that during negative control generation</li>
+<li>Just need to add the Mask paths to it</li>
+</ul>
+<h4 id="2025-06-16">[2025-06-16]</h4>
+<ul>
+<li>Figured out how to use the NIFTIWriter the way I want</li>
+<li>Updated the values used for saving the negative control NIFTI's so index file has columns I can use like Med-ImageTools</li>
+<li>Should talk to Jermiah about making original image a READII filetype</li>
+<li>Updated generate_pyradiomics_index<ul>
+<li>Currently set up to expect the original image index from med-imagetools always and can pass the readii index if available</li>
+</ul>
+</li>
+</ul>
+<h4 id="2025-07-08">[2025-07-08]</h4>
+<ul>
+<li>In sample_feature_writer, use a semi-colon to separate the keys and values of the feature vector so it can be read in easier by pandas<ul>
+<li>With the comma, the pyradiomic settings lines confuse it.</li>
+</ul>
+</li>
+<li>Could also transpose this and have the keys on line 1 and vals on line 2, not sure it would solve the problem</li>
+</ul>
+<h4 id="2025-07-09">[2025-07-09]</h4>
+<ul>
+<li>Existing code already performed the transpose, just needed to change the comma to a semi-colon and fix the sortby value</li>
+<li>Extraction is working! Adding a tqdm progress bar then running CPTAC-CCRCC</li>
+</ul>
+<h4 id="2025-07-17">[2025-07-17]</h4>
+<ul>
+<li>Merged rearranged workflow into main branch</li>
+<li>Pipeline can now be run with pixi tasks</li>
+<li>Snakemake needs to be updated and tested</li>
+</ul>
               
             </div>
           </div><footer>
