@@ -106,36 +106,48 @@ def pyradiomics_extract(settings: Path | str,
     # Set PyRadiomics verbosity to critical only
     setVerbosity(50)
 
-    # TODO: add check if feature file already exists and overwrite if specified
+    if metadata is None:  
+        raise ValueError("`metadata` must be provided when overwrite is False.")
 
-    # Confirm settings file exists
-    try:
-        assert Path(settings).exists()
-    except AssertionError:
-        logger.error(f"Settings file for PyRadiomics feature extraction at {settings} does not exist.")
-        raise
+    # Check if feature file already exists and if overwrite is specified
+    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    if sample_feature_file_path.exists() and not overwrite:
+        logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
 
-    # Convert settings Path to string for pyradiomics to read it
-    if isinstance(settings, Path):
-        settings = str(settings)
+        # Load the existing feature file
+        sample_feature_df = pd.read_csv(sample_feature_file_path, index_col=0, header=None, sep=";")
+        # collapse the single data column into a flat OrderedDict  
+        sample_feature_vector = OrderedDict(sample_feature_df.iloc[:, 0].to_dict())  
 
-    try:
-        # Set up PyRadiomics feature extractor with provided settings file (expects a string, not a pathlib Path)
-        extractor = featureextractor.RadiomicsFeatureExtractor(settings)
+    else:
+        # Confirm settings file exists
+        try:
+            assert Path(settings).exists()
+        except AssertionError:
+            logger.error(f"Settings file for PyRadiomics feature extraction at {settings} does not exist.")
+            raise
 
-        sample_feature_vector = extractor.execute(image, mask)
+        # Convert settings Path to string for pyradiomics to read it
+        if isinstance(settings, Path):
+            settings = str(settings)
 
-    except Exception as e:
-        logger.debug(f"Feature extraction failed for this sample: {e}")
+        try:
+            # Set up PyRadiomics feature extractor with provided settings file (expects a string, not a pathlib Path)
+            extractor = featureextractor.RadiomicsFeatureExtractor(settings)
 
-        sample_feature_vector = OrderedDict()
-    
-    if len(sample_feature_vector) > 0:
-        # Save out the feature vector with the metadata appended to the front
-        sample_feature_writer(feature_vector=sample_feature_vector,
-                            metadata=metadata,
-                            extraction_method="pyradiomics",
-                            extraction_settings_name=Path(settings).stem)
+            sample_feature_vector = extractor.execute(image, mask)
+
+        except Exception as e:
+            logger.debug(f"Feature extraction failed for this sample: {e}")
+
+            sample_feature_vector = OrderedDict()
+        
+        if len(sample_feature_vector) > 0:
+            # Save out the feature vector with the metadata appended to the front
+            sample_feature_writer(feature_vector=sample_feature_vector,
+                                metadata=metadata,
+                                extraction_method="pyradiomics",
+                                extraction_settings_name=Path(settings).stem)
 
     # Returning this vector of features on its own with no metadata on the front
     return sample_feature_vector
@@ -264,7 +276,7 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         dataset_features_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Generator
-        def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame]:
+        def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame, list[Path], None]:
             for file in file_list:
                 try:
                     file_df = pd.read_csv(file, index_col=0, header=None, sep=";")

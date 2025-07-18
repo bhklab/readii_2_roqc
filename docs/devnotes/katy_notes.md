@@ -144,7 +144,11 @@ workflow
 |-- notebooks
 `-- scripts
     |-- analysis
-    |   `-- predictive_signature_testing.py
+    |   |-- python
+    |   |   `-- predictive_signature_testing.py
+    |   `-- r
+    |       |-- io.r
+    |       `-- survival_prediction.r
     |-- feature_extraction
     |   `-- pyradiomics_index.py
     |-- orcestra
@@ -154,3 +158,115 @@ workflow
     `-- readii
         `-- run_readii.py
 ```
+
+#### [2025-05-22] MIT Snakemake and config updates
+* wrote Snakemake script to run autopipeline for the dataset
+* Updated the datasets/config file format and updated usage documentation.
+
+
+#### [2025=05-23] MIT Snakemake reorg + pyradiomics_index refactor
+* Made smk file just for MIT rules, made run_MIT rule in main Snakefile
+
+`pyradiomics_index --> index`
+
+* Added click CLI input
+* Made a genral index function that calls the pyradiomics index function
+* Want to add a dataset config variable or CLI argument that sets the method of feature extraction
+
+
+#### [2025-05-26] Index and run READII reorg, start of correlation coding
+`katys/refactor-pyradiomics-index` - has updated code for generating the index file for PyRadiomics using click for CLI
+
+`katys/refactor-run_readii` - has new file called `make_negative_controls.py` that just generates and saves the negative control images, no feature extraction
+* uses click
+* has function to get just the Image Type settings from the READII section of the config
+
+`katys/add-correlation-calculation` - copied the `run_analysis.ipynb` notebook from `readii-fmcib`
+* Started updating the config settings at the top of the file to hopefully run the correlation analysis and start generating figures
+
+All of these are waiting on readii 1.36.2 to be able to install from PyPI to work
+
+
+#### [2025-05-27] 
+* Debugging the overwrite issue with make_negative_controls
+* Solved by using Series to get image metadata
+* Also need to run alignImages whenever flattenImage is run so that origin, direction, and **spacing** are maintained -- made this an issue in READII as well
+
+
+#### [2025-05-28]
+* Added make_negative_controls to Snakefile in run_readii rule
+* Need to figure out how to list all the output files 
+* From Jermiah:
+    * https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#data-dependent-conditional-execution 
+    * you would make the autopipeline rule a checkpoint then you can create an input function for another rule that parses the index file to generate all the files you want
+* Trying to run it as is with full NSCLC-Radiomics dataset
+* Plan for feature extraction refactor:
+    * Will generate an index for each image type - ID, Image, Mask
+    * Make Snakemake rule run per image type
+    * Feature extraction script will parallelize by patient 
+
+#### [2025-05-29]
+* Need to add MRI handling to make_negative_controls
+* Changing how config MODALITIES is set up so that image and mask are separate
+
+
+#### [2025-06-04]
+* Actually need the READII index earlier, for the negative control creation even
+* Essentially making the edges file MIT used to make
+* Need to generate ID for unique image-mask pair 
+    * OR process all masks with a single image. The full would be the same for each of them
+    * Will end up with duplicates of the full mask for each mask - unless I rearrange the outputs
+
+```bash
+data
+|-- procdata
+|   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/procdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
+|       |-- images
+|       |   |-- mit_{DATASET_NAME}
+|       |   |   `-- {PatientID}_{SampleNumber}
+|       |   |       |-- {ImageModality}_{SeriesInstanceUID}
+|       |   |       |   `-- {ImageModality}.nii.gz
+|       |   |       `-- {SegmentationModality}_{SeriesInstanceUID}
+|       |   |           `-- {ROI_name}.nii.gz
+|       |   `-- readii_{DATASET_NAME}
+|       |       `-- {PatientID}_{SampleNumber}
+|       |           `-- {ImageModality}_{SeriesInstanceUID}
+|       |               |-- {SegmentationModality}_{SeriesInstanceUID}
+|       |               |   |-- {neg_control_permutation}_roi_.nii.gz
+|       |               |   `-- {neg_control_permutation}_non_roi_.nii.gz 
+|       |               |-- full_{neg_control_permutation}.nii.gz
+|       |               `-- full_{neg_control_permutation}.nii.gz
+```
+This is what I want to end up with eventually, but for now am going to leave the full directories inside the segmentation file
+
+#### [2025-06-09]
+* Could also see about making the roi region name the actual roi name
+    * That might make processing difficult though, since every ROI negative control image will have a different name
+
+#### [2025-06-10]
+* So the NIFTIWriter has an index saver portion of it from Med-ImageTools
+* Using that during negative control generation
+* Just need to add the Mask paths to it
+
+
+#### [2025-06-16]
+* Figured out how to use the NIFTIWriter the way I want
+* Updated the values used for saving the negative control NIFTI's so index file has columns I can use like Med-ImageTools
+* Should talk to Jermiah about making original image a READII filetype
+* Updated generate_pyradiomics_index
+    * Currently set up to expect the original image index from med-imagetools always and can pass the readii index if available
+
+
+#### [2025-07-08]
+* In sample_feature_writer, use a semi-colon to separate the keys and values of the feature vector so it can be read in easier by pandas
+    * With the comma, the pyradiomic settings lines confuse it.
+* Could also transpose this and have the keys on line 1 and vals on line 2, not sure it would solve the problem
+
+#### [2025-07-09]
+* Existing code already performed the transpose, just needed to change the comma to a semi-colon and fix the sortby value
+* Extraction is working! Adding a tqdm progress bar then running CPTAC-CCRCC
+
+#### [2025-07-17]
+* Merged rearranged workflow into main branch
+* Pipeline can now be run with pixi tasks
+* Snakemake needs to be updated and tested
