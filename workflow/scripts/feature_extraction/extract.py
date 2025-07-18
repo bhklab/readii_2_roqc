@@ -106,6 +106,9 @@ def pyradiomics_extract(settings: Path | str,
     # Set PyRadiomics verbosity to critical only
     setVerbosity(50)
 
+    if metadata is None:  
+        raise ValueError("`metadata` must be provided when overwrite is False.")
+
     # Check if feature file already exists and if overwrite is specified
     sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
@@ -113,7 +116,8 @@ def pyradiomics_extract(settings: Path | str,
 
         # Load the existing feature file
         sample_feature_df = pd.read_csv(sample_feature_file_path, index_col=0, header=None, sep=";")
-        sample_feature_vector = sample_feature_df.T.to_dict(into=OrderedDict)
+        # collapse the single data column into a flat OrderedDict  
+        sample_feature_vector = OrderedDict(sample_feature_df.iloc[:, 0].to_dict())  
 
     else:
         # Confirm settings file exists
