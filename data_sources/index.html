@@ -60,6 +60,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#radcure">RADCURE</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#nsclc-radiogenomics">NSCLC-Radiogenomics</a>
+    </li>
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#internalgenerated-data">Internal/Generated Data</a>
@@ -133,7 +135,7 @@
 </ul>
 </li>
 <li><strong>Sample Size</strong>: 422 subjects</li>
-<li><strong>ROI Name</strong>: Tumour = GTV-1</li>
+<li><strong>ROI Name</strong>: Tumour = GTV-1, gtv-pre-op</li>
 <li><strong>Notes</strong>: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.</li>
 </ul>
 <h3 id="head-neck-radiomics-hn1">HEAD-NECK-RADIOMICS-HN1</h3>
@@ -179,6 +181,24 @@
 </li>
 <li><strong>Sample Size</strong>: 3,346 subjects</li>
 <li><strong>ROI Name</strong>: Tumour = GTVp$ (regex to just get first primary tumour)</li>
+</ul>
+<h3 id="nsclc-radiogenomics">NSCLC-Radiogenomics</h3>
+<ul>
+<li><strong>Name</strong>: NSCLC Radiogenomics</li>
+<li><strong>Version/Date</strong>: Version 4: Updated 2021/06/01 </li>
+<li><strong>URL</strong>: <a href="https://www.cancerimagingarchive.net/collection/nsclc-radiogenomics/">https://www.cancerimagingarchive.net/collection/nsclc-radiogenomics/</a></li>
+<li><strong>Access Method</strong>: NBIA Data Retriever</li>
+<li><strong>Access Date</strong>: 2025-05-22</li>
+<li><strong>Data Format</strong>: DICOM</li>
+<li><strong>Citation</strong>: Bakr, S., Gevaert, O., Echegaray, S., Ayers, K., Zhou, M., Shafiq, M., Zheng, H., Zhang, W., Leung, A., Kadoch, M., Shrager, J., Quon, A., Rubin, D., Plevritis, S., &amp; Napel, S. (2017). Data for NSCLC Radiogenomics (Version 4) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2017.7hs46erv</li>
+<li><strong>License</strong>: <a href="https://creativecommons.org/licenses/by-nc/3.0/">CC BY-NC 3.0</a></li>
+<li><strong>Data Types</strong>: <ul>
+<li>Images: CT, SEG</li>
+<li>Clinical: CSV</li>
+</ul>
+</li>
+<li><strong>Sample Size</strong>: 211 subjects</li>
+<li><strong>ROI Name</strong>: Tumour = '.*' (regex to just get first primary tumour)</li>
 </ul>
 <hr />
 <h2 id="internalgenerated-data">Internal/Generated Data</h2>

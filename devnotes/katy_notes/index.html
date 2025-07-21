@@ -103,6 +103,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#2025-07-17">[2025-07-17]</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-07-21">[2025-07-21]</a>
+    </li>
         </ul>
     </li>
     </ul>
@@ -471,6 +473,30 @@ This is what I want to end up with eventually, but for now am going to leave the
 <li>Pipeline can now be run with pixi tasks</li>
 <li>Snakemake needs to be updated and tested</li>
 </ul>
+<h4 id="2025-07-21">[2025-07-21]</h4>
+<ul>
+<li>For NSCLC-Radiogenomics, R01-003 SEG file can be loaded by pydicom, but highdicom fails with an IntegrityError:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">image</span> <span class="o">=</span> <span class="n">dcmread</span><span class="p">(</span><span class="s2">&quot;TCIA_NSCLC-Radiogenomics/images/NSCLC-Radiogenomics/R01-003/12-09-1991-NA-CT_CHEST_WO-02622/1000.000000-3D_Slicer_segmentation_result-96510/1-1.dcm&quot;</span><span class="p">)</span>
+<span class="n">seg</span> <span class="o">=</span> <span class="n">hd</span><span class="o">.</span><span class="n">seg</span><span class="o">.</span><span class="n">Segmentation</span><span class="o">.</span><span class="n">from_dataset</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
+
+<span class="c1">## ERROR MESSAGE</span>
+<span class="n">File</span> <span class="o">~/</span><span class="n">Documents</span><span class="o">/</span><span class="n">BHKLab_GitHub</span><span class="o">/</span><span class="n">readii_2_roqc</span><span class="o">/.</span><span class="n">pixi</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.12</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">highdicom</span><span class="o">/</span><span class="n">image</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">4185</span><span class="p">,</span> <span class="ow">in</span> <span class="n">_Image</span><span class="o">.</span><span class="n">_create_ref_instance_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">referenced_uids</span><span class="p">)</span>
+   <span class="mi">4177</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db_con</span><span class="p">:</span>
+   <span class="mi">4178</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_db_con</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+   <span class="mi">4179</span>         <span class="s2">&quot;CREATE TABLE InstanceUIDs(&quot;</span>
+   <span class="mi">4180</span>         <span class="s2">&quot;StudyInstanceUID VARCHAR NOT NULL, &quot;</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>   <span class="mi">4183</span>         <span class="s2">&quot;)&quot;</span>
+   <span class="mi">4184</span>     <span class="p">)</span>
+<span class="o">-&gt;</span> <span class="mi">4185</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_db_con</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span>
+   <span class="mi">4186</span>         <span class="s2">&quot;INSERT INTO InstanceUIDs &quot;</span>
+   <span class="mi">4187</span>         <span class="s2">&quot;(StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID) &quot;</span>
+   <span class="mi">4188</span>         <span class="s2">&quot;VALUES(?, ?, ?)&quot;</span><span class="p">,</span>
+   <span class="mi">4189</span>         <span class="n">referenced_uids</span><span class="p">,</span>
+   <span class="mi">4190</span>     <span class="p">)</span>
+
+<span class="n">IntegrityError</span><span class="p">:</span> <span class="n">UNIQUE</span> <span class="n">constraint</span> <span class="n">failed</span><span class="p">:</span> <span class="n">InstanceUIDs</span><span class="o">.</span><span class="n">SOPInstanceUID</span>
+</code></pre></div>
               
             </div>
           </div><footer>
