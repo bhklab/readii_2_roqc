@@ -1,0 +1,46 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "CC-Radiomics-Phantom"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: ""
+    OUTCOME_VARIABLES:
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
+        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
+    ROI_STRATEGY: MERGE
+    ROI_MATCH_MAP: "ROI:'.*_00'" # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
+        
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+            - "roi"
+            - "non_roi"
+        permutations:
+            - "randomized"
+            - "sampled"
+            - "shuffled"
+        crop:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
+
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_original_single_feature.yaml
+
+RANDOM_SEED: 10
