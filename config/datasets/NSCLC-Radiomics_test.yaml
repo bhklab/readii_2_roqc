@@ -14,9 +14,10 @@ CLINICAL:
 ### MED-IMAGETOOLS settings
 MIT:
     ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP:
-        GTV:GTV-1
-    MODALITIES: CT,RTSTRUCT
+    ROI_MATCH_MAP: 'GTV:GTV-1'
+    MODALITIES:
+        image: CT
+        mask: RTSTRUCT
     
 
 ### READII settings
@@ -24,8 +25,12 @@ READII:
     IMAGE_TYPES:
         regions:
             - "full"
+            - "roi"
+            - "non_roi"
         permutations:
-            - "original"
+            - "sampled"
+            - "shuffled"
+            - "randomized"
         crop:
     TRAIN_TEST_SPLIT:
         split: False

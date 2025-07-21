@@ -23,7 +23,9 @@ CLINICAL:
 
 ### MED-IMAGETOOLS settings
 MIT:
-    MODALITIES: CT,RTSTRUCT     # Modalities to process with autopipeline
+    MODALITIES:                 # Modalities to process with autopipeline
+        image: CT
+        mask: RTSTRUCT     
     ROI_STRATEGY: MERGE         # How to handle multiple ROI matches 
     ROI_MATCH_MAP:              # Matching map for ROIs in dataset (use if you only want to process some of the masks in a segmentation)
         KEY:ROI_NAME            # NOTE: there can be no spaces in KEY:ROI_NAME
@@ -129,12 +131,13 @@ data
 |       |           `-- {image_type}_v_{image_type}_{correlation_method}_matrix.csv
 |       |-- features
 |       |   `-- {extraction_method}
+|       |       |-- extraction_method_index.csv
 |       |       `-- {extraction_configuration_file_name}
 |       |           `-- {PatientID}_{SampleNumber}
 |       |               `-- {ROI_name}
 |       |                   |-- full_original_features.csv
-|       |                   |-- {neg_control_region}_{neg_control_permutation}_features.csv
-|       |                   `-- {neg_control_region}_{neg_control_permutation}_features.csv
+|       |                   |-- {permutation}_{region}_features.csv
+|       |                   `-- {permutation}_{region}_features.csv
 |       |-- images
 |       |   |-- mit_{DATASET_NAME}
 |       |   |   `-- {PatientID}_{SampleNumber}
@@ -145,12 +148,12 @@ data
 |       |   `-- readii_{DATASET_NAME}
 |       |       `-- {PatientID}_{SampleNumber}
 |       |           `-- {ImageModality}_{SeriesInstanceUID}
-|       |               |-- {neg_control_region}_{neg_control_permutation}.nii.gz
-|       |               `-- {neg_control_region}_{neg_control_permutation}.nii.gz
+|       |               |-- {permutation}_{region}.nii.gz
+|       |               `-- {permutation}_{region}.nii.gz
 |       `-- signatures
 |           `-- {signature_name}
 |               |-- full_original_signature_features.csv
-|               `-- {neg_control_region}_{neg_control_permutation}_signature_features.csv
+|               `-- {permutation}_{region}_signature_features.csv
 |-- rawdata
 |   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/srcdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
 |       |-- clinical
@@ -170,8 +173,8 @@ data
         `-- signature_performance
             `-- {signature_name}.csv
                 |-- full_original_features.csv
-                |-- {neg_control_region}_{neg_control_permutation}_features.csv
-                `-- {neg_control_region}_{neg_control_permutation}_features.csv
+                |-- {permutation}_{region}_features.csv
+                `-- {permutation}_{region}_features.csv
 ```
 
 
@@ -186,7 +189,31 @@ data
 
 
 ## Running Your Analysis
+The pipeline is currently being run via `pixi` tasks. The following example shows how to run the pipeline using the `NSCLC-Radiomics` data.
 
+# DICOM Image and Mask file processing with Med-ImageTools
+This step converts the DICOM image files to NIfTI files, creates a unique ID for Image and Mask pairs, and generates an index file containing relevant metadata.
+
+## Step 1: Run Med-ImageTools
+This step converts the DICOM files to NIfTIs, assigns unique SampleIDs to image and mask pairs, and generates an index table for each file with associated metadata (e.g. DICOM tags)
+
+```bash
+pixi run mit NSCLC-Radiomics 'CT,RTSTRUCT' SEPARATE 'GTV:GTV-1,gtv-pre-op'
+```
+
+## Step 2: Generate negative control images with READII
+This step creates and saves READII negative controls specified in the config file for the provided dataset. 
+
+```bash
+pixi run readii_negative NSCLC-Radiomics
+```
+
+### Step 3: Run feature extraction
+This step first generates an index file for the specific feature extraction method, where each row contains the information for the image and mask pair to use.
+
+```bash
+pixi run extract NSCLC-Radiomics pyradiomics pyradiomics_original_all_features.yaml
+```
 
 
 ## Data splitting

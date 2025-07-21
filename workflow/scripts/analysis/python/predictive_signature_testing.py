@@ -1,14 +1,17 @@
-from sksurv.metrics import concordance_index_censored
-
-import pandas as pd
-import numpy as np
-from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
-from readii.process.subset import getPatientIntersectionDataframes
-from readii.process.label import eventOutcomeColumnSetup, timeOutcomeColumnSetup, getPatientIdentifierLabel
-from readii.process.split import splitDataByColumnValue
 from pathlib import Path
-import yaml
 
+import numpy as np
+import pandas as pd
+import yaml
+from readii.io.loaders import loadFileToDataFrame, loadImageDatasetConfig
+from readii.process.label import (
+    eventOutcomeColumnSetup,
+    getPatientIdentifierLabel,
+    timeOutcomeColumnSetup,
+)
+from readii.process.split import splitDataByColumnValue
+from readii.process.subset import getPatientIntersectionDataframes
+from sksurv.metrics import concordance_index_censored
 
 # ### Set up variables from config file for the dataset
 # Load in the configuration file
@@ -81,11 +84,11 @@ if 'SampleID' not in mit_index.columns:
 # PatientID is TCIA ID
 id_map = mit_index['SampleID']
 id_map.index = mit_index["PatientID"]
-id_map.drop_duplicates(inplace=True)
+id_map = id_map.drop_duplicates()
 
 # Map the SampleIDs to the clinical data and add as a column for intersection
 clinical_data['SampleID'] = clinical_data[clinical_pat_id].map(id_map)
-clinical_data.set_index('SampleID', inplace=True)
+clinical_data = clinical_data.set_index('SampleID')
 
 ### Set up outcome columns in clinical data
 clinical_data = eventOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
@@ -107,9 +110,9 @@ for image_type in image_types:
     # ## Feature data loading and processing
     raw_feature_data = loadFileToDataFrame((RESULTS_DATA_PATH / pyradiomics_settings / f"{image_type}_features.csv"))
 
-    raw_feature_data.rename(columns={"ID": "SampleID"}, inplace=True)
+    raw_feature_data = raw_feature_data.rename(columns={"ID": "SampleID"})
     # Set the index to SampleID
-    raw_feature_data.set_index('SampleID', inplace=True)
+    raw_feature_data = raw_feature_data.set_index('SampleID')
 
     # ## Intersect clinical and feature data
     clinical_data_subset, pyrad_subset = getPatientIntersectionDataframes(clinical_data, raw_feature_data, need_pat_index_A=False, need_pat_index_B=False)
@@ -156,7 +159,7 @@ for image_type in image_types:
     performance_results = performance_results + [[DATASET_NAME, image_type, cindex, lower_confidence_interval, upper_confidence_interval]]
 
 performance_df = pd.DataFrame(performance_results, columns=["Dataset", "Image_Type", "C-index", "Lower CI", "Upper CI"])
-performance_df.sort_values(by=["Image_Type"], inplace=True)
+performance_df = performance_df.sort_values(by=["Image_Type"])
 performance_df.to_csv(RESULTS_DATA_PATH / "signature_performance" / f"{signature_name}.csv", index=False)
 
 

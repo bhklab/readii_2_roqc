@@ -38,6 +38,8 @@ r-checkmate = ">=2.3.2,<3"
 r-yaml = ">=2.3.10,<3"
 openpyxl = ">=3.1.5,<4"
 snakemake = ">=9.4.0,<10"
+click = ">=8.2.1,<9"
+ipywidgets = ">=8.1.7,<9"
 
 [pypi-dependencies]
 readii = ">=1.36.1, <2"
@@ -47,7 +49,57 @@ damply = ">=0.10.0, <0.11"
 bioconductor-survcomp = ">=1.56.0,<2"
 
 [tasks]
-example_script = {cmd="python $SCRIPTS/example_script.py"}
+
+[tasks.mit]
+args = ["dataset", "modalities", "strategy", "rmap", {arg = "existing_file_mode", default = "skip"}]
+cmd = ["imgtools",
+       "autopipeline",
+       "$RAWDATA/TCIA_{{ dataset }}",
+       "$PROCDATA/TCIA_{{ dataset }}/images/mit_{{ dataset }}",
+       "--modalities", "{{ modalities }}",
+       "--roi-strategy", "{{ strategy }}",
+       "-rmap", "{{ rmap }}",
+       "--filename-format",
+       "'{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz'",
+       "--update-crawl",
+       "--existing-file-mode",
+       "{{ existing_file_mode }}"
+] 
+
+[tasks.readii_negative]
+args = ["dataset",
+         {arg = "overwrite", default = "false"},
+         {arg = "seed", default = "10"}
+]
+cwd = "workflow/scripts/readii"
+cmd = ["python",
+       "make_negative_controls.py",
+       "--dataset", "{{ dataset }}",
+       "--overwrite", "{{ overwrite }}",
+       "--seed", "{{ seed }}"
+]
+
+[tasks.index]
+args = ["dataset", "method"]
+cwd = "workflow/scripts/feature_extraction"
+cmd = ["python",
+       "index.py",
+       "--dataset", "{{ dataset }}",
+       "--method", "{{ method }}"
+]
+
+[tasks.extract]
+args = ["dataset", "method", "settings"]
+depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
+cwd = "workflow/scripts/feature_extraction"
+cmd = ["python",
+       "extract.py",
+       "--dataset", "{{ dataset }}",
+       "--method", "{{ method }}",
+       "--settings", "{{ settings }}",
+       "--parallel"
+]
+
 
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
@@ -76,14 +128,11 @@ mkdocs-material = ">=9.6.12,<10"
 
 [feature.docs.tasks.doc-build]
 cmd = "mkdocs build -f mkdocs.yaml"
-inputs = ["docs"]
-outputs = ["site"]
 description = "Build documentation with mkdocs"
 
 [feature.docs.tasks.doc-serve]
 cmd = "mkdocs serve -f mkdocs.yaml"
 depends-on = ["doc-build"]
-inputs = ["docs"]
 description = "Serve documentation with mkdocs, runs doc-build first"
 
 

@@ -13,22 +13,29 @@ CLINICAL:
 
 ### MED-IMAGETOOLS settings
 MIT:
-    MODALITIES: CT,RTSTRUCT
+    MODALITIES:
+        image: CT
+        mask: RTSTRUCT
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        GTV:GTV-1
+        'GTV:GTV-1,gtv-pre-op'
 
 ### READII settings
 READII:
     IMAGE_TYPES:
         regions:
-            - "full"
+            - "roi"
         permutations:
-            - "original"
+            - "shuffled"
         crop:
     TRAIN_TEST_SPLIT:
         split: False
         split_variable: {}
         impute: null
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_original_single_feature.yaml
 
 RANDOM_SEED: 10
