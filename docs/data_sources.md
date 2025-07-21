@@ -31,7 +31,7 @@ This section documents all data sources used in READII-2-ROQC.
     - Images: CT, RTSTRUCT
     - Clinical: CSV
 - **Sample Size**: 422 subjects
-- **ROI Name**: Tumour = GTV-1
+- **ROI Name**: Tumour = GTV-1, gtv-pre-op
 - **Notes**: LUNG-128 does not have a GTV segmentation, so only 421 patients are processed.
 
 
@@ -69,6 +69,22 @@ This section documents all data sources used in READII-2-ROQC.
     - Clinical: CSV
 - **Sample Size**: 3,346 subjects
 - **ROI Name**: Tumour = GTVp$ (regex to just get first primary tumour)
+
+
+### NSCLC-Radiogenomics
+- **Name**: NSCLC Radiogenomics
+- **Version/Date**: Version 4: Updated 2021/06/01 
+- **URL**: <https://www.cancerimagingarchive.net/collection/nsclc-radiogenomics/>
+- **Access Method**: NBIA Data Retriever
+- **Access Date**: 2025-05-22
+- **Data Format**: DICOM
+- **Citation**: Bakr, S., Gevaert, O., Echegaray, S., Ayers, K., Zhou, M., Shafiq, M., Zheng, H., Zhang, W., Leung, A., Kadoch, M., Shrager, J., Quon, A., Rubin, D., Plevritis, S., & Napel, S. (2017). Data for NSCLC Radiogenomics (Version 4) [Data set]. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2017.7hs46erv
+- **License**: [CC BY-NC 3.0](https://creativecommons.org/licenses/by-nc/3.0/)
+- **Data Types**: 
+    - Images: CT, SEG
+    - Clinical: CSV
+- **Sample Size**: 211 subjects
+- **ROI Name**: Tumour = '.*' (regex to just get first primary tumour)
 
 ---
 
