@@ -11,6 +11,7 @@ from readii.io.loaders import loadImageDatasetConfig
 from readii.negative_controls_refactor import NegativeControlManager
 from readii.process.config import get_full_data_name
 from readii.utils import logger
+from tqdm import tqdm
 
 
 def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
@@ -219,7 +220,9 @@ def make_negative_controls(dataset: str,
         )
 
     # Loop over each study in the masked image index
-    for study, study_data in masked_image_index.groupby('StudyInstanceUID'):
+    for study, study_data in tqdm(masked_image_index.groupby('StudyInstanceUID'), 
+                                  desc=f"Generating READII negative controls", 
+                                  total=len(masked_image_index['StudyInstanceUID'].unique())):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
         # Get image metadata as a pd.Series
@@ -234,7 +237,9 @@ def make_negative_controls(dataset: str,
         all_mask_metadata = study_data[study_data['Modality'] == mask_modality]
 
         # Process each mask for the current study and generate negative control versions of the image
-        for _, mask_metadata in all_mask_metadata.iterrows():
+        for _, mask_metadata in tqdm(all_mask_metadata.iterrows(),
+                                     desc="Processing each mask for this Study",
+                                     total=len(all_mask_metadata)):
             # Get path to the mask image file
             mask_path = Path(mask_metadata['filepath'])
             # Load in mask
