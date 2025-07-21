@@ -3,8 +3,16 @@ import numpy as np
 import pandas as pd
 import yaml
 from damply import dirs
-
+import click
 from readii.utils import logger
+from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
+from readii.process.config import get_full_data_name
+from readii.process.label import (
+    eventOutcomeColumnSetup,
+    getPatientIdentifierLabel,
+    timeOutcomeColumnSetup,
+)
+from readii.process.split import splitDataByColumnValue
 
 # Load signature file
 
@@ -48,7 +56,112 @@ def load_signature_config(file: str | Path) -> pd.Series:
 
 
 
+def prediction_data_splitting(dataset_config,
+                              data : pd.DataFrame):
+    """Split metadata into train and test for model development and validation purposes"""
 
+    split_settings = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
+    if split_settings['split']:
+        split_data = splitDataByColumnValue(data,
+                                            split_col_data=split_settings['split_variable'],
+                                            impute_value=split_settings['impute'])
+
+    return split_data
+
+
+def insert_mit_index(full_dataset_name: str,
+                     data_to_index: pd.DataFrame) -> pd.DataFrame:
+    """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
+
+
+
+    return 
+
+
+def clinical_prediction_setup(dataset_config,
+                              full_dataset_name : str | None = None):
+    """Process the clinical data for use in signature prediction"""
+
+    if full_dataset_name is None:
+        full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+
+    # load clinical metadata
+    clinical = dataset_config['CLINICAL']
+    clinical_path = dirs.RAWDATA / full_dataset_name / "clinical" / clinical['FILE']
+    clinical_data = loadFileToDataFrame(clinical_path)
+
+    # insert the MIT index
+
+    if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
+        split_data = prediction_data_splitting(dataset_config, clinical_data)
+
+    # Find the existing patient ID column in the clinical data
+    patient_id = getPatientIdentifierLabel(clinical_data)
+
+    return
+
+
+def predict_with_one_image_type(dataset_config,
+                                image_type,
+                                signature_name):
+    
+    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    
+    # load features
+    extraction = dataset_config['EXTRACTION']
+    feature_path = dirs.RESULTS / full_dataset_name / "features" / extraction['METHOD'] / Path(extraction['CONFIG']).stem / f"{image_type}_features.csv"
+    features = pd.read_csv(feature_path)
+
+    # load clinical metadata
+    clinical = dataset_config['CLINICAL']
+    clinical_path = dirs.RAWDATA / full_dataset_name / "clinical" / clinical['FILE']
+
+
+    # load signature
+    signature = load_signature_config(Path(f"{signature_name}.yaml"))
+
+    
+
+    return
+
+
+@click.command()
+@click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform prediction with.')
+@click.option('--features', type=click.STRING, required=True, help='Feature type to load for prediction.')
+@click.option('--signature', type=click.STRING, required=True, help='Name of the signature to perform prediction with. Must have file in config/signatures')
+def predict_with_signature(dataset: str,
+                           features: str,
+                           signature: str):
+    
+    # Input checking
+    if dataset is None:
+        message = "Dataset name must be provided."
+        logger.error(message)
+        raise ValueError(message)
+    if features is None:
+        message = "Feature type must be provided."
+        logger.error(message)
+        raise ValueError(message)
+    # Input checking
+    if signature is None:
+        message = "Signature name must be provided."
+        logger.error(message)
+        raise ValueError(message)
+
+
+    # get path to dataset config directory
+    config_dir_path = dirs.CONFIG / 'datasets'
+    
+    # Load in dataset configuration settings from provided dataset name
+    dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
+    dataset_name = dataset_config['DATASET_NAME']
+    full_data_name = get_full_data_name(config_dir_path / dataset)
+
+    logger.info(f"Performing prediction with {signature} signature on {dataset_name}.")
+
+    # Load in feature
+
+    return
 
 if __name__ == "__main__":
     print(load_signature_config("lasso_10_NSCLC-Radiomics.yaml"))
