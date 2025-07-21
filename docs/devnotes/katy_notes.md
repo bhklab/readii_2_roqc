@@ -270,3 +270,28 @@ This is what I want to end up with eventually, but for now am going to leave the
 * Merged rearranged workflow into main branch
 * Pipeline can now be run with pixi tasks
 * Snakemake needs to be updated and tested
+
+#### [2025-07-21]
+* For NSCLC-Radiogenomics, R01-003 SEG file can be loaded by pydicom, but highdicom fails with an IntegrityError:
+
+```python
+image = dcmread("TCIA_NSCLC-Radiogenomics/images/NSCLC-Radiogenomics/R01-003/12-09-1991-NA-CT_CHEST_WO-02622/1000.000000-3D_Slicer_segmentation_result-96510/1-1.dcm")
+seg = hd.seg.Segmentation.from_dataset(image)
+
+## ERROR MESSAGE
+File ~/Documents/BHKLab_GitHub/readii_2_roqc/.pixi/envs/default/lib/python3.12/site-packages/highdicom/image.py:4185, in _Image._create_ref_instance_table(self, referenced_uids)
+   4177 with self._db_con:
+   4178     self._db_con.execute(
+   4179         "CREATE TABLE InstanceUIDs("
+   4180         "StudyInstanceUID VARCHAR NOT NULL, "
+   (...)   4183         ")"
+   4184     )
+-> 4185     self._db_con.executemany(
+   4186         "INSERT INTO InstanceUIDs "
+   4187         "(StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID) "
+   4188         "VALUES(?, ?, ?)",
+   4189         referenced_uids,
+   4190     )
+
+IntegrityError: UNIQUE constraint failed: InstanceUIDs.SOPInstanceUID
+```
