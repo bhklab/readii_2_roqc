@@ -58,15 +58,21 @@ def load_signature_config(file: str | Path) -> pd.Series:
 
 
 def prediction_data_splitting(dataset_config,
-                              data : pd.DataFrame):
+                              data : pd.DataFrame,
+                              train_variable : str = 'training',
+                              test_variable : str = 'test'
+                              ) -> tuple[pd.DataFrame]:
     """Split metadata into train and test for model development and validation purposes"""
     split_settings = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
     if split_settings['split']:
         split_data = splitDataByColumnValue(data,
                                             split_col_data=split_settings['split_variable'],
                                             impute_value=split_settings['impute'])
-
-    return split_data
+        return split_data[train_variable], split_data[test_variable]
+    else:
+        logger.debug('Split setting is set to False. Returning original data.')
+        return data
+    
 
 
 def insert_mit_index(dataset_config: str,
@@ -99,6 +105,7 @@ def insert_mit_index(dataset_config: str,
     return data_to_index
 
 
+
 def clinical_data_setup(dataset_config,
                        full_dataset_name : str | None = None
                        ) -> pd.DataFrame:
@@ -125,6 +132,7 @@ def clinical_data_setup(dataset_config,
     return clinical_data
 
 
+
 def outcome_data_setup(dataset_config,
                        dataframe_with_outcome: pd.DataFrame,
                        standard_event_label : str = "survival_event_binary",
@@ -146,7 +154,7 @@ def outcome_data_setup(dataset_config,
                                            standard_column_label=standard_time_label,
                                            convert_to_years=outcome_labels['convert_to_years']
                                            )
-    
+    # Select out the standardized outcome columns
     outcome_data = outcome_data[[standard_event_label, standard_time_label]]
 
     return outcome_data
@@ -208,11 +216,19 @@ def predict_with_signature(dataset: str,
     clinical_data = clinical_data_setup(dataset_config, full_dataset_name)
 
     if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
-        split_data = prediction_data_splitting(dataset_config, clinical_data)
+        train_clinical, test_clinical = prediction_data_splitting(dataset_config, clinical_data)
 
-    outcome_data = outcome_data_setup(dataset_config, clinical_data)
+        train_outcome, test_outcome = outcome_data_setup(dataset_config, train_clinical), outcome_data_setup(dataset_config, test_clinical)
 
-    return predict_with_one_image_type(dataset_config, outcome_data= outcome_data, image_type='original_full', signature_name=signature)
+    else:
+        test_outcome = outcome_data_setup(dataset_config, clinical_data)
+        train_outcome = pd.DataFrame(columns=test_outcome.columns)
+
+    print(test_outcome)
+    print(train_outcome)
+
+
+    return # predict_with_one_image_type(dataset_config, outcome_data= outcome_data, image_type='original_full', signature_name=signature)
 
 if __name__ == "__main__":
     predict_with_signature()
