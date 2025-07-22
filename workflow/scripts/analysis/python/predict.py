@@ -4,6 +4,7 @@ import pandas as pd
 import yaml
 from damply import dirs
 import click
+from joblib import Parallel, delayed
 from readii.utils import logger
 from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
 from readii.process.config import get_full_data_name
@@ -13,7 +14,8 @@ from readii.process.label import (
     timeOutcomeColumnSetup,
 )
 from readii.process.split import splitDataByColumnValue
-from readii.process.subset import selectByColumnValue
+from readii.process.subset import selectByColumnValue, getPatientIntersectionDataframes
+from sksurv.metrics import concordance_index_censored
 
 # Load signature file
 
@@ -160,31 +162,76 @@ def outcome_data_setup(dataset_config,
     return outcome_data
 
 
+def calculate_signature_hazards(feature_data : pd.DataFrame,
+                                signature : pd.DataFrame) -> pd.DataFrame:
+    """Calculate the feature hazards with Cox Proportional Hazards by multiplying feature values by the signature weights"""
+    # Get signature feature values for the dataset
+    signature_feature_data = feature_data[signature.index]
 
-def predict_with_one_image_type(dataset_config,
-                                outcome_data,
-                                image_type,
-                                signature_name):
-    
-    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
-    
-    # load features
-    extraction = dataset_config['EXTRACTION']
-    feature_path = dirs.RESULTS / full_dataset_name / "features" / extraction['METHOD'] / Path(extraction['CONFIG']).stem / f"{image_type}_features.csv"
-    features = pd.read_csv(feature_path)
+    # Calculate and return the feature hazards
+    return signature_feature_data.dot(signature)
 
+
+def evaluate_signature_prediction(hazards_and_outcomes : pd.DataFrame) -> tuple:
+    concordance_evals = concordance_index_censored(
+            event_indicator = hazards_and_outcomes['survival_event_binary'],
+            event_time = hazards_and_outcomes['survival_time_years'],
+            estimate = hazards_and_outcomes['hazards']
+           )
+
+    # Return just the cindex, the first value in the tuple returned by concordance_index_censored
+    return concordance_evals[0]
+
+
+def predict_with_one_image_type(feature_data,
+                                outcome_data : pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame],
+                                signature_name : str,
+                                bootstrap : int = 0
+                                ) -> pd.DataFrame:
     # load signature
     signature = load_signature_config(Path(f"{signature_name}.yaml"))
-    return
+    
+    # Intersect outcome and feature data to get overlapping SampleIDs
+    outcome_subset, feature_subset = getPatientIntersectionDataframes(outcome_data,
+                                                                      feature_data,
+                                                                      need_pat_index_A=False,
+                                                                      need_pat_index_B=False)
+
+    feature_hazards = calculate_signature_hazards(feature_subset, signature)
+
+    # Add hazards as a column to a dataframe with the ground truth time and event labels and SampleID index
+    # This will make it easier to evaluate the predictions
+    hazards_and_outcomes = outcome_subset.copy()
+    hazards_and_outcomes['hazards'] = feature_hazards
+
+    cindex = evaluate_signature_prediction(hazards_and_outcomes)
+    lower_confidence_interval = np.nan
+    upper_confidence_interval = np.nan
+
+    if bootstrap > 0:
+        sampled_cindex = Parallel(n_jobs=-1)(
+                        delayed(evaluate_signature_prediction)(
+                            hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True)
+                        )
+                        for _idx in range(bootstrap)
+                        )
+
+        lower_confidence_interval = np.percentile(sampled_cindex, 2.5)  
+        upper_confidence_interval = np.percentile(sampled_cindex, 97.5)
+
+    metrics = [cindex, lower_confidence_interval, upper_confidence_interval]
+
+    return metrics, hazards_and_outcomes
 
 
 @click.command()
 @click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform prediction with.')
-@click.option('--features', type=click.STRING, required=True, help='Feature type to load for prediction.')
+@click.option('--features', type=click.STRING, required=True, help='Feature type to load for prediction. Will match a feature extraction settings file in config.')
 @click.option('--signature', type=click.STRING, required=True, help='Name of the signature to perform prediction with. Must have file in config/signatures')
 def predict_with_signature(dataset: str,
                            features: str,
-                           signature: str):
+                           signature: str,
+                           parallel: bool = False):
     
     # Input checking
     if dataset is None:
@@ -215,20 +262,49 @@ def predict_with_signature(dataset: str,
     # load clinical metadata
     clinical_data = clinical_data_setup(dataset_config, full_dataset_name)
 
-    if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
-        train_clinical, test_clinical = prediction_data_splitting(dataset_config, clinical_data)
+    # TODO: figure out what to do with train/test data
+    # if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
+    #     logger.info(f"Splitting data into train and test subsets.")
+    #     train_clinical, test_clinical = prediction_data_splitting(dataset_config, clinical_data)
+    #     train_outcome, test_outcome = outcome_data_setup(dataset_config, train_clinical), outcome_data_setup(dataset_config, test_clinical)
+    #     # Put into tuple for passing to prediction functions as a single argument
+    #     outcome_data = (train_outcome, test_outcome)
+    # else:
 
-        train_outcome, test_outcome = outcome_data_setup(dataset_config, train_clinical), outcome_data_setup(dataset_config, test_clinical)
+    outcome_data = outcome_data_setup(dataset_config, clinical_data)
 
-    else:
-        test_outcome = outcome_data_setup(dataset_config, clinical_data)
-        train_outcome = pd.DataFrame(columns=test_outcome.columns)
+    # Get image types from results of feature extraction
+    image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_dataset_name / "features").rglob(pattern = f"**/{features}/*_features.csv"))
 
-    print(test_outcome)
-    print(train_outcome)
+    # Set up analysis outputs
+    prediction_out_dir = dirs.RESULTS / full_dataset_name / "prediction"
 
+    prediction_data = []
+    hazard_data = {}
 
-    return # predict_with_one_image_type(dataset_config, outcome_data= outcome_data, image_type='original_full', signature_name=signature)
+    for feature_file_path in image_type_feature_file_list:
+        image_type = feature_file_path.stem.removesuffix('features.csv')
+        feature_data = loadFileToDataFrame(feature_file_path)
+
+        prediction_eval, hazards = predict_with_one_image_type(dataset_config, 
+                                                  outcome_data = outcome_data,
+                                                  feature_data = feature_data,
+                                                  signature_name = signature)
+        
+        prediction_data = prediction_data + [[dataset_name, image_type] + prediction_eval]
+        hazard_data[image_type] = hazards
+        
+
+    prediction_df = pd.DataFrame(prediction_data,
+                                 columns=['Dataset',
+                                          'Image_Type',
+                                          'C-index',
+                                          'Lower_CI',
+                                          'Upper_CI'])
+    prediction_df = prediction_df.sort_values(by=["Image_Type"])
+    prediction_df.to_csv(dir.RESULTS / full_dataset_name / )
+
+    return 
 
 if __name__ == "__main__":
     predict_with_signature()
