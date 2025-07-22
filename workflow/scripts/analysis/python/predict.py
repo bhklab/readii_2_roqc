@@ -59,7 +59,6 @@ def load_signature_config(file: str | Path) -> pd.Series:
 def prediction_data_splitting(dataset_config,
                               data : pd.DataFrame):
     """Split metadata into train and test for model development and validation purposes"""
-
     split_settings = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
     if split_settings['split']:
         split_data = splitDataByColumnValue(data,
@@ -69,19 +68,38 @@ def prediction_data_splitting(dataset_config,
     return split_data
 
 
-def insert_mit_index(full_dataset_name: str,
+def insert_mit_index(dataset_config: str,
                      data_to_index: pd.DataFrame) -> pd.DataFrame:
     """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
+    # Find the existing patient identifier for the data_to_index
+    existing_pat_id = getPatientIdentifierLabel(data_to_index)
 
+    # Load the med-imagetools autopipeline simple index output for the dataset
+    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    mit_index_path = dirs.PROCDATA / full_dataset_name / "images" / f"mit_{dataset_config['DATASET_NAME']}" / f"mit_{dataset_config['DATASET_NAME']}_index-simple.csv"
+    
+    if mit_index_path.exists():
+        mit_index = loadFileToDataFrame(mit_index_path)
+    else:
+        message = f"Med-ImageTools autopipeline index simple output don't exist for the {full_dataset_name} dataset. Run autopipeline to generate this file."
+        print(message)
+        logger.error(message)
+        raise FileNotFoundError(message)
 
+    # Generate a mapping from PatientID to SampleID (PatientID_SampleNumber from Med-ImageTools autopipeline output)
+    id_map = mit_index["PatientID"].astype(str) + "_" + mit_index['SampleNumber'].astype(str).str.zfill(4)
+    id_map.index = mit_index["PatientID"]
+    id_map = id_map.drop_duplicates()
 
-    return 
+    # Apply the map to the dataset to index
+    data_to_index['SampleID'] = data_to_index[existing_pat_id].map(id_map)
+
+    return data_to_index
 
 
 def clinical_prediction_setup(dataset_config,
                               full_dataset_name : str | None = None):
     """Process the clinical data for use in signature prediction"""
-
     if full_dataset_name is None:
         full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
 
@@ -91,14 +109,12 @@ def clinical_prediction_setup(dataset_config,
     clinical_data = loadFileToDataFrame(clinical_path)
 
     # insert the MIT index
+    clinical_data = insert_mit_index(dataset_config, clinical_data)
 
-    if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
-        split_data = prediction_data_splitting(dataset_config, clinical_data)
+    # Set the MIT SampleIDs as the index for clinical data
+    clinical_data = clinical_data.set_index('SampleID')
 
-    # Find the existing patient ID column in the clinical data
-    patient_id = getPatientIdentifierLabel(clinical_data)
-
-    return
+    return clinical_data
 
 
 def predict_with_one_image_type(dataset_config,
@@ -113,15 +129,14 @@ def predict_with_one_image_type(dataset_config,
     features = pd.read_csv(feature_path)
 
     # load clinical metadata
-    clinical = dataset_config['CLINICAL']
-    clinical_path = dirs.RAWDATA / full_dataset_name / "clinical" / clinical['FILE']
+    clinical_data = clinical_prediction_setup(dataset_config, full_dataset_name)
+
+    if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
+        split_data = prediction_data_splitting(dataset_config, clinical_data)
 
 
     # load signature
     signature = load_signature_config(Path(f"{signature_name}.yaml"))
-
-    
-
     return
 
 
@@ -155,13 +170,12 @@ def predict_with_signature(dataset: str,
     # Load in dataset configuration settings from provided dataset name
     dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
     dataset_name = dataset_config['DATASET_NAME']
-    full_data_name = get_full_data_name(config_dir_path / dataset)
 
     logger.info(f"Performing prediction with {signature} signature on {dataset_name}.")
 
     # Load in feature
 
-    return
+    return predict_with_one_image_type(dataset_config, image_type='original_full', signature_name=signature)
 
 if __name__ == "__main__":
-    print(load_signature_config("lasso_10_NSCLC-Radiomics.yaml"))
+    predict_with_signature()
