@@ -54,7 +54,7 @@ bioconductor-survcomp = ">=1.56.0,<2"
 args = ["dataset", "modalities", "strategy", "rmap", {arg = "existing_file_mode", default = "skip"}]
 cmd = ["imgtools",
        "autopipeline",
-       "$RAWDATA/TCIA_{{ dataset }}",
+       "$RAWDATA/TCIA_{{ dataset }}/images",
        "$PROCDATA/TCIA_{{ dataset }}/images/mit_{{ dataset }}",
        "--modalities", "{{ modalities }}",
        "--roi-strategy", "{{ strategy }}",
