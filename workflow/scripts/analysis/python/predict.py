@@ -13,6 +13,7 @@ from readii.process.label import (
     timeOutcomeColumnSetup,
 )
 from readii.process.split import splitDataByColumnValue
+from readii.process.subset import selectByColumnValue
 
 # Load signature file
 
@@ -69,7 +70,8 @@ def prediction_data_splitting(dataset_config,
 
 
 def insert_mit_index(dataset_config: str,
-                     data_to_index: pd.DataFrame) -> pd.DataFrame:
+                     data_to_index: pd.DataFrame
+                     ) -> pd.DataFrame:
     """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
     # Find the existing patient identifier for the data_to_index
     existing_pat_id = getPatientIdentifierLabel(data_to_index)
@@ -97,9 +99,10 @@ def insert_mit_index(dataset_config: str,
     return data_to_index
 
 
-def clinical_prediction_setup(dataset_config,
-                              full_dataset_name : str | None = None):
-    """Process the clinical data for use in signature prediction"""
+def clinical_data_setup(dataset_config,
+                       full_dataset_name : str | None = None
+                       ) -> pd.DataFrame:
+    """Process the clinical data to get outcome variables for use in signature prediction"""
     if full_dataset_name is None:
         full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
 
@@ -114,22 +117,44 @@ def clinical_prediction_setup(dataset_config,
     # Set the MIT SampleIDs as the index for clinical data
     clinical_data = clinical_data.set_index('SampleID')
 
-    # Set up the outcome columns
-    outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
-    clinical_data = eventOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
-                                            outcome_column_label=outcome_labels['event_label'],
-                                            standard_column_label="survival_event_binary",
-                                            event_column_value_mapping=outcome_labels['event_value_mapping']
-                                            )
-    clinical_data = timeOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
-                                           outcome_column_label=outcome_labels['time_label'],
-                                           standard_column_label="survival_time_years",
-                                           convert_to_years=outcome_labels['convert_to_years']
-                                           )
+    # Drop rows based on exclusion variables in config file
+    if len(clinical['EXCLUSION_VARIABLES']) != 0:
+        clinical_data = selectByColumnValue(clinical_data,
+                                            exclude_col_values = clinical['EXCLUSION_VARIABLES'])
+
     return clinical_data
 
 
+def outcome_data_setup(dataset_config,
+                       dataframe_with_outcome: pd.DataFrame,
+                       standard_event_label : str = "survival_event_binary",
+                       standard_time_label : str = "survival_time_years"
+                       ) -> pd.DataFrame:
+    """Set up survival time in years and binarized event columns based on columns described in a dataset config.
+    """
+    outcome_data = dataframe_with_outcome.copy()
+
+    # Set up the outcome columns
+    outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
+    outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
+                                            outcome_column_label=outcome_labels['event_label'],
+                                            standard_column_label=standard_event_label,
+                                            event_column_value_mapping=outcome_labels['event_value_mapping']
+                                            )
+    outcome_data = timeOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
+                                           outcome_column_label=outcome_labels['time_label'],
+                                           standard_column_label=standard_time_label,
+                                           convert_to_years=outcome_labels['convert_to_years']
+                                           )
+    
+    outcome_data = outcome_data[[standard_event_label, standard_time_label]]
+
+    return outcome_data
+
+
+
 def predict_with_one_image_type(dataset_config,
+                                outcome_data,
                                 image_type,
                                 signature_name):
     
@@ -139,13 +164,6 @@ def predict_with_one_image_type(dataset_config,
     extraction = dataset_config['EXTRACTION']
     feature_path = dirs.RESULTS / full_dataset_name / "features" / extraction['METHOD'] / Path(extraction['CONFIG']).stem / f"{image_type}_features.csv"
     features = pd.read_csv(feature_path)
-
-    # load clinical metadata
-    clinical_data = clinical_prediction_setup(dataset_config, full_dataset_name)
-
-    if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
-        split_data = prediction_data_splitting(dataset_config, clinical_data)
-
 
     # load signature
     signature = load_signature_config(Path(f"{signature_name}.yaml"))
@@ -182,12 +200,19 @@ def predict_with_signature(dataset: str,
     # Load in dataset configuration settings from provided dataset name
     dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
     dataset_name = dataset_config['DATASET_NAME']
+    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
 
     logger.info(f"Performing prediction with {signature} signature on {dataset_name}.")
 
-    # Load in feature
+    # load clinical metadata
+    clinical_data = clinical_data_setup(dataset_config, full_dataset_name)
 
-    return predict_with_one_image_type(dataset_config, image_type='original_full', signature_name=signature)
+    if dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']['split']:
+        split_data = prediction_data_splitting(dataset_config, clinical_data)
+
+    outcome_data = outcome_data_setup(dataset_config, clinical_data)
+
+    return predict_with_one_image_type(dataset_config, outcome_data= outcome_data, image_type='original_full', signature_name=signature)
 
 if __name__ == "__main__":
     predict_with_signature()
