@@ -114,6 +114,18 @@ def clinical_prediction_setup(dataset_config,
     # Set the MIT SampleIDs as the index for clinical data
     clinical_data = clinical_data.set_index('SampleID')
 
+    # Set up the outcome columns
+    outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
+    clinical_data = eventOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
+                                            outcome_column_label=outcome_labels['event_label'],
+                                            standard_column_label="survival_event_binary",
+                                            event_column_value_mapping=outcome_labels['event_value_mapping']
+                                            )
+    clinical_data = timeOutcomeColumnSetup(dataframe_with_outcome=clinical_data,
+                                           outcome_column_label=outcome_labels['time_label'],
+                                           standard_column_label="survival_time_years",
+                                           convert_to_years=outcome_labels['convert_to_years']
+                                           )
     return clinical_data
 
 
