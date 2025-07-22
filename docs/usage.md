@@ -135,7 +135,7 @@ data
 |       |       `-- {extraction_configuration_file_name}
 |       |           `-- {PatientID}_{SampleNumber}
 |       |               `-- {ROI_name}
-|       |                   |-- full_original_features.csv
+|       |                   |-- original_full_features.csv
 |       |                   |-- {permutation}_{region}_features.csv
 |       |                   `-- {permutation}_{region}_features.csv
 |       |-- images
@@ -166,15 +166,20 @@ data
 |               `-- {SampleN DICOM directory}
 `-- results
     `-- {DATASET_SOURCE}_{DATASET_NAME}
-        |-- correlation_figures
+        |-- correlation
+        |   `-- {extraction_method}
+        |       |-- {extraction_configuration_file_name}
+        |       `-- {signature_name}
         |-- features
         |   `-- {extraction_method}
-        |       `-- {extraction_configuration_file_name}        
-        `-- signature_performance
-            `-- {signature_name}.csv
-                |-- full_original_features.csv
-                |-- {permutation}_{region}_features.csv
-                `-- {permutation}_{region}_features.csv
+        |       `-- {extraction_configuration_file_name}
+        `-- prediction
+            `-- {signature_name}
+                |-- prediction_metrics.csv
+                `-- hazards_{bootstrap_count}
+                    |-- original_full_features.csv
+                    |-- {permutation}_{region}_features.csv
+                    `-- {permutation}_{region}_features.csv
 ```
 
 
