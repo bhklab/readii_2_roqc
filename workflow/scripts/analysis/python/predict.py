@@ -231,6 +231,7 @@ def predict_with_one_image_type(feature_data,
 def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
+                           bootstrap : int = 0,
                            parallel: bool = False):
     
     # Input checking
@@ -277,7 +278,9 @@ def predict_with_signature(dataset: str,
     image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_dataset_name / "features").rglob(pattern = f"**/{features}/*_features.csv"))
 
     # Set up analysis outputs
-    prediction_out_dir = dirs.RESULTS / full_dataset_name / "prediction"
+    prediction_out_dir = dirs.RESULTS / full_dataset_name / "prediction" / signature
+    hazards_out_dir = prediction_out_dir / f"hazards"
+    hazards_out_dir.mkdir(parents=True, exist_ok=True)
 
     prediction_data = []
     hazard_data = {}
@@ -286,10 +289,10 @@ def predict_with_signature(dataset: str,
         image_type = feature_file_path.stem.removesuffix('features.csv')
         feature_data = loadFileToDataFrame(feature_file_path)
 
-        prediction_eval, hazards = predict_with_one_image_type(dataset_config, 
-                                                  outcome_data = outcome_data,
-                                                  feature_data = feature_data,
-                                                  signature_name = signature)
+        prediction_eval, hazards = predict_with_one_image_type(feature_data = feature_data,
+                                                               outcome_data = outcome_data,
+                                                               signature_name = signature,
+                                                               bootstrap = bootstrap)
         
         prediction_data = prediction_data + [[dataset_name, image_type] + prediction_eval]
         hazard_data[image_type] = hazards
@@ -302,9 +305,11 @@ def predict_with_signature(dataset: str,
                                           'Lower_CI',
                                           'Upper_CI'])
     prediction_df = prediction_df.sort_values(by=["Image_Type"])
-    prediction_df.to_csv(dir.RESULTS / full_dataset_name / )
+    prediction_df.to_csv(prediction_out_dir / "prediction_metrics.csv")
 
-    return 
+    [hazard_df.csv(hazards_out_dir / image_type) for image_type, hazard_df in hazard_data]
+
+    return prediction_df, hazard_data
 
 if __name__ == "__main__":
     predict_with_signature()
