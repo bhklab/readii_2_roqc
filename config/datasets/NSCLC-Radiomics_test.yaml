@@ -32,10 +32,6 @@ READII:
             - "shuffled"
             - "randomized"
         crop:
-    TRAIN_TEST_SPLIT:
-        split: False
-        split_variable: {}
-        impute: null
 
 
 ### EXTRACTION settings
@@ -43,5 +39,11 @@ EXTRACTION:
     METHOD: pyradiomics
     SETTINGS: pyradiomics_original_all_features.yaml
     
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
 
 RANDOM_SEED: 10

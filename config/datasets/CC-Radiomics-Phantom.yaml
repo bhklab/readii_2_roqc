@@ -19,7 +19,6 @@ MIT:
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: "ROI:'.*_00'" # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
         
-
 ### READII settings
 READII:
     IMAGE_TYPES:
@@ -33,12 +32,10 @@ READII:
             - "shuffled"
         crop:
     
-
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
     CONFIG: pyradiomics_original_single_feature.yaml
-
 
 ### Analysis settings
 ANALYSIS:

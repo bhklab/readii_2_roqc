@@ -19,7 +19,6 @@ MIT:
     ROI_STRATEGY: MERGE
     ROI_MATCH_MAP: "KEY:ROI_NAME" # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
         
-
 ### READII settings
 READII:
     IMAGE_TYPES:
@@ -28,15 +27,17 @@ READII:
         permutations:
             - "sampled"
         crop:
-    TRAIN_TEST_SPLIT:
-        split: False
-        split_variable: {}
-        impute: null
-
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
     CONFIG: pyradiomics_original_single_feature.yaml
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
 
 RANDOM_SEED: 10
