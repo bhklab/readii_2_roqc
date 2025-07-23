@@ -295,3 +295,6 @@ File ~/Documents/BHKLab_GitHub/readii_2_roqc/.pixi/envs/default/lib/python3.12/s
 
 IntegrityError: UNIQUE constraint failed: InstanceUIDs.SOPInstanceUID
 ```
+
+#### [2025-07-23]
+* Got a followup on the above error: <https://github.com/ImagingDataCommons/highdicom/issues/370>
