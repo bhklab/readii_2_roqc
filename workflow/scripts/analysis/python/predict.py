@@ -174,7 +174,7 @@ def calculate_signature_hazards(feature_data : pd.DataFrame,
 
 def evaluate_signature_prediction(hazards_and_outcomes : pd.DataFrame) -> tuple:
     concordance_evals = concordance_index_censored(
-            event_indicator = hazards_and_outcomes['survival_event_binary'],
+            event_indicator = hazards_and_outcomes['survival_event_binary'].astype(bool),
             event_time = hazards_and_outcomes['survival_time_years'],
             estimate = hazards_and_outcomes['hazards']
            )
@@ -183,13 +183,39 @@ def evaluate_signature_prediction(hazards_and_outcomes : pd.DataFrame) -> tuple:
     return concordance_evals[0]
 
 
+def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
+                      bootstrap_count: int = 1000,             
+                     ) -> tuple[list[float], float, float]:
+    if bootstrap_count < 1:
+        message = "Bootstrap count must be a positive integer."
+        logger.error(message)
+        raise ValueError(message)
+    
+    bootstrap_cidx = []
+    # Bootstrap the prediction results to get confidence intervals
+    sampled_cindex = Parallel(n_jobs=-1)(
+                    delayed(evaluate_signature_prediction)(
+                        hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True)
+                    )
+                    for _idx in range(bootstrap_count)
+                    )
+    bootstrap_cidx += sampled_cindex
+    lower_confidence_interval = np.percentile(sampled_cindex, 2.5)  
+    upper_confidence_interval = np.percentile(sampled_cindex, 97.5)
+    
+    return bootstrap_cidx, lower_confidence_interval, upper_confidence_interval
+
+
+
 def predict_with_one_image_type(feature_data,
                                 outcome_data : pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame],
                                 signature_name : str,
                                 bootstrap : int = 0
-                                ) -> pd.DataFrame:
+                                ) -> tuple[list[float], list[float], pd.DataFrame]:
     # load signature
     signature = load_signature_config(Path(f"{signature_name}.yaml"))
+    # Set index in feature data to match outcome data
+    feature_data = feature_data.set_index(['SampleID'])
     
     # Intersect outcome and feature data to get overlapping SampleIDs
     outcome_subset, feature_subset = getPatientIntersectionDataframes(outcome_data,
@@ -198,36 +224,33 @@ def predict_with_one_image_type(feature_data,
                                                                       need_pat_index_B=False)
 
     feature_hazards = calculate_signature_hazards(feature_subset, signature)
-
+    
     # Add hazards as a column to a dataframe with the ground truth time and event labels and SampleID index
     # This will make it easier to evaluate the predictions
     hazards_and_outcomes = outcome_subset.copy()
     hazards_and_outcomes['hazards'] = feature_hazards
 
+    # Calculate the c-index for the predicted hazards
     cindex = evaluate_signature_prediction(hazards_and_outcomes)
+    # Initialize the confidence intervals for no bootstrap handling
     lower_confidence_interval = np.nan
     upper_confidence_interval = np.nan
+    bootstrap_cidxs = []
 
     if bootstrap > 0:
-        sampled_cindex = Parallel(n_jobs=-1)(
-                        delayed(evaluate_signature_prediction)(
-                            hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True)
-                        )
-                        for _idx in range(bootstrap)
-                        )
+        bootstrap_cidxs, lower_confidence_interval, upper_confidence_interval = bootstrap_c_index(hazards_and_outcomes, bootstrap)
 
-        lower_confidence_interval = np.percentile(sampled_cindex, 2.5)  
-        upper_confidence_interval = np.percentile(sampled_cindex, 97.5)
-
+    # Combine the metrics into a list
     metrics = [cindex, lower_confidence_interval, upper_confidence_interval]
 
-    return metrics, hazards_and_outcomes
+    return metrics, bootstrap_cidxs, hazards_and_outcomes
 
 
 @click.command()
 @click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform prediction with.')
 @click.option('--features', type=click.STRING, required=True, help='Feature type to load for prediction. Will match a feature extraction settings file in config.')
-@click.option('--signature', type=click.STRING, required=True, help='Name of the signature to perform prediction with. Must have file in config/signatures')
+@click.option('--signature', type=click.STRING, required=True, help='Name of the signature to perform prediction with. Must have file in config/signatures.')
+@click.option('--bootstrap', type=click.INT, required=False, help='Number of bootstrap iterations to run for confidence interval generation.')
 def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
@@ -279,23 +302,27 @@ def predict_with_signature(dataset: str,
 
     # Set up analysis outputs
     prediction_out_dir = dirs.RESULTS / full_dataset_name / "prediction" / signature
-    hazards_out_dir = prediction_out_dir / f"hazards"
+    hazards_out_dir = prediction_out_dir / "hazards"
     hazards_out_dir.mkdir(parents=True, exist_ok=True)
+
+    
 
     prediction_data = []
     hazard_data = {}
+    bootstrap_data = {}
 
     for feature_file_path in image_type_feature_file_list:
         image_type = feature_file_path.stem.removesuffix('features.csv')
         feature_data = loadFileToDataFrame(feature_file_path)
 
-        prediction_eval, hazards = predict_with_one_image_type(feature_data = feature_data,
+        prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,
                                                                outcome_data = outcome_data,
                                                                signature_name = signature,
                                                                bootstrap = bootstrap)
         
-        prediction_data = prediction_data + [[dataset_name, image_type] + prediction_eval]
+        prediction_data = prediction_data + [[dataset_name, image_type] + prediction_metrics]
         hazard_data[image_type] = hazards
+        bootstrap_data[image_type] = pd.DataFrame(data = bootstrap_cidx, columns=["C-index"])
         
 
     prediction_df = pd.DataFrame(prediction_data,
@@ -305,11 +332,16 @@ def predict_with_signature(dataset: str,
                                           'Lower_CI',
                                           'Upper_CI'])
     prediction_df = prediction_df.sort_values(by=["Image_Type"])
-    prediction_df.to_csv(prediction_out_dir / "prediction_metrics.csv")
+    prediction_df.to_csv(prediction_out_dir / "prediction_metrics.csv", index=False)
 
-    [hazard_df.csv(hazards_out_dir / image_type) for image_type, hazard_df in hazard_data]
+    [hazard_df.to_csv(hazards_out_dir / f"{image_type}_c_idx.csv") for image_type, hazard_df in hazard_data.items()]
 
-    return prediction_df, hazard_data
+    if bootstrap > 0:
+        bootstrap_out_dir = prediction_out_dir / f"bootstrap_{bootstrap}"
+        bootstrap_out_dir.mkdir(parents=True, exist_ok=True)
+        [bootstrap_df.to_csv(bootstrap_out_dir / f"{image_type}_c_idx.csv") for image_type, bootstrap_df in bootstrap_data.items()]
+
+    return prediction_df, bootstrap_data, hazard_data
 
 if __name__ == "__main__":
     predict_with_signature()
