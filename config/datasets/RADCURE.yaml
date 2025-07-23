@@ -38,8 +38,9 @@ EXTRACTION:
 ### Analysis settings
 ANALYSIS:
     TRAIN_TEST_SPLIT:
-        split: True
-        split_variable: {'RADCURE-challenge': ['training', 'test']}
+        split_variable: 'RADCURE-challenge'
+        train_label: 'training'
+        test_label: 'test'
         impute: 'training'
 
 RANDOM_SEED: 10
