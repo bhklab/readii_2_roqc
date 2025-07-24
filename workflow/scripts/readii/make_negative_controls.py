@@ -231,7 +231,7 @@ def make_negative_controls(dataset: str,
 
         else:
             logger.info("Requested negative controls have already been generated or are listed in the READII index as if they have been. Skipping negative control generation. Set overwrite to true if you want to re-process these.")
-    
+            return readii_index['filepath'].to_list()
 
 
     if overwrite:
