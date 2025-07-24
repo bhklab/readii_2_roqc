@@ -24,17 +24,13 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
-            - "full"
-            - "roi"
-            - "non_roi"
         permutations:
-            - "sampled"
         crop:
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_original_single_feature.yaml
+    CONFIG: pyradiomics_original_all_features.yaml
 
 ### Analysis settings
 ANALYSIS:
