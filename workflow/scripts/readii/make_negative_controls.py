@@ -6,6 +6,7 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
+import itertools
 from readii.image_processing import alignImages, flattenImage
 from readii.io.loaders import loadImageDatasetConfig
 from readii.negative_controls_refactor import NegativeControlManager
@@ -197,9 +198,31 @@ def make_negative_controls(dataset: str,
 
     # Check for index file existence and overwrite status to determine if continuing to negative control creation
     readii_index_file = readii_image_dir / f'readii_{dataset_name}_index.csv'
+
     if readii_index_file.exists() and not overwrite:
-        logger.info("READII index file present and no overwrite requested. Skipping negative control generation.")
-        return
+        # Load in readii index and check:
+        # 1. if all negative controls requested have been extracted
+        # 2. for all of the patients
+        readii_index = pd.read_csv(readii_index_file)
+
+        # Image types included in the existing readii index file
+        processed_image_types = readii_index[['Permutation', 'Region']].drop_duplicates().sort_values(by=['Permutation'], ignore_index=True)
+
+        # Image types requested in the dataset configuration and used to set up the NegativeControl Manager
+        requested_image_types = pd.DataFrame(data = itertools.product([permutation.name() for permutation in manager.negative_control_strategies],
+                                                                    [region.name() for region in manager.region_strategies]),
+                                            columns = ['Permutation', 'Region']).sort_values(by='Permutation', ignore_index=True)
+    
+        # Check if the number of negative control types do not match
+        if processed_image_types.size != requested_image_types.size:
+            logger.info("Different READII image types requested, continuing generation.")
+        
+        # Check if the values of the negative control types do not match
+        elif not (processed_image_types == requested_image_types).all(axis=None): 
+            logger.info("Different READII image types requested, continuing generation.")
+
+        else:
+            logger.info("Requested negative controls have already been generated or are listed in the READII index as if they have been. Skipping negative control generation. Set overwrite to true if you want to re-process these.")
     
     if overwrite:
         existing_file_mode = 'OVERWRITE'
