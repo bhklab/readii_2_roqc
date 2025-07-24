@@ -42,7 +42,7 @@ click = ">=8.2.1,<9"
 ipywidgets = ">=8.1.7,<9"
 
 [pypi-dependencies]
-readii = ">=1.35.1, <2"
+readii = ">=1.36.1, <2"
 damply = ">=0.10.0, <0.11"
 
 [target.linux-64.dependencies]
@@ -54,7 +54,7 @@ bioconductor-survcomp = ">=1.56.0,<2"
 args = ["dataset", "modalities", "strategy", "rmap", {arg = "existing_file_mode", default = "skip"}]
 cmd = ["imgtools",
        "autopipeline",
-       "$RAWDATA/TCIA_{{ dataset }}",
+       "$RAWDATA/TCIA_{{ dataset }}/images",
        "$PROCDATA/TCIA_{{ dataset }}/images/mit_{{ dataset }}",
        "--modalities", "{{ modalities }}",
        "--roi-strategy", "{{ strategy }}",
@@ -100,6 +100,21 @@ cmd = ["python",
        "--parallel"
 ]
 
+[tasks.predict]
+args = ["dataset", 
+        "features", 
+        "signature",
+        {arg = "bootstrap", default = '1000'},
+        {arg = "split", default = 'NONE'}]
+cwd = "workflow/scripts/analysis/python"
+cmd = ["python",
+       "predict.py",
+       "--dataset", "{{ dataset }}",
+       "--features", "{{ features }}",
+       "--signature", "{{ signature }}",
+       "--bootstrap", "{{ bootstrap }}",
+       "--split", "{{ split }}"
+       ]
 
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting

@@ -295,3 +295,16 @@ File ~/Documents/BHKLab_GitHub/readii_2_roqc/.pixi/envs/default/lib/python3.12/s
 
 IntegrityError: UNIQUE constraint failed: InstanceUIDs.SOPInstanceUID
 ```
+
+#### [2025-07-23]
+* Got a followup on the above error: <https://github.com/ImagingDataCommons/highdicom/issues/370>
+
+* Added prediction functionality to the pipeline
+* Train or test subsetting is specified when running pixi run predict - it will run the prediction on that subset of patients
+    * Will have to run once for train and once for test
+    * With the way I currently have it programmed, this is the best setup
+    * In a refactor, could make it so that train and test is run together and split, but it was too complicated and would duplicate too much code with the current setup
+
+* Shabnam found a couple of bugs:
+    1. If a MaskID has any spaces in it, the extractor breaks
+    2. If one READII region is already extracted, need to specify overwrite to get any additional ones extracted

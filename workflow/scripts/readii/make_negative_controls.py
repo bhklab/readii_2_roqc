@@ -221,7 +221,7 @@ def make_negative_controls(dataset: str,
 
     # Loop over each study in the masked image index
     for study, study_data in tqdm(masked_image_index.groupby('StudyInstanceUID'), 
-                                  desc=f"Generating READII negative controls", 
+                                  desc="Generating READII negative controls", 
                                   total=len(masked_image_index['StudyInstanceUID'].unique())):
         logger.info(f"Processing StudyInstanceUID: {study}")
 
