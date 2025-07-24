@@ -6,6 +6,7 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
+import itertools
 from readii.image_processing import alignImages, flattenImage
 from readii.io.loaders import loadImageDatasetConfig
 from readii.negative_controls_refactor import NegativeControlManager
@@ -197,10 +198,27 @@ def make_negative_controls(dataset: str,
 
     # Check for index file existence and overwrite status to determine if continuing to negative control creation
     readii_index_file = readii_image_dir / f'readii_{dataset_name}_index.csv'
-    if readii_index_file.exists() and not overwrite:
-        logger.info("READII index file present and no overwrite requested. Skipping negative control generation.")
-        return
-    
+
+    if readii_index_file.exists() and not overwrite: 
+        # Load in readii index and check:
+        # 1. if all negative controls requested have been extracted
+        # 2. for all of the patients
+        readii_index = pd.read_csv(readii_index_file)
+
+        # Get list of patients that have already been processed and what has been requested based on the dataset index
+        processed_samples = set(readii_index['PatientID'].to_list())
+        requested_samples = set(dataset_index['PatientID'].to_list())
+
+        processed_image_types = {itype for itype in readii_index[['Permutation', 'Region']].itertuples(index=False, name=None)}
+        requested_image_types = {itype for itype in itertools.product([permutation.name() for permutation in manager.negative_control_strategies],
+                                                                    [region.name() for region in manager.region_strategies])}
+        
+        # Check if the requested image types are a subset of those already processed
+        if requested_image_types.issubset(processed_image_types) and requested_samples.issubset(processed_samples):
+            print("Requested negative controls have already been generated for these samples or are listed in the readii index as if they have been. Set overwrite to true if you want to re-process these.")
+            return readii_index['filepath'].to_list()
+
+
     if overwrite:
         existing_file_mode = 'OVERWRITE'
         overwrite_index = True
