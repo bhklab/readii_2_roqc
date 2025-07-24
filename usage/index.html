@@ -212,13 +212,17 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
 <span class="p">|</span>--<span class="w"> </span>procdata
 <span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span><span class="w"> </span>--&gt;<span class="w"> </span>/path/to/separate/data/dir/procdata/<span class="o">{</span>DiseaseRegion<span class="o">}</span>/<span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>correlations
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>image_type<span class="o">}</span>_<span class="o">{</span>correlation_method<span class="o">}</span>_matrix.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>image_type<span class="o">}</span>_v_<span class="o">{</span>image_type<span class="o">}</span>_<span class="o">{</span>correlation_method<span class="o">}</span>_matrix.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>features
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>extraction_method_index.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">           </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>PatientID<span class="o">}</span>_<span class="o">{</span>SampleNumber<span class="o">}</span>
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>ROI_name<span class="o">}</span>
-<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
+<span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span>original_full_features.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span><span class="w">                   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
 <span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span>images
@@ -249,15 +253,20 @@ ln<span class="w"> </span>-s<span class="w"> </span>/path/to/separate/data/dir/p
 <span class="p">|</span><span class="w">               </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>SampleN<span class="w"> </span>DICOM<span class="w"> </span>directory<span class="o">}</span>
 <span class="sb">`</span>--<span class="w"> </span>results
 <span class="w">    </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>DATASET_SOURCE<span class="o">}</span>_<span class="o">{</span>DATASET_NAME<span class="o">}</span>
-<span class="w">        </span><span class="p">|</span>--<span class="w"> </span>correlation_figures
+<span class="w">        </span><span class="p">|</span>--<span class="w"> </span>correlation
+<span class="w">        </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
+<span class="w">        </span><span class="p">|</span><span class="w">       </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
+<span class="w">        </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>
 <span class="w">        </span><span class="p">|</span>--<span class="w"> </span>features
 <span class="w">        </span><span class="p">|</span><span class="w">   </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_method<span class="o">}</span>
-<span class="w">        </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span><span class="w">        </span>
-<span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>signature_performance
-<span class="w">            </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>.csv
-<span class="w">                </span><span class="p">|</span>--<span class="w"> </span>full_original_features.csv
-<span class="w">                </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
-<span class="w">                </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
+<span class="w">        </span><span class="p">|</span><span class="w">       </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>extraction_configuration_file_name<span class="o">}</span>
+<span class="w">        </span><span class="sb">`</span>--<span class="w"> </span>prediction
+<span class="w">            </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>signature_name<span class="o">}</span>
+<span class="w">                </span><span class="p">|</span>--<span class="w"> </span>prediction_metrics.csv
+<span class="w">                </span><span class="sb">`</span>--<span class="w"> </span>hazards_<span class="o">{</span>bootstrap_count<span class="o">}</span>
+<span class="w">                    </span><span class="p">|</span>--<span class="w"> </span>original_full_features.csv
+<span class="w">                    </span><span class="p">|</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
+<span class="w">                    </span><span class="sb">`</span>--<span class="w"> </span><span class="o">{</span>permutation<span class="o">}</span>_<span class="o">{</span>region<span class="o">}</span>_features.csv
 </code></pre></div>
 <h3 id="best-practices">Best Practices</h3>
 <ul>
