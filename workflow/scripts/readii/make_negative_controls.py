@@ -205,6 +205,10 @@ def make_negative_controls(dataset: str,
         # 2. for all of the patients
         readii_index = pd.read_csv(readii_index_file)
 
+        # Get list of patients that have already been processed and what has been requested based on the dataset index
+        processed_samples = sorted(readii_index['PatientID'].unique())
+        requested_samples = sorted(dataset_index['PatientID'].unique())
+
         # Image types included in the existing readii index file
         processed_image_types = readii_index[['Permutation', 'Region']].drop_duplicates().sort_values(by=['Permutation'], ignore_index=True)
 
@@ -221,9 +225,15 @@ def make_negative_controls(dataset: str,
         elif not (processed_image_types == requested_image_types).all(axis=None): 
             logger.info("Different READII image types requested, continuing generation.")
 
+        # Check if new patientIDs have been added to the list to process
+        elif processed_samples != requested_samples:
+            logger.info("Different patient IDs requested for processing, continuing generation.")
+
         else:
             logger.info("Requested negative controls have already been generated or are listed in the READII index as if they have been. Skipping negative control generation. Set overwrite to true if you want to re-process these.")
     
+
+
     if overwrite:
         existing_file_mode = 'OVERWRITE'
         overwrite_index = True
