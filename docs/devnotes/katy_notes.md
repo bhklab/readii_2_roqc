@@ -68,7 +68,7 @@
 
 - [X] Josh liked the new abstract figure more
 - [ ] Get p-value calculation code from Caryn
-- [ ] Save out bootstrap hazards so they don't get recalculated
+- [X] Save out bootstrap c-indices so they don't get recalculated
 - [ ] Keep the diagonal self-correlation plots, will go in supplemental
 - [ ] Calculate and plot average correlations between clusters of features (shape vs. first order)
 - [ ] Hierarchical clustering between the feature class clusters
@@ -80,7 +80,7 @@
  
 *Plots*
 
-- [ ] Box plot of hazards for each image type and dataset to compare
+- [X] Box plot of hazards (c-indices) for each image type and dataset to compare
 
 
 ## Project Repo Organization Notes
