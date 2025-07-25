@@ -73,7 +73,7 @@ def roi_filter_mask_metadata(mask_metadata:pd.DataFrame,
             # Filter the dataset based on the regex string generated from the ROI Match Map
             filtered_mask_metadata = filtered_mask_metadata.filter(regex=image_id_regex, axis=0)
             # Restore the numeric index
-            filtered_mask_metadata.reset_index(drop=True)
+            filtered_mask_metadata = filtered_mask_metadata.reset_index(drop=True)
             filtered_mask_metadata = filtered_mask_metadata[filtered_mask_metadata['Modality'] == mask_modality] 
         case _:
             message = f"The roi strategy {roi_strategy} is not handled by this function. No filtering will be applied."
