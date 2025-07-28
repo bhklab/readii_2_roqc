@@ -161,7 +161,7 @@ def plot(dataset: str,
     full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
 
     # Remove the file extension from the signature if it's included
-    signature = signature.removesuffix('.yaml')
+    signature = signature.strip().removesuffix('.yaml')
     # Set up predictions dataframe for plotting
     predictions = build_prediction_df(dataset_config,
                                       signature_name = signature)
