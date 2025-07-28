@@ -5,7 +5,9 @@ import pandas as pd
 from damply import dirs
 from readii.utils import logger
 from readii.io.loaders.general import loadImageDatasetConfig
-from readii.io.writers.plot_writer import PlotWriter, PlotWriterPlotExistsError
+from readii.io.writers.plot_writer import PlotWriter
+import click
+from pathlib import Path
 
 
 def build_prediction_df(dataset_config,
@@ -57,7 +59,7 @@ def prediction_violin(predictions: pd.DataFrame,
                       y_lower: float | None = 0.45,
                       y_upper: float | None = 0.85,
                       h_line: float | None = 0.5
-                      ):
+                      ) -> Figure:
     """Generate a violin plot for each column in a given predictions dataframe.
     """
 
@@ -105,7 +107,7 @@ def save_plot(plot_figure: Figure,
               data_description: str,
               evaluation_metric: str,
               overwrite: bool = False
-              ):
+              ) -> Path:
     plot_writer = PlotWriter(root_directory = dirs.RESULTS / full_dataset_name  /"visualization" / signature,
                             filename_format= "{PlotType}_{PlotDataDesc}_{Metric}.png",
                             overwrite=overwrite,
@@ -117,11 +119,28 @@ def save_plot(plot_figure: Figure,
                             Metric = evaluation_metric)
 
 
-
+@click.command()
+@click.argument('dataset', type=click.STRING)
+@click.argument('signature', type=click.STRING)
+@click.option('--overwrite', type=click.BOOL, default=False, help='Whether to overwrite existing plots. An error will be thrown if set to False and any plots exist.')
 def plot(dataset: str,
          signature: str,
          overwrite: bool = False
          ):
+    """Create and save out prediction plots for a given dataset and signature.
+    Currently generates:
+        * A violin plot with each image type
+
+    Parameters
+    ----------
+    dataset: str
+        Name of dataset to create plots for. Must have a configuration file in config/datasets.
+    signature: str
+        Name of the signature used to generate prediction results.
+    overwrite: bool = False
+        Whether to overwrite existing plot files.
+
+    """
     # Input checking
     if dataset is None:
         message = "Dataset name must be provided."
@@ -153,7 +172,7 @@ def plot(dataset: str,
                                    dataset_name = dataset_name)
     
     # Save out the violin plot
-    output_path = save_plot(violin_fig,
+    _output_path = save_plot(violin_fig,
                             plot_type = "violin",
                             full_dataset_name = full_dataset_name,
                             signature = signature,
@@ -162,8 +181,8 @@ def plot(dataset: str,
                             overwrite=overwrite
                             )
 
-    return output_path
+    return
 
 
 if __name__ == "__main__":
-    plot('HEAD-NECK-RADIOMICS-HN1', 'aerts_original')
+    plot()
