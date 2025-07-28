@@ -326,7 +326,7 @@ def predict_with_signature(dataset: str,
     bootstrap_data = {}
 
     for feature_file_path in image_type_feature_file_list:
-        image_type = feature_file_path.stem.removesuffix('features.csv')
+        image_type = feature_file_path.name.removesuffix('_features.csv')
         feature_data = loadFileToDataFrame(feature_file_path)
 
         prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,
@@ -348,12 +348,12 @@ def predict_with_signature(dataset: str,
     prediction_df = prediction_df.sort_values(by=["Image_Type"])
     prediction_df.to_csv(prediction_out_dir / "prediction_metrics.csv", index=False)
 
-    [hazard_df.to_csv(hazards_out_dir / f"{image_type}_c_idx.csv") for image_type, hazard_df in hazard_data.items()]
+    [hazard_df.to_csv(hazards_out_dir / f"{image_type}.csv") for image_type, hazard_df in hazard_data.items()]
 
     if bootstrap > 0:
         bootstrap_out_dir = prediction_out_dir / f"bootstrap_{bootstrap}"
         bootstrap_out_dir.mkdir(parents=True, exist_ok=True)
-        [bootstrap_df.to_csv(bootstrap_out_dir / f"{image_type}_c_idx.csv") for image_type, bootstrap_df in bootstrap_data.items()]
+        [bootstrap_df.to_csv(bootstrap_out_dir / f"{image_type}.csv") for image_type, bootstrap_df in bootstrap_data.items()]
 
     return prediction_df, bootstrap_data, hazard_data
 
