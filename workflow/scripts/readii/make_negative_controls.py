@@ -304,7 +304,7 @@ def make_negative_controls(dataset: str,
             image_path = Path(image_metadata['filepath'])
         except TypeError as e:
             if image_metadata.empty:
-                message = f"No {image_modality} images for patient {study_data['PatientID']} study {study}."
+                message = f"No {image_modality} images for study {study}."
                 logger.debug(message)
                 print(message)
                 continue
@@ -324,7 +324,16 @@ def make_negative_controls(dataset: str,
                                      desc="Processing each mask for this Study",
                                      total=len(all_mask_metadata)):
             # Get path to the mask image file
-            mask_path = Path(mask_metadata['filepath'])
+            try:
+                mask_path = Path(mask_metadata['filepath'])
+            except TypeError as e:
+                if mask_metadata.empty:
+                    message = f"No {mask_modality} masks for study {study}."
+                    logger.debug(message)
+                    print(message)
+                    continue
+                else:
+                    raise
             # Load in mask
             raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
             mask = alignImages(raw_mask, flattenImage(raw_mask))
