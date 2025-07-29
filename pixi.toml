@@ -116,6 +116,18 @@ cmd = ["python",
        "--split", "{{ split }}"
        ]
 
+[tasks.plot_predict]
+args = ["dataset", 
+        "signature",
+        {arg = "overwrite", default = "false"}]
+cwd = "workflow/scripts/visualization"
+cmd = ["python",
+       "plot_prediction.py",
+       "{{ dataset }}",
+       "{{ signature }}",
+       "--overwrite", "{{ overwrite }}"
+       ]
+
 ############################################## QUALITY ###############################################
 # Quality includes linting, type checking, and formatting
 [feature.quality.dependencies]
