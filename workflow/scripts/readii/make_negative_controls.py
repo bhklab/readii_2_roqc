@@ -173,7 +173,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                         PatientID=patient_id,
                         Region=region,
                         Permutation=permutation,
-                        ImageID_mask=mask_image_id,
+                        ImageID_mask=mask_image_id.replace(' ', "_"),
                         dir_original_image=original_image_path.parent,
                         dirname_mask=mask_path.parent.name,
                     )
@@ -292,7 +292,6 @@ def make_negative_controls(dataset: str,
             overwrite_index = overwrite_index
         )
 
-    print(masked_image_index)
     # Loop over each study in the masked image index
     for study, study_data in tqdm(masked_image_index.groupby('StudyInstanceUID'), 
                                   desc="Generating READII negative controls", 
@@ -301,7 +300,17 @@ def make_negative_controls(dataset: str,
 
         # Get image metadata as a pd.Series
         image_metadata = study_data[study_data['Modality'] == image_modality].squeeze()
-        image_path = Path(image_metadata['filepath'])
+        try:
+            image_path = Path(image_metadata['filepath'])
+        except TypeError as e:
+            if image_metadata.empty:
+                message = f"No {image_modality} images for patient {study_data['PatientID']} study {study}."
+                logger.debug(message)
+                print(message)
+                continue
+            else:
+                raise
+        
         # Load in image
         raw_image = sitk.ReadImage(mit_images_dir_path / image_path)
         # Remove extra dimension of image, set origin, spacing, direction to original
