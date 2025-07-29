@@ -124,7 +124,7 @@ cwd = "workflow/scripts/visualization"
 cmd = ["python",
        "plot_prediction.py",
        "{{ dataset }}",
-       " {{ signature }}",
+       "{{ signature }}",
        "--overwrite", "{{ overwrite }}"
        ]
 
