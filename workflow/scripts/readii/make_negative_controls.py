@@ -80,7 +80,7 @@ def roi_filter_mask_metadata(mask_metadata:pd.DataFrame,
             logger.info(message)
             filtered_mask_metadata = mask_metadata
 
-    if filtered_mask_metadata.empty():
+    if filtered_mask_metadata.empty:
         message = f"No mask metadata found for {roi_regex} with {roi_strategy} strategy. Try changing input strategy and confirm mask modality ({mask_modality}) is correct."
         logger.error(message)
         raise RuntimeError(message)
@@ -141,13 +141,13 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
     
     # Get image metadata rows with a SeriesInstanceUID matching one of the ReferenceSeriesUIDS of the masks
     image_metadata = dataset_index[dataset_index['Modality'] == image_modality]
-    if image_metadata.empty():
+    if image_metadata.empty:
         message = f"No image metadata found with Modality == {image_modality}."
         logger.error(message)
         raise RuntimeError(message)
 
     masked_image_metadata = image_metadata[image_metadata['SeriesInstanceUID'].isin(referenced_series_ids)]
-    if masked_image_metadata.empty():
+    if masked_image_metadata.empty:
         message = f"No {image_modality} images in dataset index are referenced by the {mask_modality} masks. Check dataset index for errors or missing data."
         logger.error(message)
         raise RuntimeError(message)
