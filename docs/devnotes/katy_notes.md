@@ -68,7 +68,7 @@
 
 - [X] Josh liked the new abstract figure more
 - [ ] Get p-value calculation code from Caryn
-- [ ] Save out bootstrap hazards so they don't get recalculated
+- [X] Save out bootstrap c-indices so they don't get recalculated
 - [ ] Keep the diagonal self-correlation plots, will go in supplemental
 - [ ] Calculate and plot average correlations between clusters of features (shape vs. first order)
 - [ ] Hierarchical clustering between the feature class clusters
@@ -80,7 +80,7 @@
  
 *Plots*
 
-- [ ] Box plot of hazards for each image type and dataset to compare
+- [X] Box plot of hazards (c-indices) for each image type and dataset to compare
 
 
 ## Project Repo Organization Notes
@@ -255,3 +255,56 @@ This is what I want to end up with eventually, but for now am going to leave the
 * Should talk to Jermiah about making original image a READII filetype
 * Updated generate_pyradiomics_index
     * Currently set up to expect the original image index from med-imagetools always and can pass the readii index if available
+
+
+#### [2025-07-08]
+* In sample_feature_writer, use a semi-colon to separate the keys and values of the feature vector so it can be read in easier by pandas
+    * With the comma, the pyradiomic settings lines confuse it.
+* Could also transpose this and have the keys on line 1 and vals on line 2, not sure it would solve the problem
+
+#### [2025-07-09]
+* Existing code already performed the transpose, just needed to change the comma to a semi-colon and fix the sortby value
+* Extraction is working! Adding a tqdm progress bar then running CPTAC-CCRCC
+
+#### [2025-07-17]
+* Merged rearranged workflow into main branch
+* Pipeline can now be run with pixi tasks
+* Snakemake needs to be updated and tested
+
+#### [2025-07-21]
+* For NSCLC-Radiogenomics, R01-003 SEG file can be loaded by pydicom, but highdicom fails with an IntegrityError:
+
+```python
+image = dcmread("TCIA_NSCLC-Radiogenomics/images/NSCLC-Radiogenomics/R01-003/12-09-1991-NA-CT_CHEST_WO-02622/1000.000000-3D_Slicer_segmentation_result-96510/1-1.dcm")
+seg = hd.seg.Segmentation.from_dataset(image)
+
+## ERROR MESSAGE
+File ~/Documents/BHKLab_GitHub/readii_2_roqc/.pixi/envs/default/lib/python3.12/site-packages/highdicom/image.py:4185, in _Image._create_ref_instance_table(self, referenced_uids)
+   4177 with self._db_con:
+   4178     self._db_con.execute(
+   4179         "CREATE TABLE InstanceUIDs("
+   4180         "StudyInstanceUID VARCHAR NOT NULL, "
+   (...)   4183         ")"
+   4184     )
+-> 4185     self._db_con.executemany(
+   4186         "INSERT INTO InstanceUIDs "
+   4187         "(StudyInstanceUID, SeriesInstanceUID, SOPInstanceUID) "
+   4188         "VALUES(?, ?, ?)",
+   4189         referenced_uids,
+   4190     )
+
+IntegrityError: UNIQUE constraint failed: InstanceUIDs.SOPInstanceUID
+```
+
+#### [2025-07-23]
+* Got a followup on the above error: <https://github.com/ImagingDataCommons/highdicom/issues/370>
+
+* Added prediction functionality to the pipeline
+* Train or test subsetting is specified when running pixi run predict - it will run the prediction on that subset of patients
+    * Will have to run once for train and once for test
+    * With the way I currently have it programmed, this is the best setup
+    * In a refactor, could make it so that train and test is run together and split, but it was too complicated and would duplicate too much code with the current setup
+
+* Shabnam found a couple of bugs:
+    1. If a MaskID has any spaces in it, the extractor breaks
+    2. If one READII region is already extracted, need to specify overwrite to get any additional ones extracted

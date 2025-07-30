@@ -28,9 +28,19 @@ READII:
         permutations:
             - "original"
         crop:
+
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_original_single_feature.yaml
+
+### Analysis settings
+ANALYSIS:
     TRAIN_TEST_SPLIT:
-        split: True
-        split_variable: {'RADCURE-challenge': ['training', 'test']}
+        split_variable: 'RADCURE-challenge'
+        train_label: 'training'
+        test_label: 'test'
         impute: 'training'
 
 RANDOM_SEED: 10

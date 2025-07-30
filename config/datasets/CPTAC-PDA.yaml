@@ -14,7 +14,7 @@ CLINICAL:
 ### MED-IMAGETOOLS settings
 MIT:
     MODALITIES: 
-        image: MR
+        image: CT
         mask: RTSTRUCT
     ROI_STRATEGY: SEPARATE
     ROI_MATCH_MAP: GTV:.* # NOTE: there can be no spaces in KEY:ROI_NAME
@@ -24,12 +24,18 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
-            - "full"
-            - "roi"
-            - "non_roi"
+
         permutations:
-            - "sampled"
+
         crop:
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_h4h_all_images_features.yaml
+
+### Analysis settings
+ANALYSIS:
     TRAIN_TEST_SPLIT:
         split: False
         split_variable: {}

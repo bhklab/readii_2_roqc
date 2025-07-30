@@ -1,5 +1,5 @@
 DATA_SOURCE: "TCIA"
-DATASET_NAME: "NSCLC-Radiomics_test"
+DATASET_NAME: "CC-Radiomics-Phantom"
 
 ### CLINICAL VARIABLE INFORMATION ###
 CLINICAL:
@@ -13,13 +13,12 @@ CLINICAL:
 
 ### MED-IMAGETOOLS settings
 MIT:
-    ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP: 'GTV:GTV-1'
-    MODALITIES:
+    MODALITIES: 
         image: CT
         mask: RTSTRUCT
-    
-
+    ROI_STRATEGY: MERGE
+    ROI_MATCH_MAP: "ROI:'.*_00'" # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
+        
 ### READII settings
 READII:
     IMAGE_TYPES:
@@ -28,17 +27,16 @@ READII:
             - "roi"
             - "non_roi"
         permutations:
+            - "randomized"
             - "sampled"
             - "shuffled"
-            - "randomized"
         crop:
-
-
-### EXTRACTION settings
+    
+### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    SETTINGS: pyradiomics_original_all_features.yaml
-    
+    CONFIG: pyradiomics_original_single_feature.yaml
+
 ### Analysis settings
 ANALYSIS:
     TRAIN_TEST_SPLIT:

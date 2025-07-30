@@ -32,6 +32,14 @@ READII:
             - "sampled"
             - "randomized"
         crop:
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_h4h_all_images_feature.yaml
+
+### Analysis settings
+ANALYSIS:
     TRAIN_TEST_SPLIT:
         split: False
         split_variable: {}

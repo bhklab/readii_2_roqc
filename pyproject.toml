@@ -1,9 +1,9 @@
 [project]
-authors = [{ name = "Katy", email = "bhklab.jermiahjoseph@gmail.com" }]
+authors = [{ name = "Katy", email = "bhklab.katyscott@gmail.com" }]
 name = "readii_2_roqc"
 requires-python = ">= 3.11"
 version = "0.1.0"
-dependencies = ["pydantic-settings>=2.9.1,<3", "med-imagetools>=2.10.0,<3"]
+dependencies = ["pydantic-settings>=2.9.1,<3", "med-imagetools>=2.10.0,<3", "readii>=1.35.1,<2"]
 
 [build-system]
 build-backend = "hatchling.build"

@@ -1,11 +1,11 @@
-import pandas as pd
-import click
-from damply import dirs
 from pathlib import Path
 
+import click
+import pandas as pd
+from damply import dirs
 from readii.io.loaders import loadImageDatasetConfig
-from readii.utils import logger
 from readii.process.config import get_full_data_name
+from readii.utils import logger
 
 
 def make_edges_df(mit_index: pd.DataFrame | Path,
@@ -42,17 +42,16 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
             # Load the file into a pandas DataFrame
             mit_index = pd.read_csv(mit_index)
 
-        except AssertionError as e:
+        except AssertionError:
             message = "Expected imgtools autopipeline index file ending in 'index.csv' or 'index-simple.csv'."
             logger.error(message)
-            raise e
+            raise
     
     # Get the image rows and mask rows from the MIT index and merge based on 
     #   - mask's ReferencedSeriesUID == image's SeriesInstanceUID
     #   - Matching SampleNumber
     #   - Matching PatientID
-    edges_df = pd.merge(
-        mit_index[mit_index.Modality == image_modality],
+    edges_df = mit_index[mit_index.Modality == image_modality].merge(
         mit_index[mit_index.Modality == mask_modality],
         left_on=['SeriesInstanceUID', 'SampleNumber', 'PatientID'],
         right_on=['ReferencedSeriesUID', 'SampleNumber', 'PatientID'],
@@ -104,11 +103,16 @@ def generate_pyradiomics_index(dataset_config: dict,
     # Set up the data from the mit index to point to the original images for feature extraction
     original_images_index = pd.DataFrame(
         data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
-          "MaskID": mit_edges_index['ImageID_mask'],
-          "Permutation": "original",
-          "Region": "full",
-          "Image": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_image}", axis=1),
-          "Mask": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_mask}", axis=1)
+              "Image": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_image}", axis=1),
+              "Mask": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_mask}", axis=1),
+              "DatasetName": dataset_name,
+              "SeriesInstanceUID_Image": mit_edges_index['SeriesInstanceUID_image'],
+              "Modality_Image": mit_edges_index['Modality_image'],
+              "SeriesInstanceUID_Mask": mit_edges_index['SeriesInstanceUID_mask'],
+              "Modality_Mask": mit_edges_index['Modality_mask'],
+              "MaskID": mit_edges_index['ImageID_mask'].replace(' ', '_'),
+              "readii_Permutation": "original",
+              "readii_Region": "full"
           }
     )
 
@@ -116,11 +120,16 @@ def generate_pyradiomics_index(dataset_config: dict,
         # Set up the data from the readii index to point to the negative control images for feature extraction
         readii_images_index = pd.DataFrame(
             data={"SampleID": readii_index.apply(lambda x: f"{Path(x.dir_original_image).parent}", axis=1),
-            "MaskID": readii_index['ImageID_mask'],
-            "Permutation": readii_index["Permutation"],
-            "Region": readii_index["Region"],
-            "Image": readii_index.apply(lambda x: f"{Path(f"readii_{dataset_name}") / x.filepath}", axis=1),
-            "Mask": readii_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
+                  "Image": readii_index.apply(lambda x: f"{Path(f"readii_{dataset_name}") / x.filepath}", axis=1),
+                  "Mask": readii_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
+                  "DatasetName": dataset_name,
+                  "SeriesInstanceUID_Image": "",
+                  "Modality_Image": image_modality,
+                  "SeriesInstanceUID_Mask": "",
+                  "Modality_Mask": mask_modality,
+                  "MaskID": readii_index['ImageID_mask'].replace(' ', '_'),
+                  "readii_Permutation": readii_index["Permutation"],
+                  "readii_Region": readii_index["Region"],
             }
         )
 
@@ -128,7 +137,7 @@ def generate_pyradiomics_index(dataset_config: dict,
         pyradiomics_index = pd.concat([original_images_index, readii_images_index], ignore_index=True, axis=0)
 
         # Sort the resulting index by negative control settings, then SampleID and MaskID
-        pyradiomics_index.sort_values(by=['Permutation', 'Region', 'SampleID', 'MaskID', ], inplace=True, ignore_index=True)
+        pyradiomics_index = pyradiomics_index.sort_values(by=['readii_Permutation', 'readii_Region', 'SampleID', 'MaskID'], ignore_index=True)
 
     else:
         # No negative control images to process, just use original images index
@@ -147,21 +156,20 @@ def generate_pyradiomics_index(dataset_config: dict,
 
         # Save out the index file
         pyradiomics_index.to_csv(output_file_path, index=False)
-
-        return pyradiomics_index
     
-    except AssertionError as e:
+    except AssertionError:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
         logger.error(message)
-        raise e
+        raise
 
-
+    return pyradiomics_index
 
 @click.command()
 @click.option('--dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
 @click.option('--method', default='pyradiomics', help='Feature extraction method to use.')
 def generate_dataset_index(dataset: str, 
-                           method: str = 'pyradiomics'):
+                           method: str = 'pyradiomics'
+                           ) -> pd.DataFrame:
     """Create data index file for feature extraction listing image and mask file pairs.
     """
     if dataset is None:

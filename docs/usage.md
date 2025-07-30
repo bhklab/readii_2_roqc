@@ -125,13 +125,17 @@ data
 |-- procdata
 |   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/procdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
 |       |-- correlations
+|       |   `-- {extraction_method}
+|       |       `-- {extraction_configuration_file_name}
+|       |           |-- {image_type}_{correlation_method}_matrix.csv
+|       |           `-- {image_type}_v_{image_type}_{correlation_method}_matrix.csv
 |       |-- features
 |       |   `-- {extraction_method}
 |       |       |-- extraction_method_index.csv
 |       |       `-- {extraction_configuration_file_name}
 |       |           `-- {PatientID}_{SampleNumber}
 |       |               `-- {ROI_name}
-|       |                   |-- full_original_features.csv
+|       |                   |-- original_full_features.csv
 |       |                   |-- {permutation}_{region}_features.csv
 |       |                   `-- {permutation}_{region}_features.csv
 |       |-- images
@@ -162,15 +166,20 @@ data
 |               `-- {SampleN DICOM directory}
 `-- results
     `-- {DATASET_SOURCE}_{DATASET_NAME}
-        |-- correlation_figures
+        |-- correlation
+        |   `-- {extraction_method}
+        |       |-- {extraction_configuration_file_name}
+        |       `-- {signature_name}
         |-- features
         |   `-- {extraction_method}
-        |       `-- {extraction_configuration_file_name}        
-        `-- signature_performance
-            `-- {signature_name}.csv
-                |-- full_original_features.csv
-                |-- {permutation}_{region}_features.csv
-                `-- {permutation}_{region}_features.csv
+        |       `-- {extraction_configuration_file_name}
+        `-- prediction
+            `-- {signature_name}
+                |-- prediction_metrics.csv
+                `-- hazards_{bootstrap_count}
+                    |-- original_full_features.csv
+                    |-- {permutation}_{region}_features.csv
+                    `-- {permutation}_{region}_features.csv
 ```
 
 
@@ -185,7 +194,31 @@ data
 
 
 ## Running Your Analysis
+The pipeline is currently being run via `pixi` tasks. The following example shows how to run the pipeline using the `NSCLC-Radiomics` data.
 
+# DICOM Image and Mask file processing with Med-ImageTools
+This step converts the DICOM image files to NIfTI files, creates a unique ID for Image and Mask pairs, and generates an index file containing relevant metadata.
+
+## Step 1: Run Med-ImageTools
+This step converts the DICOM files to NIfTIs, assigns unique SampleIDs to image and mask pairs, and generates an index table for each file with associated metadata (e.g. DICOM tags)
+
+```bash
+pixi run mit NSCLC-Radiomics 'CT,RTSTRUCT' SEPARATE 'GTV:GTV-1,gtv-pre-op'
+```
+
+## Step 2: Generate negative control images with READII
+This step creates and saves READII negative controls specified in the config file for the provided dataset. 
+
+```bash
+pixi run readii_negative NSCLC-Radiomics
+```
+
+### Step 3: Run feature extraction
+This step first generates an index file for the specific feature extraction method, where each row contains the information for the image and mask pair to use.
+
+```bash
+pixi run extract NSCLC-Radiomics pyradiomics pyradiomics_original_all_features.yaml
+```
 
 
 ## Data splitting
