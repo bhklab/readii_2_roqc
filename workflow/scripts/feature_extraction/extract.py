@@ -114,7 +114,6 @@ def pyradiomics_extract(settings: Path | str,
     sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
         logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
-
         # Load the existing feature file
         sample_feature_df = pd.read_csv(sample_feature_file_path, index_col=0, header=None, sep=";")
         # collapse the single data column into a flat OrderedDict  
@@ -122,11 +121,10 @@ def pyradiomics_extract(settings: Path | str,
 
     else:
         # Confirm settings file exists
-        try:
-            assert Path(settings).exists()
-        except AssertionError:
-            logger.error(f"Settings file for PyRadiomics feature extraction at {settings} does not exist.")
-            raise
+        if not Path(settings).exists():
+            message = f"Settings file for PyRadiomics feature extraction at {settings} does not exist."
+            logger.error(message)
+            raise FileNotFoundError(message)
 
         # Convert settings Path to string for pyradiomics to read it
         if isinstance(settings, Path):
@@ -192,13 +190,12 @@ def extract_sample_features(sample_data: pd.Series,
     OrderedDict
         The extracted features for the sample. No metadata will be prepended to this vector.
     """
-    try:
-        # Load the settings file for the feature extraction method
-        settings_path = dirs.CONFIG / method / settings
-        assert settings_path.exists()
-    except AssertionError:
-        logger.error(f"Settings file for {method} feature extraction does not exist at {settings_path}.")
-        raise
+    # Set up settings file path for the feature extraction method
+    settings_path = dirs.CONFIG / method / settings
+    if not settings_path.exists():
+        message = f"Settings file for {method} feature extraction does not exist at {settings_path}."
+        logger.error(message)
+        raise FileNotFoundError(message)
     
     data_dir = dirs.PROCDATA / f"{sample_data['DataSource']}_{sample_data['DatasetName']}" / "images"
 
@@ -224,7 +221,8 @@ def extract_sample_features(sample_data: pd.Series,
 
 def compile_dataset_features(dataset_index: pd.DataFrame,
                              method: str,
-                             settings_name: str 
+                             settings_name: str,
+                             overwrite: bool = False 
                              ) -> dict[str, pd.DataFrame]:
     """Compile features from all samples of each image type in a directory into a single DataFrame and save it to a CSV file.
     
@@ -237,75 +235,105 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         The feature extraction method used to extract the features. This will be used to construct the output directory structure.
     settings_name : str
         The name of the settings file used for feature extraction. This will be used to construct the output directory structure.
-
+    overwrite : bool = False
+        Whether to overwrite existing compiled dataset files.
     Returns
     -------
     compiled_dataset_features : dict[str, pd.DataFrame]
         A dictionary where keys are image type identifiers (e.g., "original_full", "original_partial") and values are DataFrames containing the compiled features for each image type.
     """
+    
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
     features_dir_struct = Path(f"{dataset_index.iloc[0]['DataSource']}_{dataset_index.iloc[0]['DatasetName']}") / "features" / method / settings_name
 
     # Set up path to the directory containing the sample feature files
     sample_features_dir = dirs.PROCDATA / features_dir_struct
 
-    # Get each of the image types in the dataset index
-    readii_image_classes = set(product(dataset_index['readii_Permutation'].unique(), dataset_index['readii_Region'].unique()))
+    # Get each of the image types in the dataset index as a set of tuples
+    readii_image_classes = {image_class for image_class in dataset_index[['readii_Permutation', 'readii_Region']].itertuples(index=False, name=None)}
 
-    # Initialize dictionary to store compiled feature dataframes
-    compiled_dataset_features = {}
+    # Check for existing result feature dataset files
+    existing_dataset_files = sorted((dirs.RESULTS / features_dir_struct).glob('*.csv'))
+    if existing_dataset_files and not overwrite:
+        # Get the image classes in the same format as readii_image_classes (a set of tuples)
+        compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_')) for file in existing_dataset_files}
+        
+        # Check whether there are new image classes to compile
+        if readii_image_classes.issubset(compiled_image_classes):
+            message = f"All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
+            print(message)
+            logger.info(message)
+            
+            # Load in the existing compiled dataset files into a dictionary to match function output
+            compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}
+        else:
+            message = f"Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets."
+            print(message)
+            logger.info(message)
 
-    for permutation, region in readii_image_classes:
-        logger.info(f"Compiling features for {permutation} {region} images.")
-        # Filter the dataset index for this image class
-        filtered_class_index = dataset_index[(dataset_index['readii_Permutation'] == permutation) & 
-                                       (dataset_index['readii_Region'] == region)]
+    else:
+        # Initialize dictionary to store compiled feature dataframes
+        compiled_dataset_features = {}
 
-        # If there are no samples for this image class, skip it
-        if filtered_class_index.empty:
-            logger.warning(f"No samples found for image class {permutation} {region}. Skipping.")
-            continue
+        for permutation, region in readii_image_classes:
+            logger.info(f"Compiling features for {permutation} {region} images.")
+            # Filter the dataset index for this image class
+            filtered_class_index = dataset_index[(dataset_index['readii_Permutation'] == permutation) & 
+                                        (dataset_index['readii_Region'] == region)]
 
-        # Compile features for this image class
-        # Regex for directory search
-        filename_pattern = f"**/{permutation}_{region}_features.csv"
-        # Recursively search for sample feature files for this image type and sort them into a list
-        sample_feature_files = sorted(sample_features_dir.rglob(filename_pattern))
+            # If there are no samples for this image class, skip it
+            if filtered_class_index.empty:
+                logger.warning(f"No samples found for image class {permutation} {region}. Skipping.")
+                continue
 
-        # Set up output file path for this image type
-        dataset_features_path = dirs.RESULTS / features_dir_struct / f"{permutation}_{region}_features.csv"
-        dataset_features_path.parent.mkdir(parents=True, exist_ok=True)
+            # Compile features for this image class
+            # Regex for directory search
+            filename_pattern = f"**/{permutation}_{region}_features.csv"
+            # Recursively search for sample feature files for this image type and sort them into a list
+            sample_feature_files = sorted(sample_features_dir.rglob(filename_pattern))
 
-        # Generator
-        def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame, list[Path], None]:
-            for file in file_list:
+            # Set up output file path for this image type
+            dataset_features_path = dirs.RESULTS / features_dir_struct / f"{permutation}_{region}_features.csv"
+            
+            # Check if this image type has compiled features already 
+            if dataset_features_path.exists() and not overwrite:
+                # Load existing features into dictionary for return
+                compiled_dataset_features[f"{permutation}_{region}"] = pd.read_csv(dataset_features_path)
+
+            # No existing feature file OR overwrite requested
+            else:
+                dataset_features_path.parent.mkdir(parents=True, exist_ok=True)
+
+                # Generator
+                def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame, list[Path], None]:
+                    for file in file_list:
+                        try:
+                            file_df = pd.read_csv(file, index_col=0, header=None, sep=";")
+                            if not file_df.empty:
+                                yield file_df.T
+                        except pd.errors.EmptyDataError:
+                            pass
+
                 try:
-                    file_df = pd.read_csv(file, index_col=0, header=None, sep=";")
-                    if not file_df.empty:
-                        yield file_df.T
-                except pd.errors.EmptyDataError:
-                    pass
+                    # Find all non-empty feature dataframes in the globbed list and concatenate them
+                    dataset_features = pd.concat(non_empty_dfs(sample_feature_files))
+                    # Sort the dataframes by the sample ID column
+                    dataset_features = dataset_features.sort_values(by="SampleID")
+                    # Save out the combined feature dataframe
+                    dataset_features.to_csv(dataset_features_path, index=False)
 
-        try:
-            # Find all non-empty feature dataframes in the globbed list and concatenate them
-            dataset_features = pd.concat(non_empty_dfs(sample_feature_files))
-            # Sort the dataframes by the sample ID column
-            dataset_features = dataset_features.sort_values(by="SampleID")
-            # Save out the combined feature dataframe
-            dataset_features.to_csv(dataset_features_path, index=False)
+                except ValueError:
+                    # Handle case where all dataframes are empty
+                    logger.error(f"No non-empty dataframes found for {permutation} {region}.")
+                    # Create empty dataframe for compiled dataset features
+                    dataset_features = pd.DataFrame()
+                    # write empty file to the output file
+                    with dataset_features_path.open("w") as f:
+                        # write an empty file
+                        f.write("")
+                    logger.error(f"Empty file written to {dataset_features_path}")
 
-        except ValueError:
-            # Handle case where all dataframes are empty
-            logger.error(f"No non-empty dataframes found for {permutation} {region}.")
-            # Create empty dataframe for compiled dataset features
-            dataset_features = pd.DataFrame()
-            # write empty file to the output file
-            with dataset_features_path.open("w") as f:
-                # write an empty file
-                f.write("")
-            logger.error(f"Empty file written to {dataset_features_path}")
-
-        compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
+                compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
 
     return compiled_dataset_features
 
@@ -315,8 +343,8 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 @click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform extraction on.')
 @click.option('--method', type=click.Choice(['pyradiomics']), required=True, help='Feature extraction method to use.')
 @click.option('--settings', type=click.STRING, required=True, help='Name of the feature extraction settings file in config/<method>.')
-@click.option('--overwrite', is_flag=True, default=False, help='Overwrite existing feature files.')
-@click.option('--parallel', is_flag=True, default=False, help='Run feature extraction in parallel.')
+@click.option('--overwrite', type=click.BOOL, default=False, help='Overwrite existing feature files.')
+@click.option('--parallel', type=click.BOOL, default=False, help='Run feature extraction in parallel.')
 def extract_dataset_features(dataset: str,
                              method: str,
                              settings: str | Path,
@@ -404,7 +432,8 @@ def extract_dataset_features(dataset: str,
     # Collect all the sample feature vectors for the dataset into a DataFrame for each image type
     dataset_feature_vectors = compile_dataset_features(dataset_index,
                                                        method,
-                                                       settings_name=Path(settings).stem)
+                                                       settings_name=Path(settings).stem,
+                                                       overwrite = overwrite)
     
     return dataset_feature_vectors
 

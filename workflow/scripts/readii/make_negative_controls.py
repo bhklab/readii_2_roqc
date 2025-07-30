@@ -80,6 +80,11 @@ def roi_filter_mask_metadata(mask_metadata:pd.DataFrame,
             logger.info(message)
             filtered_mask_metadata = mask_metadata
 
+    if filtered_mask_metadata.empty:
+        message = f"No mask metadata found for {roi_regex} with {roi_strategy} strategy. Try changing input strategy and confirm mask modality ({mask_modality}) is correct."
+        logger.error(message)
+        raise RuntimeError(message)
+
     return filtered_mask_metadata
 
 
@@ -136,8 +141,17 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
     
     # Get image metadata rows with a SeriesInstanceUID matching one of the ReferenceSeriesUIDS of the masks
     image_metadata = dataset_index[dataset_index['Modality'] == image_modality]
-    masked_image_metadata = image_metadata[image_metadata['SeriesInstanceUID'].isin(referenced_series_ids)]
+    if image_metadata.empty:
+        message = f"No image metadata found with Modality == {image_modality}."
+        logger.error(message)
+        raise RuntimeError(message)
 
+    masked_image_metadata = image_metadata[image_metadata['SeriesInstanceUID'].isin(referenced_series_ids)]
+    if masked_image_metadata.empty:
+        message = f"No {image_modality} images in dataset index are referenced by the {mask_modality} masks. Check dataset index for errors or missing data."
+        logger.error(message)
+        raise RuntimeError(message)
+    
     # Return the subsetted metadata
     return pd.concat([masked_image_metadata, mask_metadata], sort=True)
 
@@ -159,7 +173,7 @@ def save_out_negative_controls(nifti_writer: NIFTIWriter,
                         PatientID=patient_id,
                         Region=region,
                         Permutation=permutation,
-                        ImageID_mask=mask_image_id,
+                        ImageID_mask=mask_image_id.replace(' ', "_"),
                         dir_original_image=original_image_path.parent,
                         dirname_mask=mask_path.parent.name,
                     )
@@ -224,7 +238,7 @@ def make_negative_controls(dataset: str,
     mit_images_dir_path = dirs.PROCDATA / full_data_name / 'images' /f'mit_{dataset_name}'
    
     # Load in mit_index file
-    dataset_index = pd.read_csv(Path(mit_images_dir_path, f'mit_{dataset_name}_index.csv'))
+    dataset_index = pd.read_csv(Path(mit_images_dir_path, f'mit_{dataset_name}_index-simple.csv'))
 
     # Get just the rows with the desired image and mask modalities specified in the dataset config
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
@@ -286,7 +300,17 @@ def make_negative_controls(dataset: str,
 
         # Get image metadata as a pd.Series
         image_metadata = study_data[study_data['Modality'] == image_modality].squeeze()
-        image_path = Path(image_metadata['filepath'])
+        try:
+            image_path = Path(image_metadata['filepath'])
+        except TypeError as e:
+            if image_metadata.empty:
+                message = f"No {image_modality} images for study {study}."
+                logger.debug(message)
+                print(message)
+                continue
+            else:
+                raise
+        
         # Load in image
         raw_image = sitk.ReadImage(mit_images_dir_path / image_path)
         # Remove extra dimension of image, set origin, spacing, direction to original
@@ -300,11 +324,20 @@ def make_negative_controls(dataset: str,
                                      desc="Processing each mask for this Study",
                                      total=len(all_mask_metadata)):
             # Get path to the mask image file
-            mask_path = Path(mask_metadata['filepath'])
+            try:
+                mask_path = Path(mask_metadata['filepath'])
+            except TypeError as e:
+                if mask_metadata.empty:
+                    message = f"No {mask_modality} masks for study {study}."
+                    logger.debug(message)
+                    print(message)
+                    continue
+                else:
+                    raise
             # Load in mask
             raw_mask = sitk.ReadImage(mit_images_dir_path / mask_path)
             mask = alignImages(raw_mask, flattenImage(raw_mask))
-            
+
             # Generate each image type and save it out with the nifti writer
             readii_image_paths = [save_out_negative_controls(nifti_writer, 
                                                              patient_id = image_metadata['PatientID'],

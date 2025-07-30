@@ -110,7 +110,7 @@ def generate_pyradiomics_index(dataset_config: dict,
               "Modality_Image": mit_edges_index['Modality_image'],
               "SeriesInstanceUID_Mask": mit_edges_index['SeriesInstanceUID_mask'],
               "Modality_Mask": mit_edges_index['Modality_mask'],
-              "MaskID": mit_edges_index['ImageID_mask'],
+              "MaskID": mit_edges_index['ImageID_mask'].replace(' ', '_'),
               "readii_Permutation": "original",
               "readii_Region": "full"
           }
@@ -127,7 +127,7 @@ def generate_pyradiomics_index(dataset_config: dict,
                   "Modality_Image": image_modality,
                   "SeriesInstanceUID_Mask": "",
                   "Modality_Mask": mask_modality,
-                  "MaskID": readii_index['ImageID_mask'],
+                  "MaskID": readii_index['ImageID_mask'].replace(' ', '_'),
                   "readii_Permutation": readii_index["Permutation"],
                   "readii_Region": readii_index["Region"],
             }
