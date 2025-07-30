@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from itertools import product
 from pathlib import Path
 from typing import Generator
 
@@ -260,14 +259,14 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         
         # Check whether there are new image classes to compile
         if readii_image_classes.issubset(compiled_image_classes):
-            message = f"All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
+            message = "All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
             print(message)
             logger.info(message)
             
             # Load in the existing compiled dataset files into a dictionary to match function output
             compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}
         else:
-            message = f"Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets."
+            message = "Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets."
             print(message)
             logger.info(message)
 
