@@ -7,6 +7,8 @@ from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name
 from readii.utils import logger
 
+from readii_2_roqc.utils.metadata import get_masked_image_metadata
+
 
 def make_edges_df(mit_index: pd.DataFrame | Path,
                    image_modality: str,
@@ -164,6 +166,8 @@ def generate_pyradiomics_index(dataset_config: dict,
 
     return pyradiomics_index
 
+
+
 @click.command()
 @click.option('--dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
 @click.option('--method', default='pyradiomics', help='Feature extraction method to use.')
@@ -197,6 +201,15 @@ def generate_dataset_index(dataset: str,
     if mit_index_path.exists():
         logger.info(f"Loading autopipeline dataset index file: {mit_index_path}")
         mit_index = pd.read_csv(mit_index_path)
+
+        # Filter the mit_index by the modalities specified in the dataset config
+        # Get just the rows with the desired image and mask modalities specified in the dataset config
+        image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
+        mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
+        mit_index = get_masked_image_metadata(dataset_index = mit_index,
+                                              dataset_config = dataset_config,
+                                              image_modality = image_modality,
+                                              mask_modality = mask_modality)
     else:
         logger.error(f"No existing index file found at {mit_index_path}. Run imgtools autopipeline first.")
         raise FileNotFoundError()
