@@ -14870,7 +14870,7 @@ packages:
 - pypi: ./
   name: readii-2-roqc
   version: 0.1.0
-  sha256: cffbdc12184e80648d39f01dd988f850692a7921745228ba3d98d2d468ad2437
+  sha256: 4e5f5a04f8eff0473d0ede9e3386f19fc5a39ee9e40b7389c329022099437d01
   requires_dist:
   - pydantic-settings>=2.9.1,<3
   - med-imagetools>=2.10.0,<3

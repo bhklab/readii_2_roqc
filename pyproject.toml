@@ -8,3 +8,6 @@ dependencies = ["pydantic-settings>=2.9.1,<3", "med-imagetools>=2.10.0,<3", "rea
 [build-system]
 build-backend = "hatchling.build"
 requires = ["hatchling"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/readii_2_roqc"]
