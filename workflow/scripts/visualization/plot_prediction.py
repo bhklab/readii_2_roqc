@@ -11,8 +11,8 @@ from readii.io.writers.plot_writer import PlotWriter
 from readii.utils import logger
 
 
-def build_prediction_df(dataset_config,
-                        signature_name,
+def build_prediction_df(dataset_config: dict,
+                        signature_name: str,
                         bootstrap_count: int = 1000,
                         evaluation_metric: str = "C-index",
                         ) -> pd.DataFrame:
@@ -127,7 +127,7 @@ def save_plot(plot_figure: Figure,
 def plot(dataset: str,
          signature: str,
          overwrite: bool = False
-         ):
+         ) -> None:
     """Create and save out prediction plots for a given dataset and signature.
     Currently generates:
         * A violin plot with each image type
