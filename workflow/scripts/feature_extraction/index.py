@@ -196,8 +196,11 @@ def generate_dataset_index(dataset: str,
     if output_file_path.exists() and not overwrite:
         message = f"{feature_extraction_type} index file already exists for {dataset_name}. Loading existing file."
         logger.info(message)
-        dataset_index = pd.read_csv(output_file_path)
-
+        try:
+            dataset_index = pd.read_csv(output_file_path)
+        except Exception as e:
+            logger.error(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.: {e}")
+            raise
     else:
         output_file_path.parent.mkdir(parents=True, exist_ok=True)
 
