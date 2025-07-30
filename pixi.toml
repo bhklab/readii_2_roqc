@@ -70,7 +70,7 @@ args = ["dataset",
          {arg = "overwrite", default = "false"},
          {arg = "seed", default = "10"}
 ]
-cwd = "workflow/scripts/readii"
+cwd = "src/readii_2_roqc/readii"
 cmd = ["python",
        "make_negative_controls.py",
        "--dataset", "{{ dataset }}",
@@ -80,7 +80,7 @@ cmd = ["python",
 
 [tasks.index]
 args = ["dataset", "method"]
-cwd = "workflow/scripts/feature_extraction"
+cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
        "--dataset", "{{ dataset }}",
@@ -94,7 +94,7 @@ args = ["dataset",
         {arg = "overwrite", default = "False"},
         {arg = "parallel", default = "True"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
-cwd = "workflow/scripts/feature_extraction"
+cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "extract.py",
        "--dataset", "{{ dataset }}",
@@ -110,7 +110,7 @@ args = ["dataset",
         "signature",
         {arg = "bootstrap", default = '1000'},
         {arg = "split", default = 'NONE'}]
-cwd = "workflow/scripts/analysis/python"
+cwd = "src/readii_2_roqc/analysis"
 cmd = ["python",
        "predict.py",
        "--dataset", "{{ dataset }}",
@@ -124,7 +124,7 @@ cmd = ["python",
 args = ["dataset", 
         "signature",
         {arg = "overwrite", default = "false"}]
-cwd = "workflow/scripts/visualization"
+cwd = "src/readii_2_roqc/visualization"
 cmd = ["python",
        "plot_prediction.py",
        "{{ dataset }}",
