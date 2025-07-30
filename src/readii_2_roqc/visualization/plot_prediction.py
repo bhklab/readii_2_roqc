@@ -1,13 +1,14 @@
-import seaborn as sns
+from pathlib import Path
+
+import click
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
 import pandas as pd
+import seaborn as sns
 from damply import dirs
-from readii.utils import logger
+from matplotlib.figure import Figure
 from readii.io.loaders.general import loadImageDatasetConfig
 from readii.io.writers.plot_writer import PlotWriter
-import click
-from pathlib import Path
+from readii.utils import logger
 
 
 def build_prediction_df(dataset_config,
@@ -181,7 +182,6 @@ def plot(dataset: str,
                             overwrite=overwrite
                             )
 
-    return
 
 
 if __name__ == "__main__":

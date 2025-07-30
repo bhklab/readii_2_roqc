@@ -1,3 +1,4 @@
+import itertools
 from pathlib import Path
 from typing import Optional
 
@@ -6,7 +7,6 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
-import itertools
 from readii.image_processing import alignImages, flattenImage
 from readii.io.loaders import loadImageDatasetConfig
 from readii.negative_controls_refactor import NegativeControlManager
@@ -302,7 +302,7 @@ def make_negative_controls(dataset: str,
         image_metadata = study_data[study_data['Modality'] == image_modality].squeeze()
         try:
             image_path = Path(image_metadata['filepath'])
-        except TypeError as e:
+        except TypeError:
             if image_metadata.empty:
                 message = f"No {image_modality} images for study {study}."
                 logger.debug(message)
@@ -326,7 +326,7 @@ def make_negative_controls(dataset: str,
             # Get path to the mask image file
             try:
                 mask_path = Path(mask_metadata['filepath'])
-            except TypeError as e:
+            except TypeError:
                 if mask_metadata.empty:
                     message = f"No {mask_modality} masks for study {study}."
                     logger.debug(message)
