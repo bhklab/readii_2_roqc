@@ -89,7 +89,11 @@ cmd = ["python",
 ]
 
 [tasks.extract]
-args = ["dataset", "method", "settings"]
+args = ["dataset", 
+        "method", 
+        "settings",
+        {arg = "overwrite", default = "False"},
+        {arg = "parallel", default = "True"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
 cwd = "workflow/scripts/feature_extraction"
 cmd = ["python",
@@ -97,7 +101,8 @@ cmd = ["python",
        "--dataset", "{{ dataset }}",
        "--method", "{{ method }}",
        "--settings", "{{ settings }}",
-       "--parallel"
+       "--overwrite", "{{ overwrite }}",
+       "--parallel", "{{ parallel }}"
 ]
 
 [tasks.predict]
@@ -114,6 +119,18 @@ cmd = ["python",
        "--signature", "{{ signature }}",
        "--bootstrap", "{{ bootstrap }}",
        "--split", "{{ split }}"
+       ]
+
+[tasks.plot_predict]
+args = ["dataset", 
+        "signature",
+        {arg = "overwrite", default = "false"}]
+cwd = "workflow/scripts/visualization"
+cmd = ["python",
+       "plot_prediction.py",
+       "{{ dataset }}",
+       "{{ signature }}",
+       "--overwrite", "{{ overwrite }}"
        ]
 
 ############################################## QUALITY ###############################################
