@@ -105,8 +105,8 @@ def generate_pyradiomics_index(dataset_config: dict,
     # Set up the data from the mit index to point to the original images for feature extraction
     original_images_index = pd.DataFrame(
         data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
-              "Image": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_image}", axis=1),
-              "Mask": mit_edges_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / x.filepath_mask}", axis=1),
+              "Image": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_image}", axis=1),
+              "Mask": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_mask}", axis=1),
               "DatasetName": dataset_name,
               "SeriesInstanceUID_Image": mit_edges_index['SeriesInstanceUID_image'],
               "Modality_Image": mit_edges_index['Modality_image'],
@@ -122,8 +122,8 @@ def generate_pyradiomics_index(dataset_config: dict,
         # Set up the data from the readii index to point to the negative control images for feature extraction
         readii_images_index = pd.DataFrame(
             data={"SampleID": readii_index.apply(lambda x: f"{Path(x.dir_original_image).parent}", axis=1),
-                  "Image": readii_index.apply(lambda x: f"{Path(f"readii_{dataset_name}") / x.filepath}", axis=1),
-                  "Mask": readii_index.apply(lambda x: f"{Path(f"mit_{dataset_name}") / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
+                  "Image": readii_index.apply(lambda x: f"{Path(f'readii_{dataset_name}') / x.filepath}", axis=1),
+                  "Mask": readii_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
                   "DatasetName": dataset_name,
                   "SeriesInstanceUID_Image": "",
                   "Modality_Image": image_modality,

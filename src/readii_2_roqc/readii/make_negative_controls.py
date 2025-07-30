@@ -6,13 +6,13 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
+from tqdm import tqdm
+
 from readii.image_processing import alignImages, flattenImage
 from readii.io.loaders import loadImageDatasetConfig
 from readii.negative_controls_refactor import NegativeControlManager
 from readii.process.config import get_full_data_name
 from readii.utils import logger
-from tqdm import tqdm
-
 from readii_2_roqc.utils.metadata import get_masked_image_metadata
 
 

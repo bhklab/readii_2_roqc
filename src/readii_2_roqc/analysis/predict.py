@@ -48,7 +48,8 @@ def load_signature_config(file: str | Path) -> pd.Series:
         with signature_file_path.open('r') as f:
             yaml_data = yaml.safe_load(f)
             if not isinstance(yaml_data, dict):
-                raise TypeError("ROI match YAML must contain a dictionary")
+                message = "ROI match YAML must contain a dictionary"
+                raise TypeError(message)
             signature = pd.Series(yaml_data['signature'])
     except Exception as e:
         message = f"Error loading YAML file: {e}"
@@ -59,7 +60,7 @@ def load_signature_config(file: str | Path) -> pd.Series:
 
 
 
-def prediction_data_splitting(dataset_config,
+def prediction_data_splitting(dataset_config: dict,
                               data : pd.DataFrame,
                               ) -> tuple[pd.DataFrame]:
     """Split metadata into train and test for model development and validation purposes"""
@@ -78,7 +79,7 @@ def prediction_data_splitting(dataset_config,
     
 
 
-def insert_mit_index(dataset_config: str,
+def insert_mit_index(dataset_config: dict,
                      data_to_index: pd.DataFrame
                      ) -> pd.DataFrame:
     """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
@@ -109,7 +110,7 @@ def insert_mit_index(dataset_config: str,
 
 
 
-def clinical_data_setup(dataset_config,
+def clinical_data_setup(dataset_config: dict,
                        full_dataset_name : str | None = None,
                        split: str | None = None
                        ) -> pd.DataFrame:
@@ -149,7 +150,7 @@ def clinical_data_setup(dataset_config,
 
 
 
-def outcome_data_setup(dataset_config,
+def outcome_data_setup(dataset_config: dict,
                        dataframe_with_outcome: pd.DataFrame,
                        standard_event_label : str = "survival_event_binary",
                        standard_time_label : str = "survival_time_years"
@@ -226,7 +227,7 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
 
 
 
-def predict_with_one_image_type(feature_data,
+def predict_with_one_image_type(feature_data: pd.DataFrame,
                                 outcome_data : pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame],
                                 signature_name : str,
                                 bootstrap : int = 0
@@ -278,7 +279,8 @@ def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
                            bootstrap: int = 0,
-                           split: str = 'NONE'):
+                           split: str = 'NONE'
+                           ) ->tuple[pd.DataFrame, dict, dict]:
     """Run outcome prediction of a signature for multiple image types"""
     # Input checking
     if dataset is None:

@@ -1,19 +1,13 @@
 from pathlib import Path
 
 import click
-from pathlib import Path
-
-import click
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import seaborn as sns
 from damply import dirs
-from matplotlib.figure import Figure
 from matplotlib.figure import Figure
 from readii.io.loaders.general import loadImageDatasetConfig
 from readii.io.writers.plot_writer import PlotWriter
-from readii.utils import logger
 from readii.utils import logger
 
 
