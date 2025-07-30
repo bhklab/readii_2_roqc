@@ -1,0 +1,42 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "CPTAC-HNSCC"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: ""
+    OUTCOME_VARIABLES:
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
+        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        "GTV:.*"
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+        permutations:
+        crop:
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: pyradiomics_original_all_features.yaml
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
+
+RANDOM_SEED: 10
