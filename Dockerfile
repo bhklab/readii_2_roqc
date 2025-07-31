@@ -1,17 +1,16 @@
-FROM ghcr.io/prefix-dev/pixi:0.50.2 AS build
+FROM ghcr.io/prefix-dev/pixi:latest
 
-COPY . /app
 WORKDIR /app
+COPY . .
 
-RUN pixi install -e default
-RUN pixi shell-hook -e default > /shell-hook.sh
+# Install required build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-FROM ubuntu:24.04 AS production
-
-COPY --from=build /app/.pixi/envs/default /app/.pixi/envs/default
-COPY --from=build /shell-hook.sh /shell-hook.sh
-WORKDIR /app
-
-RUN chmod +x /shell-hook.sh
-
-ENTRYPOINT ["bash", "--rcfile", "/shell-hook.sh"]
+# Install pixi dependencies
+RUN pixi install --locked && rm -rf ~/.cache/rattler
+EXPOSE 8000
+CMD [ "pixi", "shell" ]
