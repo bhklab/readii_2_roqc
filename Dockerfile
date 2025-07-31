@@ -13,4 +13,4 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install pixi dependencies
 RUN pixi install --locked && rm -rf ~/.cache/rattler
 EXPOSE 8000
-CMD [ "pixi", "shell" ]
+CMD [ "pixi", "shell" , "--no-lockfile-update"]
