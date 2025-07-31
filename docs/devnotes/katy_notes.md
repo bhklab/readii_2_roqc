@@ -319,3 +319,10 @@ docker build --platform linux/amd64-r2r -t bhklabkscott/amd64-r2r
 ```bash
 docker push bhklabkscott/amd64-r2r
 ```
+
+* On H4H, in the readii_2_roqc git directory run
+```bash
+apptainer pull docker://bhklabkscott/amd64-r2r
+
+apptainer shell amd64-r2r_latest.sif
+```
