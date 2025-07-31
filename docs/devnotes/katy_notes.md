@@ -308,3 +308,14 @@ IntegrityError: UNIQUE constraint failed: InstanceUIDs.SOPInstanceUID
 * Shabnam found a couple of bugs:
     1. If a MaskID has any spaces in it, the extractor breaks
     2. If one READII region is already extracted, need to specify overwrite to get any additional ones extracted
+
+#### [2025-07-31]
+* For docker containerization to use on H4H, need to run the following
+```bash
+docker build --platform linux/amd64-r2r -t bhklabkscott/amd64-r2r
+```
+
+* Can then push to docker hub
+```bash
+docker push bhklabkscott/amd64-r2r
+```
