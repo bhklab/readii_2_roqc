@@ -22,22 +22,23 @@ env.SCRIPTS = "${PIXI_PROJECT_ROOT}/workflow/scripts"
 
 [dependencies]
 python = ">=3.12"
+pip = "*"
 ipython = "*"
 ipykernel = "*"
 jupyterlab = "*"
-pip = "*"
-numpy = ">=2.2.5,<3"
-scikit-learn = ">=1.6.1,<2"
-scikit-survival = ">=0.24.1,<0.25"
-openpyxl = ">=3.1.5,<4"
-snakemake = ">=9.4.0,<10"
-click = ">=8.2.1,<9"
 ipywidgets = ">=8.1.7,<9"
+# numpy = ">=2.2.5,<3"
+# scikit-learn = ">=1.6.1,<2"
+# scikit-survival = ">=0.24.1,<0.25"
+# openpyxl = ">=3.1.5,<4"
+# snakemake = ">=9.4.0,<10"
+# click = ">=8.2.1,<9"
 
 [pypi-dependencies]
-readii = ">=1.36.1, <2"
-damply = ">=0.10.0, <0.11"
 readii_2_roqc = { path = ".", editable = true }
+# readii = ">=1.36.1, <2"
+# damply = ">=0.10.0, <0.11"
+
 
 [tasks]
 
