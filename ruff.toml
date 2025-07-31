@@ -71,13 +71,16 @@ select = [
 
 ]
 ignore = [
+    "PLR0912", # Permit functions with many branches
     "PLR0913", # Permits functions with many arguments when necessary
+    "PLR0915", # Permit functions with many statements
     "D100", # Allows modules without docstrings
     # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
     "COM812", # Avoids conflict with Ruff formatter trailing comma rules
     "D206", # Allows docstrings to be formatted flexibly
     "N813", # Allows for Camelcase to lowercase imports
-    "T201", # Allows for print statements
+    "T201", # Allows for print statements,
+    
 ]
 
 # https://docs.astral.sh/ruff/settings/#isort
