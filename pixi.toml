@@ -40,6 +40,10 @@ openpyxl = ">=3.1.5,<4"
 snakemake = ">=9.4.0,<10"
 click = ">=8.2.1,<9"
 ipywidgets = ">=8.1.7,<9"
+pyvista = ">=0.46.1,<0.47"
+trame = ">=3.11.0,<4"
+trame-vuetify = ">=3.0.2,<4"
+trame-vtk = ">=2.9.1,<3"
 
 [pypi-dependencies]
 readii = ">=1.36.1, <2"
