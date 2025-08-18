@@ -326,3 +326,20 @@ apptainer pull docker://bhklabkscott/amd64-r2r
 
 apptainer shell amd64-r2r_latest.sif
 ```
+
+## OPC Prediction 
+#### [2025-08-18]  
+* Reading the Aerts et al. and Sun et al. papers to get methodology for OPC prediction
+* Discovery dataset: RADCURE
+* Validation dataset: HN1 (HNSCC maybe)
+
+Sample Size  
+* confirmed primary tumour oropharynx
+* underwent treatment with curative intent
+* HPV test available
+
+Methodology
+* Aerts: pick most prognostic feature from each group (shape, first order, texture, wavelet)
+* Sun: linear elastic model for feature selection and model building  
+    * lambda defined by cross-validation
+    * alpha set to 0.5 after grid search
