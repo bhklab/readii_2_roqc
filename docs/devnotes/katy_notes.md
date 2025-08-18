@@ -329,7 +329,7 @@ apptainer shell amd64-r2r_latest.sif
 
 ## OPC Prediction 
 #### [2025-08-18]  
-* Reading the Aerts et al. and Sun et al. papers to get methodology for OPC prediction
+* Reading the Aerts et al., Sun et al., Reiazi et al. papers to get methodology for OPC prediction
 * Discovery dataset: RADCURE
 * Validation dataset: HN1 (HNSCC maybe)
 
@@ -343,3 +343,5 @@ Methodology
 * Sun: linear elastic model for feature selection and model building  
     * lambda defined by cross-validation
     * alpha set to 0.5 after grid search
+* Reiazi: mRMRe feature selection to 1000 features, imbalance adjustment by undersampling majority class, random forest classifier to predict HPV status, gridsearch for # of trees, max depth, min num samples at leaf, 5-fold cross-validation, train-test 100 times, final score based on average prediction score (1000 times)
+* Choi et al.: Boruta feature selection, generalized linear models to plot ROC curves
