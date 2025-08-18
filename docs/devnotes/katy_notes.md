@@ -345,3 +345,10 @@ Methodology
     * alpha set to 0.5 after grid search
 * Reiazi: mRMRe feature selection to 1000 features, imbalance adjustment by undersampling majority class, random forest classifier to predict HPV status, gridsearch for # of trees, max depth, min num samples at leaf, 5-fold cross-validation, train-test 100 times, final score based on average prediction score (1000 times)
 * Choi et al.: Boruta feature selection, generalized linear models to plot ROC curves
+
+dev_binary_prediction.ipynb  
+* predict code is all for continuous and relies on mit index
+* writing different code for OPC prediction that does binary prediction and uses the feature extraction index
+* Looks like some of the OPC patients don't have GTV feature data
+* need to filter clinical data for this
+* then can do the feature stuff
