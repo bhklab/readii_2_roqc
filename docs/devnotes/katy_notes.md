@@ -338,10 +338,10 @@ Sample Size
 * underwent treatment with curative intent
 * HPV test available
 
-Methodology
+Methodology  
 * Aerts: pick most prognostic feature from each group (shape, first order, texture, wavelet)
 * Sun: linear elastic model for feature selection and model building  
-    * lambda defined by cross-validation
+    * lambda defined by cross-validation, 0.2
     * alpha set to 0.5 after grid search
 * Reiazi: mRMRe feature selection to 1000 features, imbalance adjustment by undersampling majority class, random forest classifier to predict HPV status, gridsearch for # of trees, max depth, min num samples at leaf, 5-fold cross-validation, train-test 100 times, final score based on average prediction score (1000 times)
 * Choi et al.: Boruta feature selection, generalized linear models to plot ROC curves
@@ -352,3 +352,15 @@ dev_binary_prediction.ipynb
 * Looks like some of the OPC patients don't have GTV feature data
 * need to filter clinical data for this
 * then can do the feature stuff
+
+#### [2025-08-19]
+* RADCURE: 418 OPC tumor samples with HPV status
+* HN1: 80 OPC tumor samples with HPV status
+* HNSCC: 292 OPC tumor samples with HPC
+
+* scikit-learn  
+    * Can't install latest version (1.7.1) because scikit-survival==0.24.1 depends on scikit-learn>=1.6.1,<1.7 
+
+* pycaret
+    * had to make a separate environment to handle numpy mismatch in r2r and pycaret
+    * models environment has pycaret
