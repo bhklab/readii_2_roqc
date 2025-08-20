@@ -9,12 +9,13 @@ imageType:
 
 featureClass:
     shape:
-        - VoxelVolume
         - MeshVolume
+        - VoxelVolume
         - SurfaceArea
         - SurfaceVolumeRatio
-        - Compactness1
         - Sphericity
+        - Compactness1
+        - SphericalDisproportion
         - Maximum3DDiameter
         - Maximum2DDiameterSlice
         - Maximum2DDiameterColumn
