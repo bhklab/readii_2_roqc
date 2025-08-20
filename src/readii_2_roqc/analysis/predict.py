@@ -339,6 +339,7 @@ def predict_with_signature(dataset: str,
 
     for feature_file_path in image_type_feature_file_list:
         image_type = feature_file_path.name.removesuffix('_features.csv')
+        logger.info(f"Predicting with {signature} signature for {dataset_name} {image_type} image type.")
         feature_data = loadFileToDataFrame(feature_file_path)
 
         prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,
