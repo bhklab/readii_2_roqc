@@ -1,10 +1,10 @@
 signature:
     'original_shape_Flatness': 4.754
     'original_shape_SphericalDisproportion': 5.012
-    'wavelet_HLH_firstorder_Mean': 9.017
-    'wavlet_HLH_firstorder_Uniformity': 3.606
-    'wavlet_HLH_glcm_ClusterShae': 4.692
-    'wavlet_LHH_glcm_Idm': 3.296
-    'wavelet_LHH_glcm_Imc1': 4.201
-    'wavelet_glszm_SmallAreaHighGrayLevelEmphasis': 11.378
-    'wavelet_LLH_glcm_Imc2': 4.503
+    'wavelet-HLH_firstorder_Mean': 9.017
+    'wavlet-HLH_firstorder_Uniformity': 3.606
+    'wavlet-HLH_glcm_ClusterShae': 4.692
+    'wavlet-LHH_glcm_Idm': 3.296
+    'wavelet-LHH_glcm_Imc1': 4.201
+    'wavelet-glszm_SmallAreaHighGrayLevelEmphasis': 11.378
+    'wavelet-LLH_glcm_Imc2': 4.503
