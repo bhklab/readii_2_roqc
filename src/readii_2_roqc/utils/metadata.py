@@ -88,13 +88,13 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
         # Get the mask modality from config to retrieve from the metadata
         mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
 
+    # Create a SampleID to index with
+    dataset_index['SampleID'] = dataset_index['PatientID'].astype(str) + "_" + dataset_index['SampleNumber'].astype(str).str.zfill(4)
+
     # Get all metadata rows with the mask modality
     mask_metadata = dataset_index[dataset_index['Modality'] == mask_modality]
     # Filter the mask metadata by the specified ROIs in the config file
     mask_metadata = roi_filter_mask_metadata(mask_metadata, dataset_config)
-    
-    # Get a Series of ReferenceSeriesUIDs from the masks - these point to the images the masks were made on
-    referenced_series_ids = mask_metadata['ReferencedSeriesUID']
     
     # Get image metadata rows with a SeriesInstanceUID matching one of the ReferenceSeriesUIDS of the masks
     image_metadata = dataset_index[dataset_index['Modality'] == image_modality]
@@ -103,7 +103,9 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
         logger.error(message)
         raise RuntimeError(message)
 
-    masked_image_metadata = image_metadata[image_metadata['SeriesInstanceUID'].isin(referenced_series_ids)]
+    intersected_samples = pd.Index(mask_metadata['SampleID']).intersection(image_metadata['SampleID'], sort=True)
+
+    masked_image_metadata = image_metadata[image_metadata['SampleID'].isin(intersected_samples)]
     if masked_image_metadata.empty:
         message = f"No {image_modality} images in dataset index are referenced by the {mask_modality} masks. Check dataset index for errors or missing data."
         logger.error(message)
