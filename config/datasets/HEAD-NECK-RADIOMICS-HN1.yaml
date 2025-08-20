@@ -10,6 +10,8 @@ CLINICAL:
         convert_to_years: True
         event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
+    INCLUSION_VARIABLES: {'index_tumour_location': ['oropharynx'],
+                          'overall_hpv_p16_status': ['positive', 'negative']}
 
 ### MED-IMAGETOOLS settings
 MIT:
