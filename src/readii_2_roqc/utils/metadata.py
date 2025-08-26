@@ -105,7 +105,8 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
 
     intersected_samples = pd.Index(mask_metadata['SampleID']).intersection(image_metadata['SampleID'], sort=True)
 
-    masked_image_metadata = image_metadata[image_metadata['SampleID'].isin(intersected_samples)]
+    # Get the images with the correct ReferencedSeriesUIDs from the masks and the correct SampleIDs
+    masked_image_metadata = image_metadata[(image_metadata['SeriesInstanceUID'].isin(mask_metadata['ReferencedSeriesUID'])) & (image_metadata['SampleID'].isin(intersected_samples))]
     if masked_image_metadata.empty:
         message = f"No {image_modality} images in dataset index are referenced by the {mask_modality} masks. Check dataset index for errors or missing data."
         logger.error(message)
