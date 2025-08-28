@@ -18,7 +18,7 @@ MIT:
         mask: RTSTRUCT
     ROI_STRATEGY: SEPARATE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        "GTV:GTVp,GTV,GTV Primary,GTV primary,GTV-Primary,GTV1,Primary GTV,gtv,gtv primary" 
+        "ROI:GTVp,GTV,GTV Primary,GTV primary,GTV-Primary,GTV1,Primary GTV,gtv,gtv primary" 
 
 ### READII settings
 READII:
