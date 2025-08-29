@@ -29,40 +29,23 @@ READII-FMCIB pipline is applied on NSCLC-Radiomics and HEAD-NECK-RADIOMICS-HN1 d
 #### [2025-06-18]
 LIFEx feature are available for processed nifties from TCIA-NSCLC and TCIA-HN1 datasets.
 
-## LIFEx Guide
-#### Documentation Links:
-1. [User Guide](https://www.lifexsoft.org/images/phocagallery/documentation/LIFEx/UserGuide/LIFExUserGuide.pdf)
-2. [Features](https://www.lifexsoft.org/images/phocagallery/documentation/LIFExFeatures/LIFExFeatures.pdf)
-3. [Scripts](https://www.lifexsoft.org/images/phocagallery/documentation/LIFExScripts/LIFExScripts_v7.8.0.pdf)
-4. [More](https://www.lifexsoft.org/index.php/resources/documentation)
+#### [2025-08-12]
+Image ids across different feature sources: 
 
-#### Sample Script:
-For the following feature extraction operation but on a batch of two series:
+fmcib:
+image_path
+procdata/TCIA_HEAD-NECK-RADIOMICS-HN1/images/cropped_images/cropped_bbox/original/HN1006_1.nii.gz
 
-![lifex feature extraction UI](<Screenshot 2025-06-19 at 1.27.27 PM.png>)
+pyradiomics:
+SampleID
+HN1006_0001
 
-```
-## Lines with ## are comments
+lifex:
+INFO_SeriesPath
+/Users/shabnam/Downloads/HN1/HN1006_0001/CT_25815574/CT.nii.gz
 
-LIFEx.Output.Directory=PATH_TO_RESULTS_DIR
-
-## _________________________________________________________________________________________________________________________
-
-## [Patient0] section
-
-LIFEx.Patient0.Series0=PATH_TO_SERIES_DIR
-LIFEx.Patient0.Series0.Operation0=Texture,true,false,false,1,3d,Absolute,10.0,400.0,-1000.0,3000.0,1.0,1.0,1.0
-LIFEx.Patient0.Roi0=PATH_TO_ROI_DIR
-
-## _________________________________________________________________________________________________________________________
-
-## [Patient1] section
-
-LIFEx.Patient1.Series0=PATH_TO_SERIES_DIR
-LIFEx.Patient1.Series0.Operation0=Texture,true,false,false,1,3d,Absolute,10.0,400.0,-1000.0,3000.0,1.0,1.0,1.0
-LIFEx.Patient1.Roi0=PATH_TO_ROI_DIR
-
-## _________________________________________________________________________________________________________________________
-
-```
-
+#### [2025-08-22]
+For calculating correlation between different sources:
+I first made sure I have all the pyradiomics features in one file using scripts "shabnam/readii_2_roqc/workflow/scripts/analysis/python/merge_pyradiomics_features.py" 
+Then I synced patients from different sources in one csv running "shabnam/readii_2_roqc/workflow/scripts/analysis/python/data_sync.py"
+Then I calculated correlations and plotted them running "shabnam/readii_2_roqc/workflow/scripts/analysis/python/feature_corr_analysis.py"

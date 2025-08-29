@@ -1,0 +1,22 @@
+imageType:
+  Original: {}
+  wavelet: {}
+
+featureClass:
+  shape: []
+  firstorder: []
+  glcm: []
+  glrlm: []
+  glszm: []
+  gldm: []
+  ngtdm: []
+
+
+setting:
+  binWidth: 25
+  resampledPixelSpacing: [1, 1, 1]
+  resegmentRange: [-100, 300]
+  normalize: False
+  normalizeScale: 1
+  maskedKernel: True
+  Initvalue: NaN

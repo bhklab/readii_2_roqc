@@ -347,7 +347,7 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 def extract_dataset_features(dataset: str,
                              method: str,
                              settings: str | Path,
-                             overwrite: bool = False,
+                             overwrite: bool = True,
                              parallel: bool = False) -> Path:
     """Extract features from a dataset using the specified method and settings.
 

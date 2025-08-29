@@ -300,17 +300,11 @@ def make_negative_controls(dataset: str,
 
         # Get image metadata as a pd.Series
         image_metadata = study_data[study_data['Modality'] == image_modality].squeeze()
-        try:
-            image_path = Path(image_metadata['filepath'])
-        except TypeError:
-            if image_metadata.empty:
-                message = f"No {image_modality} images for study {study}."
-                logger.debug(message)
-                print(message)
-                continue
-            else:
-                raise
-        
+        # If image_metadata is dataframe, skip it for now
+        if isinstance(image_metadata, pd.DataFrame):
+            logger.warning(f"Study {study} has multiple images. Skipping for now.")
+            continue
+        image_path = Path(image_metadata['filepath'])
         # Load in image
         raw_image = sitk.ReadImage(mit_images_dir_path / image_path)
         # Remove extra dimension of image, set origin, spacing, direction to original
