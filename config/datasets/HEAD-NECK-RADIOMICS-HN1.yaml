@@ -38,7 +38,7 @@ READII:
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_h4h_all_images_feature.yaml
+    CONFIG: pyradiomics_h4h_all_images_features.yaml
 
 ### Analysis settings
 ANALYSIS:
@@ -48,3 +48,5 @@ ANALYSIS:
         impute: null
 
 RANDOM_SEED: 10
+
+VOL_LINE: 0.6803
