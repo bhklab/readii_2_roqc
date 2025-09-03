@@ -72,12 +72,13 @@ cmd = ["python",
 ]
 
 [tasks.index]
-args = ["dataset", "method"]
+args = ["dataset", "method", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
        "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}"
+       "--method", "{{ method }}",
+       "--overwrite", "{{ overwrite }}"
 ]
 
 [tasks.extract]
