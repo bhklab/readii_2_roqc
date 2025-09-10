@@ -387,3 +387,11 @@ dev_binary_prediction.ipynb
 * Leaving HEAD-NECK-RADIOMICS-HN1 to rerun feature extraction on screen - HN1-rerun
 
 * Trying to fix the filtering for HNSCC for making the negative controls - running into issues with the multiple CTs but can't figure out what to do
+
+
+## Correlations
+
+#### [2025-09-10]
+* Got self-correlation plots made for the original features of each PyRadiomics feature class for NSCLC-Radiomics
+* Should be able to set up loop to process all the HN1 original features tomorrow
+* And hopefully RADCURE negative controls will be done generating by then, and can run feature extraction
