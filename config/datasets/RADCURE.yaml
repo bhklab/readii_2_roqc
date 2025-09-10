@@ -9,10 +9,11 @@ CLINICAL:
         event_label: "Status"
         convert_to_years: False
         event_value_mapping: {"Alive": 0, "Dead": 1}
-    EXCLUSION_VARIABLES: {} #{'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
-    INCLUSION_VARIABLES: {'Ds Site': ['Oropharynx'],
-                          'HPV': ['Yes, positive', 'Yes, Negative']
-                         }
+    EXCLUSION_VARIABLES: {} # {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+    INCLUSION_VARIABLES: {
+        'Ds Site': ['Oropharynx'],
+        'HPV': ['Yes, positive', 'Yes, Negative']
+        }
 
 ### MED-IMAGETOOLS settings
 MIT:
@@ -24,11 +25,10 @@ MIT:
 
 ### READII settings
 READII:
-    IMAGE_TYPES:
-        regions:
-        permutations:
-        crop:
-
+    IMAGE_TYPES: 
+        regions: []
+        permutations: []
+        crop: []
 
 ### Feature Extraction settings
 EXTRACTION:
