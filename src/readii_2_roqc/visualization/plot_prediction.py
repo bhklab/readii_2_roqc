@@ -59,7 +59,8 @@ def prediction_violin(predictions: pd.DataFrame,
                       y_label: str = "Concordance Index",
                       y_lower: float | None = 0.45,
                       y_upper: float | None = 0.85,
-                      h_line: float | None = 0.5
+                      h_line: float | None = 0.5,
+                      vol_line: float | None = None
                       ) -> Figure:
     """Generate a violin plot for each column in a given predictions dataframe.
     """
@@ -79,6 +80,12 @@ def prediction_violin(predictions: pd.DataFrame,
         ax.axhline(y=h_line, 
                    color='black',
                    linestyle='--', 
+                   linewidth=0.9)
+    
+    if vol_line is not None:
+        ax.axhline(y=vol_line,
+                   color='red',
+                   linestyle='-.',
                    linewidth=0.9)
 
     # Set y-axis boundary
@@ -170,7 +177,8 @@ def plot(dataset: str,
     # Make violin plot
     violin_fig = prediction_violin(predictions,
                                    signature_name = signature,
-                                   dataset_name = dataset_name)
+                                   dataset_name = dataset_name,
+                                   vol_line = dataset_config['VOL_LINE'])
     
     # Save out the violin plot
     _output_path = save_plot(violin_fig,

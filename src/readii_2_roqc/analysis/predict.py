@@ -1,19 +1,20 @@
 from pathlib import Path
+
+import click
 import numpy as np
 import pandas as pd
 import yaml
 from damply import dirs
-import click
 from joblib import Parallel, delayed
-from readii.utils import logger
-from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
+from readii.io.loaders import loadFileToDataFrame, loadImageDatasetConfig
 from readii.process.label import (
     eventOutcomeColumnSetup,
     getPatientIdentifierLabel,
     timeOutcomeColumnSetup,
 )
 from readii.process.split import splitDataByColumnValue
-from readii.process.subset import selectByColumnValue, getPatientIntersectionDataframes
+from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
+from readii.utils import logger
 from sksurv.metrics import concordance_index_censored
 
 # Load signature file
@@ -47,7 +48,8 @@ def load_signature_config(file: str | Path) -> pd.Series:
         with signature_file_path.open('r') as f:
             yaml_data = yaml.safe_load(f)
             if not isinstance(yaml_data, dict):
-                raise TypeError("ROI match YAML must contain a dictionary")
+                message = "ROI match YAML must contain a dictionary"
+                raise TypeError(message)
             signature = pd.Series(yaml_data['signature'])
     except Exception as e:
         message = f"Error loading YAML file: {e}"
@@ -58,7 +60,7 @@ def load_signature_config(file: str | Path) -> pd.Series:
 
 
 
-def prediction_data_splitting(dataset_config,
+def prediction_data_splitting(dataset_config: dict,
                               data : pd.DataFrame,
                               ) -> tuple[pd.DataFrame]:
     """Split metadata into train and test for model development and validation purposes"""
@@ -77,28 +79,29 @@ def prediction_data_splitting(dataset_config,
     
 
 
-def insert_mit_index(dataset_config: str,
+def insert_r2r_index(dataset_config: dict,
                      data_to_index: pd.DataFrame
                      ) -> pd.DataFrame:
     """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
     # Find the existing patient identifier for the data_to_index
     existing_pat_id = getPatientIdentifierLabel(data_to_index)
+    extraction_method = f"{dataset_config['EXTRACTION']['METHOD']}"
 
     # Load the med-imagetools autopipeline simple index output for the dataset
     full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
-    mit_index_path = dirs.PROCDATA / full_dataset_name / "images" / f"mit_{dataset_config['DATASET_NAME']}" / f"mit_{dataset_config['DATASET_NAME']}_index-simple.csv"
-    
-    if mit_index_path.exists():
-        mit_index = loadFileToDataFrame(mit_index_path)
+    r2r_index_path = dirs.PROCDATA / full_dataset_name / "features" / extraction_method / f"{extraction_method}_{dataset_config['DATASET_NAME']}_index.csv"
+
+    if r2r_index_path.exists():
+        r2r_index = loadFileToDataFrame(r2r_index_path)
     else:
-        message = f"Med-ImageTools autopipeline index simple output don't exist for the {full_dataset_name} dataset. Run autopipeline to generate this file."
+        message = f"READII {extraction_method} index output don't exist for the {full_dataset_name} dataset. Run index to generate this file."
         print(message)
         logger.error(message)
         raise FileNotFoundError(message)
 
     # Generate a mapping from PatientID to SampleID (PatientID_SampleNumber from Med-ImageTools autopipeline output)
-    id_map = mit_index["PatientID"].astype(str) + "_" + mit_index['SampleNumber'].astype(str).str.zfill(4)
-    id_map.index = mit_index["PatientID"]
+    id_map = r2r_index["SampleID"]
+    id_map.index = [id_parts[0] for id_parts in r2r_index["SampleID"].str.split('_')]  # Use the first part of SampleID as the index
     id_map = id_map.drop_duplicates()
 
     # Apply the map to the dataset to index
@@ -108,7 +111,7 @@ def insert_mit_index(dataset_config: str,
 
 
 
-def clinical_data_setup(dataset_config,
+def clinical_data_setup(dataset_config: dict,
                        full_dataset_name : str | None = None,
                        split: str | None = None
                        ) -> pd.DataFrame:
@@ -122,15 +125,16 @@ def clinical_data_setup(dataset_config,
     clinical_data = loadFileToDataFrame(clinical_path)
 
     # insert the MIT index
-    clinical_data = insert_mit_index(dataset_config, clinical_data)
+    clinical_data = insert_r2r_index(dataset_config, clinical_data)
 
     # Set the MIT SampleIDs as the index for clinical data
     clinical_data = clinical_data.set_index('SampleID')
 
     # Drop rows based on exclusion variables in config file
-    if len(clinical['EXCLUSION_VARIABLES']) != 0:
+    if len(clinical['EXCLUSION_VARIABLES']) != 0 or len(clinical['INCLUSION_VARIABLES']) != 0:
         clinical_data = selectByColumnValue(clinical_data,
-                                            exclude_col_values = clinical['EXCLUSION_VARIABLES'])
+                                            exclude_col_values = clinical['EXCLUSION_VARIABLES'],
+                                            include_col_values = clinical['INCLUSION_VARIABLES'])
 
     # Get the train or test sub-cohort based on config file setup
     if split is not None:
@@ -148,7 +152,7 @@ def clinical_data_setup(dataset_config,
 
 
 
-def outcome_data_setup(dataset_config,
+def outcome_data_setup(dataset_config: dict,
                        dataframe_with_outcome: pd.DataFrame,
                        standard_event_label : str = "survival_event_binary",
                        standard_time_label : str = "survival_time_years"
@@ -156,14 +160,21 @@ def outcome_data_setup(dataset_config,
     """Set up survival time in years and binarized event columns based on columns described in a dataset config.
     """
     outcome_data = dataframe_with_outcome.copy()
-
+    
     # Set up the outcome columns
     outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
-    outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
-                                            outcome_column_label=outcome_labels['event_label'],
-                                            standard_column_label=standard_event_label,
-                                            event_column_value_mapping=outcome_labels['event_value_mapping']
-                                            )
+
+    event_variable_type = outcome_data[outcome_labels['event_label']].dtype
+    if np.issubdtype(event_variable_type, np.object_):
+        # TEMP: handle value mapping to integers
+        outcome_data[standard_event_label] = outcome_data[outcome_labels['event_label']].map(outcome_labels['event_value_mapping'])
+    else:
+        outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
+                                                outcome_column_label=outcome_labels['event_label'],
+                                                standard_column_label=standard_event_label,
+                                                event_column_value_mapping=None #outcome_labels['event_value_mapping']
+                                                )
+    
     outcome_data = timeOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
                                            outcome_column_label=outcome_labels['time_label'],
                                            standard_column_label=standard_time_label,
@@ -225,7 +236,7 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
 
 
 
-def predict_with_one_image_type(feature_data,
+def predict_with_one_image_type(feature_data: pd.DataFrame,
                                 outcome_data : pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame],
                                 signature_name : str,
                                 bootstrap : int = 0
@@ -277,7 +288,8 @@ def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
                            bootstrap: int = 0,
-                           split: str = 'NONE'):
+                           split: str = 'NONE'
+                           ) ->tuple[pd.DataFrame, dict, dict]:
     """Run outcome prediction of a signature for multiple image types"""
     # Input checking
     if dataset is None:
@@ -327,6 +339,7 @@ def predict_with_signature(dataset: str,
 
     for feature_file_path in image_type_feature_file_list:
         image_type = feature_file_path.name.removesuffix('_features.csv')
+        logger.info(f"Predicting with {signature} signature for {dataset_name} {image_type} image type.")
         feature_data = loadFileToDataFrame(feature_file_path)
 
         prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,

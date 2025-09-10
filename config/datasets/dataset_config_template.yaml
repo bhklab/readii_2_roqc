@@ -10,6 +10,7 @@ CLINICAL:
         convert_to_years: False
         event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
+    INCLUSION_VARIABLES: {}
 
 ### MED-IMAGETOOLS settings
 MIT:
@@ -26,7 +27,7 @@ READII:
             - "roi"
         permutations:
             - "sampled"
-        crop:
+        crop: []
 
 ### Feature Extraction settings
 EXTRACTION:
@@ -36,8 +37,9 @@ EXTRACTION:
 ### Analysis settings
 ANALYSIS:
     TRAIN_TEST_SPLIT:
-        split: False
-        split_variable: {}
-        impute: null
+        split_variable: null
+        train_label: 'training'
+        test_label: 'test'
+        impute: 'training'
 
 RANDOM_SEED: 10

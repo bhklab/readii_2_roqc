@@ -10,6 +10,8 @@ CLINICAL:
         convert_to_years: True
         event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
+    INCLUSION_VARIABLES: {'index_tumour_location': ['oropharynx'],
+                          'overall_hpv_p16_status': ['positive', 'negative']}
 
 ### MED-IMAGETOOLS settings
 MIT:
@@ -36,7 +38,7 @@ READII:
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_h4h_all_images_feature.yaml
+    CONFIG: pyradiomics_h4h_all_images_features.yaml
 
 ### Analysis settings
 ANALYSIS:
@@ -46,3 +48,5 @@ ANALYSIS:
         impute: null
 
 RANDOM_SEED: 10
+
+VOL_LINE: 0.6803
