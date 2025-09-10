@@ -37,8 +37,8 @@ EXTRACTION:
 ANALYSIS:
     TRAIN_TEST_SPLIT:
         split_variable: {}
-        train_label: 
-        test_label: 
-        impute:
+        train_label: ""
+        test_label: ""
+        impute: ""
 
 RANDOM_SEED: 10
