@@ -1,4 +1,3 @@
-
 [workspace]
 name = "readii_2_roqc"
 authors = ["Katy Scott <bhklab.katyscott@gmail.com>"]
@@ -21,32 +20,29 @@ env.PROCDATA = "${PIXI_PROJECT_ROOT}/data/procdata"
 env.RESULTS = "${PIXI_PROJECT_ROOT}/data/results"
 env.SCRIPTS = "${PIXI_PROJECT_ROOT}/workflow/scripts"
 
-
 [dependencies]
-python = ">=3.12"
+python = ">=3.12,<3.13"
+pip = "*"
 ipython = "*"
 ipykernel = "*"
 jupyterlab = "*"
-pip = "*"
-numpy = ">=2.2.5,<3"
-scikit-learn = ">=1.6.1,<2"
-scikit-survival = ">=0.24.1,<0.25"
-r = ">=4.4,<4.5"
-r-base = ">=4.4.3,<4.5"
-radian = ">=0.6.15,<0.7"
-r-checkmate = ">=2.3.2,<3"
-r-yaml = ">=2.3.10,<3"
-openpyxl = ">=3.1.5,<4"
-snakemake = ">=9.4.0,<10"
-click = ">=8.2.1,<9"
 ipywidgets = ">=8.1.7,<9"
+# numpy = ">=2.2.5,<3"
+# scikit-learn = ">=1.6.1,<2"
+# scikit-survival = ">=0.24.1,<0.25"
+# openpyxl = ">=3.1.5,<4"
+# snakemake = ">=9.4.0,<10"
+# click = ">=8.2.1,<9"
+pyvista = ">=0.46.1,<0.47"
+trame = ">=3.11.0,<4"
+trame-vuetify = ">=3.0.2,<4"
+trame-vtk = ">=2.9.1,<3"
 
 [pypi-dependencies]
-readii = ">=1.36.1, <2"
-damply = ">=0.10.0, <0.11"
+readii_2_roqc = { path = ".", editable = true }
+# readii = ">=1.36.1, <2"
+# damply = ">=0.10.0, <0.11"
 
-[target.linux-64.dependencies]
-bioconductor-survcomp = ">=1.56.0,<2"
 
 [tasks]
 
@@ -71,7 +67,7 @@ args = ["dataset",
          {arg = "overwrite", default = "false"},
          {arg = "seed", default = "10"}
 ]
-cwd = "workflow/scripts/readii"
+cwd = "src/readii_2_roqc/readii"
 cmd = ["python",
        "make_negative_controls.py",
        "--dataset", "{{ dataset }}",
@@ -80,12 +76,13 @@ cmd = ["python",
 ]
 
 [tasks.index]
-args = ["dataset", "method"]
-cwd = "workflow/scripts/feature_extraction"
+args = ["dataset", "method", {arg = "overwrite", default = "false"}]
+cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
        "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}"
+       "--method", "{{ method }}",
+       "--overwrite", "{{ overwrite }}"
 ]
 
 [tasks.extract]
@@ -95,7 +92,7 @@ args = ["dataset",
         {arg = "overwrite", default = "False"},
         {arg = "parallel", default = "True"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
-cwd = "workflow/scripts/feature_extraction"
+cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "extract.py",
        "--dataset", "{{ dataset }}",
@@ -111,7 +108,7 @@ args = ["dataset",
         "signature",
         {arg = "bootstrap", default = '1000'},
         {arg = "split", default = 'NONE'}]
-cwd = "workflow/scripts/analysis/python"
+cwd = "src/readii_2_roqc/analysis"
 cmd = ["python",
        "predict.py",
        "--dataset", "{{ dataset }}",
@@ -125,7 +122,7 @@ cmd = ["python",
 args = ["dataset", 
         "signature",
         {arg = "overwrite", default = "false"}]
-cwd = "workflow/scripts/visualization"
+cwd = "src/readii_2_roqc/visualization"
 cmd = ["python",
        "plot_prediction.py",
        "{{ dataset }}",
@@ -142,17 +139,14 @@ ruff = "*"
 ruff-check.cmd = ["ruff", "check"]
 ruff-check.inputs = ["config/ruff.toml", "workflow"]
 ruff-check.description = "Run ruff check"
-
 ruff-format.cmd = ["ruff", "format"]
 ruff-format.inputs = ["config/ruff.toml", "workflow"]
 ruff-format.depends-on = ["ruff-check"]
 ruff-format.description = "Run ruff format, run check first"
-
 qc.depends-on = ["ruff-format", "ruff-check"]
 qc.description = "Quality check: ruff check and format"
 
 ############################################## DOCS ################################################
-
 [feature.docs.dependencies]
 mkdocs = "*"
 mkdocs-include-markdown-plugin = ">=7.0.0,<8"
@@ -166,7 +160,3 @@ description = "Build documentation with mkdocs"
 cmd = "mkdocs serve -f mkdocs.yaml"
 depends-on = ["doc-build"]
 description = "Serve documentation with mkdocs, runs doc-build first"
-
-
-
-

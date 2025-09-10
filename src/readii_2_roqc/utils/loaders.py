@@ -3,7 +3,7 @@ from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name
 from readii.utils import logger
 
-def load_dataset_from_config(dataset):
+def load_dataset_config(dataset:str):
     if dataset is None:
             message = "Dataset name must be provided."
             logger.error(message)

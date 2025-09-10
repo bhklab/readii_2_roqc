@@ -24,23 +24,21 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
-            - "full"
-            - "roi"
-            - "non_roi"
         permutations:
-            - "random"
-            - "sampled"
-            - "shuffled"
         crop:
-    TRAIN_TEST_SPLIT:
-        split: False
-        split_variable: {}
-        impute: null
 
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_original_single_feature.yaml
+    CONFIG: pyradiomics_h4h_all_images_features.yaml
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split_variable: {}
+        train_label: ""
+        test_label: ""
+        impute: ""
 
 RANDOM_SEED: 10

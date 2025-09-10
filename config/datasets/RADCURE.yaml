@@ -8,32 +8,32 @@ CLINICAL:
         time_label: "Length FU"
         event_label: "Status"
         convert_to_years: False
-        event_value_mapping: {0: ['Alive'], 1: ['Dead']}
-    EXCLUSION_VARIABLES: {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+        event_value_mapping: {"Alive": 0, "Dead": 1}
+    EXCLUSION_VARIABLES: {} # {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+    INCLUSION_VARIABLES: {
+        'Ds Site': ['Oropharynx'],
+        'HPV': ['Yes, positive', 'Yes, Negative']
+        }
 
 ### MED-IMAGETOOLS settings
 MIT:
     MODALITIES: 
         image: CT
         mask: RTSTRUCT
-    ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        KEY:ROI_NAME
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: ROI:GTVp
 
 ### READII settings
 READII:
-    IMAGE_TYPES:
-        regions:
-            - "full"
-        permutations:
-            - "original"
-        crop:
-
+    IMAGE_TYPES: 
+        regions: []
+        permutations: []
+        crop: []
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_original_single_feature.yaml
+    CONFIG: pyradiomics_h4h_all_images_features.yaml
 
 ### Analysis settings
 ANALYSIS:

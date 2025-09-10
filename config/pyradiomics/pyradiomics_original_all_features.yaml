@@ -9,6 +9,7 @@ featureClass:
         - SurfaceVolumeRatio
         - Compactness1
         - Sphericity
+        - SphericalDisproportion
         - Maximum3DDiameter
         - Maximum2DDiameterSlice
         - Maximum2DDiameterColumn
