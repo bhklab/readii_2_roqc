@@ -79,28 +79,29 @@ def prediction_data_splitting(dataset_config: dict,
     
 
 
-def insert_mit_index(dataset_config: dict,
+def insert_r2r_index(dataset_config: dict,
                      data_to_index: pd.DataFrame
                      ) -> pd.DataFrame:
     """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
     # Find the existing patient identifier for the data_to_index
     existing_pat_id = getPatientIdentifierLabel(data_to_index)
+    extraction_method = f"{dataset_config['EXTRACTION']['METHOD']}"
 
     # Load the med-imagetools autopipeline simple index output for the dataset
     full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
-    mit_index_path = dirs.PROCDATA / full_dataset_name / "images" / f"mit_{dataset_config['DATASET_NAME']}" / f"mit_{dataset_config['DATASET_NAME']}_index-simple.csv"
-    
-    if mit_index_path.exists():
-        mit_index = loadFileToDataFrame(mit_index_path)
+    r2r_index_path = dirs.PROCDATA / full_dataset_name / "features" / extraction_method / f"{extraction_method}_{dataset_config['DATASET_NAME']}_index.csv"
+
+    if r2r_index_path.exists():
+        r2r_index = loadFileToDataFrame(r2r_index_path)
     else:
-        message = f"Med-ImageTools autopipeline index simple output don't exist for the {full_dataset_name} dataset. Run autopipeline to generate this file."
+        message = f"READII {extraction_method} index output don't exist for the {full_dataset_name} dataset. Run index to generate this file."
         print(message)
         logger.error(message)
         raise FileNotFoundError(message)
 
     # Generate a mapping from PatientID to SampleID (PatientID_SampleNumber from Med-ImageTools autopipeline output)
-    id_map = mit_index["PatientID"].astype(str) + "_" + mit_index['SampleNumber'].astype(str).str.zfill(4)
-    id_map.index = mit_index["PatientID"]
+    id_map = r2r_index["SampleID"]
+    id_map.index = [id_parts[0] for id_parts in r2r_index["SampleID"].str.split('_')]  # Use the first part of SampleID as the index
     id_map = id_map.drop_duplicates()
 
     # Apply the map to the dataset to index
@@ -124,15 +125,16 @@ def clinical_data_setup(dataset_config: dict,
     clinical_data = loadFileToDataFrame(clinical_path)
 
     # insert the MIT index
-    clinical_data = insert_mit_index(dataset_config, clinical_data)
+    clinical_data = insert_r2r_index(dataset_config, clinical_data)
 
     # Set the MIT SampleIDs as the index for clinical data
     clinical_data = clinical_data.set_index('SampleID')
 
     # Drop rows based on exclusion variables in config file
-    if len(clinical['EXCLUSION_VARIABLES']) != 0:
+    if len(clinical['EXCLUSION_VARIABLES']) != 0 or len(clinical['INCLUSION_VARIABLES']) != 0:
         clinical_data = selectByColumnValue(clinical_data,
-                                            exclude_col_values = clinical['EXCLUSION_VARIABLES'])
+                                            exclude_col_values = clinical['EXCLUSION_VARIABLES'],
+                                            include_col_values = clinical['INCLUSION_VARIABLES'])
 
     # Get the train or test sub-cohort based on config file setup
     if split is not None:
@@ -158,14 +160,21 @@ def outcome_data_setup(dataset_config: dict,
     """Set up survival time in years and binarized event columns based on columns described in a dataset config.
     """
     outcome_data = dataframe_with_outcome.copy()
-
+    
     # Set up the outcome columns
     outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
-    outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
-                                            outcome_column_label=outcome_labels['event_label'],
-                                            standard_column_label=standard_event_label,
-                                            event_column_value_mapping=outcome_labels['event_value_mapping']
-                                            )
+
+    event_variable_type = outcome_data[outcome_labels['event_label']].dtype
+    if np.issubdtype(event_variable_type, np.object_):
+        # TEMP: handle value mapping to integers
+        outcome_data[standard_event_label] = outcome_data[outcome_labels['event_label']].map(outcome_labels['event_value_mapping'])
+    else:
+        outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
+                                                outcome_column_label=outcome_labels['event_label'],
+                                                standard_column_label=standard_event_label,
+                                                event_column_value_mapping=None #outcome_labels['event_value_mapping']
+                                                )
+    
     outcome_data = timeOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
                                            outcome_column_label=outcome_labels['time_label'],
                                            standard_column_label=standard_time_label,
@@ -330,6 +339,7 @@ def predict_with_signature(dataset: str,
 
     for feature_file_path in image_type_feature_file_list:
         image_type = feature_file_path.name.removesuffix('_features.csv')
+        logger.info(f"Predicting with {signature} signature for {dataset_name} {image_type} image type.")
         feature_data = loadFileToDataFrame(feature_file_path)
 
         prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,

@@ -21,7 +21,7 @@ env.RESULTS = "${PIXI_PROJECT_ROOT}/data/results"
 env.SCRIPTS = "${PIXI_PROJECT_ROOT}/workflow/scripts"
 
 [dependencies]
-python = ">=3.12"
+python = "<3.13"
 pip = "*"
 ipython = "*"
 ipykernel = "*"
@@ -72,12 +72,13 @@ cmd = ["python",
 ]
 
 [tasks.index]
-args = ["dataset", "method"]
+args = ["dataset", "method", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
        "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}"
+       "--method", "{{ method }}",
+       "--overwrite", "{{ overwrite }}"
 ]
 
 [tasks.extract]
