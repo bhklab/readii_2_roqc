@@ -82,11 +82,11 @@ def prediction_violin(predictions: pd.DataFrame,
                    linestyle='--', 
                    linewidth=0.9)
     
-    # if vol_line is not None:
-    #     ax.axhline(y=vol_line,
-    #                color='red',
-    #                linestyle='-.',
-    #                linewidth=0.9)
+    if vol_line is not None:
+        ax.axhline(y=vol_line,
+                   color='red',
+                   linestyle='-.',
+                   linewidth=0.9)
 
     # Set y-axis boundary
     ax.set_ybound(y_lower, y_upper)
