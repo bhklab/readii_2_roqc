@@ -42,3 +42,5 @@ ANALYSIS:
         impute: null
 
 RANDOM_SEED: 10
+
+VOL_LINE: 0.5719

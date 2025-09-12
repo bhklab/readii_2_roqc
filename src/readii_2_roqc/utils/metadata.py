@@ -2,6 +2,9 @@ from typing import Optional
 
 import pandas as pd
 from readii.utils import logger
+from readii.process.label import getPatientIdentifierLabel
+from damply import dirs
+from readii.io.loaders.general import loadFileToDataFrame
 
 
 def roi_filter_mask_metadata(mask_metadata:pd.DataFrame,
@@ -114,3 +117,35 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
     
     # Return the subsetted metadata
     return pd.concat([masked_image_metadata, mask_metadata], sort=True)
+
+
+
+def insert_r2r_index(dataset_config: dict,
+                     data_to_index: pd.DataFrame
+                     ) -> pd.DataFrame:
+    """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
+    # Find the existing patient identifier for the data_to_index
+    existing_pat_id = getPatientIdentifierLabel(data_to_index)
+    extraction_method = f"{dataset_config['EXTRACTION']['METHOD']}"
+
+    # Load the med-imagetools autopipeline simple index output for the dataset
+    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    r2r_index_path = dirs.PROCDATA / full_dataset_name / "features" / extraction_method / f"{extraction_method}_{dataset_config['DATASET_NAME']}_index.csv"
+
+    if r2r_index_path.exists():
+        r2r_index = loadFileToDataFrame(r2r_index_path)
+    else:
+        message = f"READII {extraction_method} index output don't exist for the {full_dataset_name} dataset. Run index to generate this file."
+        print(message)
+        logger.error(message)
+        raise FileNotFoundError(message)
+
+    # Generate a mapping from PatientID to SampleID (PatientID_SampleNumber from Med-ImageTools autopipeline output)
+    id_map = r2r_index["SampleID"]
+    id_map.index = [id_parts[0] for id_parts in r2r_index["SampleID"].str.split('_')]  # Use the first part of SampleID as the index
+    id_map = id_map.drop_duplicates()
+
+    # Apply the map to the dataset to index
+    data_to_index['SampleID'] = data_to_index[existing_pat_id].map(id_map)
+
+    return data_to_index

@@ -1,0 +1,10 @@
+signature:
+    'original_shape_Flatness': 4.754
+    'original_shape_SphericalDisproportion': 5.012
+    'wavelet-HLH_firstorder_Mean': 9.017
+    'wavelet-HLH_firstorder_Uniformity': 3.606
+    'wavelet-HLH_glcm_ClusterShade': 4.692
+    'wavelet-LHH_glcm_Idm': 3.296
+    'wavelet-LHH_glcm_Imc1': 4.201
+    'wavelet-LHL_glszm_SmallAreaHighGrayLevelEmphasis': 11.378
+    'wavelet-LLH_glcm_Imc2': 4.503

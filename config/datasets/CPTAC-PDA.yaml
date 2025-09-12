@@ -23,11 +23,11 @@ MIT:
 ### READII settings
 READII:
     IMAGE_TYPES:
-        regions:
+        regions: []
 
-        permutations:
+        permutations: []
 
-        crop:
+        crop: []
 
 ### Feature Extraction settings
 EXTRACTION:

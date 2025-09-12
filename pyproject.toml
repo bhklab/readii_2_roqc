@@ -1,7 +1,7 @@
 [project]
 authors = [{ name = "Katy", email = "bhklab.katyscott@gmail.com" }]
 name = "readii_2_roqc"
-requires-python = ">= 3.11"
+requires-python = "<3.13"
 version = "0.1.0"
 dependencies = [
     "pydantic-settings>=2.9.1,<3", 
