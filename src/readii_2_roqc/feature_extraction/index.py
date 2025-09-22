@@ -63,6 +63,106 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
     return edges_df
 
 
+def get_base_index(dataset_config: dict,
+                   mit_index: pd.DataFrame):
+    """Set up default index dataframe for feature extraction.
+    
+    Parameters
+    ----------
+    dataset_config : dict
+        Configuration settings for a dataset, loaded with loadImageDatasetConfig
+    mit_index : pd.DataFrame
+        Dataframe containing metadata for the images and masks processed by imgtools autopipeline.
+    
+    Returns
+    -------
+    base_index : pd.DataFrame
+        Dataframe with columns:
+        * SampleID: PatientID + SampleNumber from imgtools autopipeline
+        * Image - path to the image nifti file
+        * Mask - path to the mask nifti file
+        * DatasetName - name of the dataset these samples come from
+        * SeriesInstanceUID_Image - Series ID from DICOM header for image
+        * Modality_Image - image modality (e.g. CT, MR)
+        * SeriesInstanceUID_Mask - Series ID from DICOM header for mask
+        * Modality_Mask - mask modality (e.g. SEG, RTSTRUCT)
+        * MaskID - name of region of interest (ROI) in the mask (e.g. GTVp)
+        * readii_Permutation - permutation used for READII negative control
+        * readii_Region - region used for READII negative control
+    """
+
+    dataset_name = dataset_config['DATASET_NAME']
+
+    image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
+    mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
+
+    mit_edges_index = make_edges_df(mit_index, image_modality, mask_modality)
+
+    # Set up the data from the mit index to point to the original images for feature extraction
+    return pd.DataFrame(data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
+                              "Image": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_image}", axis=1),
+                              "Mask": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_mask}", axis=1),
+                              "DatasetName": dataset_name,
+                              "SeriesInstanceUID_Image": mit_edges_index['SeriesInstanceUID_image'],
+                              "Modality_Image": mit_edges_index['Modality_image'],
+                              "SeriesInstanceUID_Mask": mit_edges_index['SeriesInstanceUID_mask'],
+                              "Modality_Mask": mit_edges_index['Modality_mask'],
+                              "MaskID": mit_edges_index['ImageID_mask'].replace(' ', '_'),
+                              "readii_Permutation": "original",
+                              "readii_Region": "full"
+                             }
+                       )
+
+
+
+def get_readii_index(dataset_config: dict,
+                     readii_index: pd.DataFrame):
+    """Set up index dataframe for feature extraction on READII negative control images using the index file generated from negative control generation.
+    
+    Parameters
+    ----------
+    dataset_config : dict
+        Configuration settings for a dataset, loaded with loadImageDatasetConfig
+    readii_index : pd.DataFrame
+        Dataframe containing metadata for the images and masks processed by READII negative control generation.
+    
+    Returns
+    -------
+    base_index : pd.DataFrame
+        Dataframe with columns:
+        * SampleID: PatientID + SampleNumber from imgtools autopipeline
+        * Image - path to the image nifti file
+        * Mask - path to the mask nifti file
+        * DatasetName - name of the dataset these samples come from
+        * SeriesInstanceUID_Image - Series ID from DICOM header for image
+        * Modality_Image - image modality (e.g. CT, MR)
+        * SeriesInstanceUID_Mask - Series ID from DICOM header for mask
+        * Modality_Mask - mask modality (e.g. SEG, RTSTRUCT)
+        * MaskID - name of region of interest (ROI) in the mask (e.g. GTVp)
+        * readii_Permutation - permutation used for READII negative control
+        * readii_Region - region used for READII negative control
+    """
+    dataset_name = dataset_config['DATASET_NAME']
+
+    image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
+    mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
+
+    return pd.DataFrame(data={"SampleID": readii_index.apply(lambda x: f"{Path(x.dir_original_image).parent}", axis=1),
+                              "Image": readii_index.apply(lambda x: f"{Path(f'readii_{dataset_name}') / x.filepath}", axis=1),
+                              "Mask": readii_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
+                              "DatasetName": dataset_name,
+                              "SeriesInstanceUID_Image": "",
+                              "Modality_Image": image_modality,
+                              "SeriesInstanceUID_Mask": "",
+                              "Modality_Mask": mask_modality,
+                              "MaskID": readii_index['ImageID_mask'].replace(' ', '_'),
+                              "readii_Permutation": readii_index["Permutation"],
+                              "readii_Region": readii_index["Region"],
+                             }
+                       )
+
+
+
 def generate_pyradiomics_index(dataset_config: dict,
                                mit_index: pd.DataFrame,
                                readii_index: pd.DataFrame | None = None,
@@ -87,53 +187,25 @@ def generate_pyradiomics_index(dataset_config: dict,
     -------
     pyradiomics_index : pd.DataFrame
         Dataframe with columns:
-
         * SampleID: PatientID + SampleNumber from imgtools autopipeline
-        * MaskID: ImageID for the mask, will be the key from the roi_match_map in imgtools autopipeline
-        * Permutation - permutation used for READII negative control
-        * Region - region used for READII negative control
         * Image - path to the image nifti file
         * Mask - path to the mask nifti file
+        * DatasetName - name of the dataset these samples come from
+        * SeriesInstanceUID_Image - Series ID from DICOM header for image
+        * Modality_Image - image modality (e.g. CT, MR)
+        * SeriesInstanceUID_Mask - Series ID from DICOM header for mask
+        * Modality_Mask - mask modality (e.g. SEG, RTSTRUCT)
+        * MaskID - name of region of interest (ROI) in the mask (e.g. GTVp)
+        * readii_Permutation - permutation used for READII negative control
+        * readii_Region - region used for READII negative control
     """
     dataset_name = dataset_config['DATASET_NAME']
 
-    image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
-    mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
-
-    mit_edges_index = make_edges_df(mit_index, image_modality, mask_modality)
-
-    # Set up the data from the mit index to point to the original images for feature extraction
-    original_images_index = pd.DataFrame(
-        data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
-              "Image": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_image}", axis=1),
-              "Mask": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_mask}", axis=1),
-              "DatasetName": dataset_name,
-              "SeriesInstanceUID_Image": mit_edges_index['SeriesInstanceUID_image'],
-              "Modality_Image": mit_edges_index['Modality_image'],
-              "SeriesInstanceUID_Mask": mit_edges_index['SeriesInstanceUID_mask'],
-              "Modality_Mask": mit_edges_index['Modality_mask'],
-              "MaskID": mit_edges_index['ImageID_mask'].replace(' ', '_'),
-              "readii_Permutation": "original",
-              "readii_Region": "full"
-          }
-    )
+    original_images_index = get_base_index(dataset_config, mit_index)
 
     if readii_index is not None:
         # Set up the data from the readii index to point to the negative control images for feature extraction
-        readii_images_index = pd.DataFrame(
-            data={"SampleID": readii_index.apply(lambda x: f"{Path(x.dir_original_image).parent}", axis=1),
-                  "Image": readii_index.apply(lambda x: f"{Path(f'readii_{dataset_name}') / x.filepath}", axis=1),
-                  "Mask": readii_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / Path(x.dir_original_image).parent / x.dirname_mask / x.ImageID_mask}.nii.gz", axis=1),
-                  "DatasetName": dataset_name,
-                  "SeriesInstanceUID_Image": "",
-                  "Modality_Image": image_modality,
-                  "SeriesInstanceUID_Mask": "",
-                  "Modality_Mask": mask_modality,
-                  "MaskID": readii_index['ImageID_mask'].replace(' ', '_'),
-                  "readii_Permutation": readii_index["Permutation"],
-                  "readii_Region": readii_index["Region"],
-            }
-        )
+        readii_images_index = get_readii_index(dataset_config, readii_index)
 
         # Concatenate the original and negative control image index dataframes
         pyradiomics_index = pd.concat([original_images_index, readii_images_index], ignore_index=True, axis=0)
@@ -166,6 +238,80 @@ def generate_pyradiomics_index(dataset_config: dict,
 
     return pyradiomics_index
 
+
+
+def generate_fmcib_index(dataset_config: dict,
+                         mit_index: pd.DataFrame,
+                         readii_index: pd.DataFrame | None = None,
+                         output_file_path: Path | None = None
+                        ) -> pd.DataFrame:
+    """Set up and save out index file for Foundation Model for Cancer Image Biomarkers (FMCIB) feature extraction. Output file contains columns for "image_path", "coordX", "coordY", "coordZ".
+    
+    Parameters
+    ----------
+    dataset_config : dict
+        Configuration settings for a dataset, loaded with loadImageDatasetConfig
+    mit_index : pd.DataFrame
+        Dataframe containing metadata for the images and masks processed by imgtools autopipeline.
+    readii_index : pd.DataFrame | None
+        Dataframe containing metadata for the negative control images processed by make_negative_controls.py using READII
+        If not supplied, will set up the index for the original images only.
+    output_file_path : Path | None
+        File path to save the FMCIB index csv out to. If not provided, will be set up as 
+        `dirs.PROCDATA / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "features" / f"fmcib_{dataset_name}_index.csv`
+
+    Returns
+    -------
+    fmcib_index : pd.DataFrame
+        Dataframe with columns:
+        * SampleID: PatientID + SampleNumber from imgtools autopipeline
+        * image_path - path to the image nifti file
+        * Mask - path to the mask nifti file
+        * DatasetName - name of the dataset these samples come from
+        * SeriesInstanceUID_Image - Series ID from DICOM header for image
+        * Modality_Image - image modality (e.g. CT, MR)
+        * SeriesInstanceUID_Mask - Series ID from DICOM header for mask
+        * Modality_Mask - mask modality (e.g. SEG, RTSTRUCT)
+        * MaskID - name of region of interest (ROI) in the mask (e.g. GTVp)
+        * readii_Permutation - permutation used for READII negative control
+        * readii_Region - region used for READII negative control
+        * coordX - global coordinates of the seed point around which features need to be extracted
+        * coordY - global coordinates of the seed point around which features need to be extracted
+        * coordZ - global coordinates of the seed point around which features need to be extracted
+    """
+    dataset_name = dataset_config['DATASET_NAME']
+
+    # Use the pyradiomics index generator and then append the extra info for FMCIB    
+    fmcib_index = generate_pyradiomics_index(dataset_config, mit_index, readii_index, output_file_path=dirs.PROCDATA / "temp" / f"temp_{dataset_name}_image_list.csv")
+
+    # FMCIB expects a column named image_path, so prepend Image column with images dir path
+    fmcib_index['image_path'] = fmcib_index.apply(lambda x: dirs.PROCDATA / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "images" / x.Image, axis=1)
+
+    # Append coordinates to the end of the index
+    fmcib_index['coordX'] = 0
+    fmcib_index['coordY'] = 0
+    fmcib_index['coordZ'] = 0
+
+    try:
+        # If no output file path is provided, use default path setup, which makes a features directory for the dataset and saves the index there
+        if output_file_path is None:
+            output_file_path = dirs.PROCDATA / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "features" / f"fmcib_{dataset_name}_index.csv"
+        
+        # Check that output file path is a .csv
+        assert output_file_path.suffix == ".csv"
+
+        # Create any missing parent directories for the output
+        output_file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Save out the index file
+        fmcib_index.to_csv(output_file_path, index=False)
+    
+    except AssertionError:
+        message = f"output_file_path for generate_fmcib_index does not end in .csv. Path given: {output_file_path}"
+        logger.error(message)
+        raise
+
+    return fmcib_index
 
 
 @click.command()
@@ -248,6 +394,11 @@ def generate_dataset_index(dataset: str,
                                                         mit_index,
                                                         readii_index,
                                                         output_file_path)
+        case "fmcib":
+            dataset_index = generate_fmcib_index(dataset_config,
+                                                 mit_index,
+                                                 readii_index,
+                                                 output_file_path)
         case _:
             message = f"Index generator doesn't exist for {feature_extraction_type}."
             logger.debug(message)
