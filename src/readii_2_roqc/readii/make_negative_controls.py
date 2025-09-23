@@ -15,6 +15,30 @@ from readii.process.config import get_full_data_name
 from readii.utils import logger
 from readii_2_roqc.utils.metadata import get_masked_image_metadata
 
+REGIONS = {'full', 'roi', 'non_roi'}
+PERMUTATIONS = {'shuffled', 'sampled', 'randomized'}
+CROP = {'cube', 'bbox', 'centroid'}
+
+def check_setting_superset(setting_list: set, 
+                           setting_request: set | list):
+    """
+    Check if the requested settings are all in the global settings list for READII.
+
+    Parameters
+    ----------
+    setting_list: set
+        Set of allowed values for a READII setting. Should be set using the global sets in this file.
+    setting_request: set |
+    """
+    if not setting_list.issuperset(setting_request):
+        message = f"Requested settings ({setting_request}) is not a subset of the allowed settings ({setting_list})."
+        logger.error(message)
+        raise ValueError(message)
+
+    else:
+        return True
+
+
 
 def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
     """Extract READII settings from a configuration dictionary.
@@ -39,12 +63,30 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
         raise KeyError(message)
     
     regions = readii_config['IMAGE_TYPES']['regions']
-
+    # Confirm requested regions are available settings
+    assert check_setting_superset(REGIONS, regions)
+        
     permutations = readii_config['IMAGE_TYPES']['permutations']
+    # Confirm requested permutations are available settings
+    assert check_setting_superset(PERMUTATIONS, permutations)
 
     crop = readii_config['IMAGE_TYPES']['crop']
+    # Confirm requested crop is an available setting
+    assert check_setting_superset(CROP, crop)
 
-    return regions, permutations, crop
+    resize = readii_config['IMAGE_TYPES']['resize']
+    # Check if resize is not a list
+    if not isinstance(resize, list) or len(resize) != 3:
+        # if it's just empty, set value to empty list
+        if resize is None:
+            resize = []
+        # if it's the wrong type, raise an error
+        else:
+            message = f"READII resize must be a list of three values (e.g. [50, 50, 50]). Current value: {resize}"
+            logger.error(message)
+            raise TypeError(message)
+
+    return regions, permutations, crop, resize
 
 
 
@@ -116,7 +158,7 @@ def make_negative_controls(dataset: str,
     logger.info(f"Creating negative controls for dataset: {dataset_name}")
 
     # Extract READII settings from config file
-    regions, permutations, _crop = get_readii_settings(dataset_config)
+    regions, permutations, crop = get_readii_settings(dataset_config)
 
     # Set up negative control manager with settings from config
     manager = NegativeControlManager.from_strings(
