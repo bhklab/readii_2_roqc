@@ -73,18 +73,22 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
     crop = readii_config['IMAGE_TYPES']['crop']
     # Confirm requested crop is an available setting
     assert check_setting_superset(CROP, crop)
+    # Get single crop value out of list format
+    crop = crop[0]
 
     resize = readii_config['IMAGE_TYPES']['resize']
-    # Check if resize is not a list
-    if not isinstance(resize, list) or len(resize) != 3:
-        # if it's just empty, set value to empty list
-        if resize is None:
-            resize = []
-        # if it's the wrong type, raise an error
-        else:
-            message = f"READII resize must be a list of three values (e.g. [50, 50, 50]). Current value: {resize}"
-            logger.error(message)
-            raise TypeError(message)
+    if isinstance(resize, list):
+        match len(resize):
+            case 1: resize = resize[0]
+            case 3: resize = resize
+            case _: 
+                message = f"READII resize must be a single int, or list of three ints (e.g. [50, 50, 50]). Current value: {resize}"
+                logger.error(message)
+                raise TypeError(message)
+    elif not isinstance(resize, int):
+        message = f"READII resize must be a list of three values (e.g. [50, 50, 50]). Current value: {resize}"
+        logger.error(message)
+        raise TypeError(message)
 
     return regions, permutations, crop, resize
 
