@@ -121,6 +121,31 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
 
 
 
+def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame:
+    """Combine the PatientID and SampleNumber columns in an index to generate a SampleID
+       SampleNumber is padded with 0s to make a length of four.
+    """
+    if "SampleID" in dataset_index.columns:
+        logger.info("SampleID column already exists in this dataset_index.")
+        return
+    
+    if "PatientID" not in dataset_index.columns:
+        message = "PatientID column is missing in this dataset_index. Cannot make SampleID."
+        logger.error(message)
+        raise KeyError(message)
+    
+    if "SampleNumber" not in dataset_index.columns:
+        message = "SampleNumber column is missing in this dataset_index. Cannot make SampleID."
+        logger.error(message)
+        raise KeyError(message)
+
+    sample_id_series = dataset_index['PatientID'] + "_" + dataset_index['SampleNumber'].astype(str).str.zfill(4)
+    dataset_index.insert(0, "SampleID", sample_id_series)
+
+    return dataset_index
+
+
+
 def insert_r2r_index(dataset_config: dict,
                      data_to_index: pd.DataFrame
                      ) -> pd.DataFrame:
