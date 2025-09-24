@@ -20,7 +20,7 @@ PERMUTATIONS = {'shuffled', 'sampled', 'randomized'}
 CROP = {'cube', 'bbox', 'centroid'}
 
 def check_setting_superset(setting_list: set, 
-                           setting_request: set | list):
+                           setting_request: set | list | None):
     """
     Check if the requested settings are all in the global settings list for READII.
 
@@ -30,6 +30,8 @@ def check_setting_superset(setting_list: set,
         Set of allowed values for a READII setting. Should be set using the global sets in this file.
     setting_request: set |
     """
+    if setting_request == [] or setting_request is None:
+        return True
     if not setting_list.issuperset(setting_request):
         message = f"Requested settings ({setting_request}) is not a subset of the allowed settings ({setting_list})."
         logger.error(message)
@@ -71,22 +73,28 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
     assert check_setting_superset(PERMUTATIONS, permutations)
 
     crop = readii_config['IMAGE_TYPES']['crop']
-    # Confirm requested crop is an available setting
-    assert check_setting_superset(CROP, crop)
-    # Get single crop value out of list format
-    crop = crop[0]
+    if crop is not None and crop != []:
+        # Confirm requested crop is an available setting
+        assert check_setting_superset(CROP, crop)
+        # Get single crop value out of list format
+        crop = crop[0]
+    else:
+        crop = ""
 
     resize = readii_config['IMAGE_TYPES']['resize']
-    if isinstance(resize, list):
+    if resize is None:
+        resize = []
+    elif isinstance(resize, list):
         match len(resize):
             case 1: resize = resize[0]
             case 3: resize = resize
+            case 0: resize
             case _: 
                 message = f"READII resize must be a single int, or list of three ints (e.g. [50, 50, 50]). Current value: {resize}"
                 logger.error(message)
                 raise TypeError(message)
     elif not isinstance(resize, int):
-        message = f"READII resize must be a list of three values (e.g. [50, 50, 50]). Current value: {resize}"
+        message = f"READII resize must be a single int, or list of three values (e.g. [50, 50, 50]). Current value: {resize}"
         logger.error(message)
         raise TypeError(message)
 
