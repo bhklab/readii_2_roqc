@@ -152,14 +152,14 @@ data
 |       |   |   |-- mit_{DATASET_NAME}_index-simple.csv
 |       |   |   `-- mit_{DATASET_NAME}_index.csv
 |       |   `-- readii_{DATASET_NAME}
-|       |       |-- {crop}_{resize}
+|       |       |-- {crop}_{resize_x}_{resize_y}_{resize_z}
 |       |       |   |-- {PatientID}_{SampleNumber}
 |       |       |   |   `-- {ImageModality}_{SeriesInstanceUID}
 |       |       |   |       |-- originall_full.nii.gz    
 |       |       |   |       |-- {permutation}_{region}.nii.gz
 |       |       |   |       `-- {permutation}_{region}.nii.gz
 |       |       |   `-- readii_{DATASET_NAME}_index.csv
-|       |       `-- original_size
+|       |       `-- original_{size_x}_{size_y}_n
 |       |           |-- {PatientID}_{SampleNumber}
 |       |           |   `-- {ImageModality}_{SeriesInstanceUID}
 |       |           |       |-- {permutation}_{region}.nii.gz
