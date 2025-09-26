@@ -235,8 +235,6 @@ def make_negative_controls(dataset: str,
     # Set up the base output directory for the processed images
     readii_image_dir = images_dir_path / f'readii_{dataset_name}'
     
-
-
     try:
         # Check for existing outputs from this function
         readii_index_filepath = get_readii_index_filepath(dataset_config, readii_image_dir)
