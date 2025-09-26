@@ -80,13 +80,6 @@ def image_preprocessor(dataset_config:dict,
                         overwrite:bool = False,
                         seed = 10):
     dataset_name = dataset_config['DATASET_NAME']
-    
-    if overwrite:
-        existing_file_mode = 'OVERWRITE'
-        overwrite_index = True
-    else:
-        existing_file_mode = 'SKIP'
-        overwrite_index = False
 
     # Get READII image preprocessing settings from config file
     regions, permutations, crop, resize = get_readii_settings(dataset_config)
@@ -101,7 +94,7 @@ def image_preprocessor(dataset_config:dict,
     # make image identifier string for file writer
     image_meta_id = f"{image_path.parent.name}"
     # make mask identifier string for file writer
-    mask_meta_id = f"{mask_path.parent.name}_{mask_image_id.replace(' ', "_")}"
+    mask_meta_id = f"{mask_path.parent.name}/{mask_image_id.replace(' ', "_")}"
     
     # Get beginning of the path to the nifti images dir
     mit_images_dir = images_dir_path / f'mit_{dataset_name}'
@@ -121,6 +114,11 @@ def image_preprocessor(dataset_config:dict,
         crop_setting_string = f'{crop}_{resize_string}'
 
     # Set up writer for saving out the negative controls and index file
+    if overwrite:
+        existing_file_mode = 'OVERWRITE'
+    else:
+        existing_file_mode = 'SKIP'
+
     nifti_writer = NIFTIWriter(
             root_directory = output_dir,
             filename_format = f"{crop_setting_string}/{image_path.parent}/{mask_meta_id}/{image_modality}" + "_{Permutation}_{Region}.nii.gz",
@@ -128,7 +126,7 @@ def image_preprocessor(dataset_config:dict,
             existing_file_mode = existing_file_mode,
             sanitize_filenames = True,
             index_filename = output_dir / crop_setting_string / f"readii_{dataset_name}_index.csv",
-            overwrite_index = overwrite_index
+            overwrite_index = False
         )
     
     readii_image_paths = []
@@ -171,7 +169,7 @@ def image_preprocessor(dataset_config:dict,
                                                                   image_meta_id = image_meta_id,
                                                                   mask_meta_id = mask_meta_id,
                                                                   nifti_writer = nifti_writer,
-                                                                  seed = 10)
+                                                                  seed = seed)
         readii_image_paths.append(negative_control_image_paths)
     
     return readii_image_paths
@@ -275,7 +273,10 @@ def make_negative_controls(dataset: str,
                 print("All requested negative controls have already been generated for these samples or are listed in the readii index as if they have been. Set overwrite to true if you want to re-process these.")
                 return readii_index['filepath'].to_list()
     # end existence checking
-
+    elif readii_index_filepath.exists() and overwrite:
+        # If overwriting existing files, delete the existing index file
+        # Doing this instead of using overwrite index in the niftiwriter because then it makes a new index file for each sample
+        readii_index_filepath.unlink()
 
     # Make a single row for every image and mask pair to iterate over
     edges_index = make_edges_df(masked_image_index, dataset_config['MIT']['MODALITIES']['image'], dataset_config['MIT']['MODALITIES']['mask'])
