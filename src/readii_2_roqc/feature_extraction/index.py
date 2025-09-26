@@ -10,9 +10,9 @@ from readii.utils import logger
 from readii_2_roqc.utils.metadata import get_masked_image_metadata, make_edges_df
 from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
 
-def get_base_index(dataset_config: dict,
+def get_mit_extraction_index(dataset_config: dict,
                    mit_index: pd.DataFrame):
-    """Set up default index dataframe for feature extraction.
+    """Set up med-imagetools index dataframe for feature extraction.
     
     Parameters
     ----------
@@ -62,16 +62,16 @@ def get_base_index(dataset_config: dict,
 
 
 
-def get_readii_index(dataset_config: dict,
-                     readii_index: pd.DataFrame):
-    """Set up index dataframe for feature extraction on READII negative control images using the index file generated from negative control generation.
+def get_readii_extraction_index(dataset_config: dict,
+                                readii_index: pd.DataFrame):
+    """Set up readii index dataframe for feature extraction on READII processed images using the index file generated from negative control generation.
     
     Parameters
     ----------
     dataset_config : dict
         Configuration settings for a dataset, loaded with loadImageDatasetConfig
     readii_index : pd.DataFrame
-        Dataframe containing metadata for the images and masks processed by READII negative control generation.
+        Dataframe containing metadata for the images and masks processed by READII make_negative_controls
     
     Returns
     -------
@@ -91,23 +91,33 @@ def get_readii_index(dataset_config: dict,
     """
     dataset_name = dataset_config['DATASET_NAME']
 
+    # Load the requested image processing settings from configuration
+    regions, permutations, crop, resize = get_readii_settings(dataset_config)
+    
+    # Add the original full negative control options to their respective list to catch these when a crop has been applied
+    if crop != '':
+        regions += ["full"]
+        permutations += ["original"]
+
+    # Filter the index file by the specified READII settings
+    settings_readii_index = readii_index[readii_index['Region'].isin(regions) & readii_index['Permutation'].isin(permutations)]
+
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
     mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
     
-
-    return pd.DataFrame(data={"SampleID": readii_index.SampleID,
-                              "Image": readii_index.apply(lambda x: f"{Path(f'readii_{dataset_name}') / x.filepath}", axis=1),
-                              "Mask": readii_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.SampleID / f'{x.MaskID}.nii.gz'}", axis=1),
+    return pd.DataFrame(data={"SampleID": settings_readii_index.SampleID,
+                              "Image": settings_readii_index.apply(lambda x: f"{Path(f'readii_{dataset_name}') / x.filepath}", axis=1),
+                              "Mask": settings_readii_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.SampleID / f'{x.MaskID}.nii.gz'}", axis=1),
                               "DatasetName": dataset_name,
                               "SeriesInstanceUID_Image": "",
                               "Modality_Image": image_modality,
                               "SeriesInstanceUID_Mask": "",
                               "Modality_Mask": mask_modality,
-                              "MaskID": readii_index.apply(lambda x: f"{Path(x.MaskID).name}", axis=1),
-                              "readii_Permutation": readii_index["Permutation"],
-                              "readii_Region": readii_index["Region"],
-                              "readii_Crop": readii_index["crop"],
-                              "readii_Resize": readii_index["Resize"]
+                              "MaskID": settings_readii_index.apply(lambda x: f"{Path(x.MaskID).name}", axis=1),
+                              "readii_Permutation": settings_readii_index["Permutation"],
+                              "readii_Region": settings_readii_index["Region"],
+                              "readii_Crop": settings_readii_index["crop"],
+                              "readii_Resize": settings_readii_index["Resize"]
                              }
                        )
 
@@ -151,11 +161,11 @@ def generate_pyradiomics_index(dataset_config: dict,
     """
     dataset_name = dataset_config['DATASET_NAME']
 
-    original_images_index = get_base_index(dataset_config, mit_index)
+    original_images_index = get_mit_extraction_index(dataset_config, mit_index)
 
     if readii_index is not None:
         # Set up the data from the readii index to point to the negative control images for feature extraction
-        readii_images_index = get_readii_index(dataset_config, readii_index)
+        readii_images_index = get_readii_extraction_index(dataset_config, readii_index)
 
         # Concatenate the original and negative control image index dataframes
         pyradiomics_index = pd.concat([original_images_index, readii_images_index], ignore_index=True, axis=0)
@@ -191,7 +201,6 @@ def generate_pyradiomics_index(dataset_config: dict,
 
 
 def generate_fmcib_index(dataset_config: dict,
-                         mit_index: pd.DataFrame,
                          readii_index: pd.DataFrame | None = None,
                          output_file_path: Path | None = None
                         ) -> pd.DataFrame:
@@ -201,11 +210,8 @@ def generate_fmcib_index(dataset_config: dict,
     ----------
     dataset_config : dict
         Configuration settings for a dataset, loaded with loadImageDatasetConfig
-    mit_index : pd.DataFrame
-        Dataframe containing metadata for the images and masks processed by imgtools autopipeline.
     readii_index : pd.DataFrame | None
-        Dataframe containing metadata for the negative control images processed by make_negative_controls.py using READII
-        If not supplied, will set up the index for the original images only.
+        Dataframe containing metadata for the images cropped and/or negative control generated by make_negative_controls.py using READII
     output_file_path : Path | None
         File path to save the FMCIB index csv out to. If not provided, will be set up as 
         `dirs.PROCDATA / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "features" / f"fmcib_{dataset_name}_index.csv`
@@ -231,12 +237,13 @@ def generate_fmcib_index(dataset_config: dict,
     """
     dataset_name = dataset_config['DATASET_NAME']
 
-    # Use the pyradiomics index generator and then append the extra info for FMCIB    
-    fmcib_index = generate_pyradiomics_index(dataset_config, mit_index, readii_index, output_file_path=dirs.PROCDATA / "temp" / f"temp_{dataset_name}_image_list.csv")
+    # Use the readii extraction index generator since FMCIB needs cropped images that would've been processed by READII   
+    fmcib_index = get_readii_extraction_index(dataset_config, readii_index)
+    fmcib_index = fmcib_index.sort_values(by=['readii_Crop', 'readii_Permutation', 'readii_Region', 'SampleID', 'MaskID'], ignore_index=True)
 
     # FMCIB expects a column named image_path, so prepend Image column with images dir path
     fmcib_index['image_path'] = fmcib_index.apply(lambda x: dirs.PROCDATA / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "images" / x.Image, axis=1)
-
+   
     # Append coordinates to the end of the index
     fmcib_index['coordX'] = 0
     fmcib_index['coordY'] = 0
@@ -333,6 +340,7 @@ def generate_dataset_index(dataset: str,
             logger.info(f"Loading readii dataset index file: {readii_index_path}")
             readii_index = pd.read_csv(readii_index_path)
 
+
         except FileNotFoundError as e:
             logger.warning(f"No existing READII index file found for specified settings. No READII negative controls will be processed.")
             readii_index = None
@@ -348,7 +356,6 @@ def generate_dataset_index(dataset: str,
                                                         output_file_path)
         case "fmcib":
             dataset_index = generate_fmcib_index(dataset_config,
-                                                 mit_index,
                                                  readii_index,
                                                  output_file_path)
         case _:
