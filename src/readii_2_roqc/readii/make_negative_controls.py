@@ -46,6 +46,11 @@ def negative_control_generator(sample_id:str,
                                                                    mask, 
                                                                    crop_method = crop, 
                                                                    resize_dimension = resize)
+            resize_string = get_resize_string(resize)
+        else:
+            crop = 'None'
+            resize_string = get_resize_string(image.GetSize())
+        
         # save out negative controls
         try:
             # The capitalized arguments are here on purpose to manipulate the order of the columns in the index file
@@ -55,7 +60,7 @@ def negative_control_generator(sample_id:str,
                             MaskID = mask_meta_id,
                             Permutation=permutation,
                             Region=region,
-                            Resize=get_resize_string(resize),
+                            Resize=resize_string,
                             SampleID=sample_id,
                             crop=crop
                         )
