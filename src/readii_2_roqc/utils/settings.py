@@ -41,15 +41,16 @@ def get_readii_index_filepath(dataset_config:dict,
     # Load the requested image processing settings from configuration
     _regions, _permutations, crop, resize = get_readii_settings(dataset_config)
 
-    # Path to find existing readii index output for checking existing outputs
-    if crop != "" and resize != []:
-        readii_index_filepath = readii_image_dir / f"{crop}_{get_resize_string(resize)}" / f'readii_{dataset_name}_index.csv'
-    else:
-        readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
-        if readii_index_filepath is None:
-            message = f"No READII index file was found in {readii_image_dir}/original_[image size]."
-            logger.error(message)
-            raise FileNotFoundError(message)
+    try:
+        # Path to find existing readii index output for checking existing outputs
+        if crop != "" and resize != []:
+            readii_index_filepath = readii_image_dir.glob(f"{crop}_{get_resize_string(resize)}/readii_{dataset_name}_index.csv").__next__()
+        else:
+            readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
+    except StopIteration:
+        message = f"No READII index file was found for the specified settings"
+        logger.warning(message)
+        raise FileNotFoundError(message)
 
     return readii_index_filepath
 
