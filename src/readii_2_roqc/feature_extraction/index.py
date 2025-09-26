@@ -74,7 +74,7 @@ def get_mit_extraction_index(dataset_config: dict,
                               "readii_Permutation": "original",
                               "readii_Region": "full",
                               "readii_Crop": '',
-                              "readii_Resize": ''
+                              "readii_Resize": mit_edges_index['size_image']
                              }
                        )
 
@@ -333,11 +333,16 @@ def generate_dataset_index(dataset: str,
     else:
         logger.info(f"No READII settings specified. Only MIT index will be used for extraction index generation.")
         readii_index = None
-        crop = 'original'
 
     # Construct output file path from DMP and feature extraction type
     feature_extraction_type = method
-    output_file_path = dirs.PROCDATA / full_data_name / "features" / feature_extraction_type / f"{feature_extraction_type}_{dataset_name}_index.csv"
+    if crop == '' and resize == []:
+        # Get the x and y dimension of the image and put this with an n as the size value for the output folder
+        image_type = f'original_{mit_index.readii_Resize[0].replace(', ', "_").strip('()')[0:-4]}_n'
+    else:
+        image_type = f'{crop}_{get_resize_string(resize)}'
+
+    output_file_path = dirs.PROCDATA / full_data_name / "features" / feature_extraction_type / image_type / f"{feature_extraction_type}_{dataset_name}_index.csv"
 
     if output_file_path.exists() and not overwrite:
         message = f"{feature_extraction_type} index file already exists for {dataset_name}. Loading existing file."
