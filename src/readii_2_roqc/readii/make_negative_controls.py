@@ -53,8 +53,8 @@ def negative_control_generator(sample_id:str,
                             proc_image,
                             ImageID = image_meta_id,
                             MaskID = mask_meta_id,
-                            Permutation="original",
-                            Region="full",
+                            Permutation=permutation,
+                            Region=region,
                             Resize=get_resize_string(resize),
                             SampleID=sample_id,
                             crop=crop
@@ -122,18 +122,19 @@ def image_preprocessor(dataset_config:dict,
 
     # Set up writer for saving out the negative controls and index file
     nifti_writer = NIFTIWriter(
-            root_directory = output_dir / crop_setting_string,
-            filename_format = f"{image_path.parent}/{mask_meta_id}/{image_modality}" + "_{Permutation}_{Region}.nii.gz",
+            root_directory = output_dir,
+            filename_format = f"{crop_setting_string}/{image_path.parent}/{mask_meta_id}/{image_modality}" + "_{Permutation}_{Region}.nii.gz",
             create_dirs = True,
             existing_file_mode = existing_file_mode,
             sanitize_filenames = True,
-            index_filename = f"readii_{dataset_name}_index.csv",
+            index_filename = output_dir / crop_setting_string / f"readii_{dataset_name}_index.csv",
             overwrite_index = overwrite_index
         )
     
     readii_image_paths = []
     # Process crop and resize of original image if needed, and save
     if crop != '' and resize != []:
+        logger.info("Making cropped version of original image")
         crop_image, crop_mask = crop_and_resize_image_and_mask(image, 
                                                                mask, 
                                                                crop_method = crop, 
@@ -159,6 +160,7 @@ def image_preprocessor(dataset_config:dict,
     # end original image processing
 
     if permutations != [] and regions != []:
+        logger.info("Making negative control images")
         negative_control_image_paths = negative_control_generator(sample_id=sample_id,
                                                                   image = image,
                                                                   mask = mask,
@@ -178,7 +180,7 @@ def image_preprocessor(dataset_config:dict,
 
 
 @click.command()
-@click.argument('dataset', help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
+@click.argument('dataset')
 @click.option('--overwrite', help='Whether to overwrite existing readii image files', default=False)
 @click.option('--parallel', type=click.BOOL, help='Whether to run READII preprocessing in parallel', default=False)
 @click.option('--jobs', type=click.INT, help="Number of jobs to give parallel processor", default=-1)
@@ -189,7 +191,7 @@ def make_negative_controls(dataset: str,
                            jobs: int = -1,
                            seed: int = 10
                            ) -> list[Path] :
-    """Create negative control images and save them out as niftis
+    """Create negative control images for dataset and save them out as niftis
     
     Parameters
     ----------
@@ -249,7 +251,7 @@ def make_negative_controls(dataset: str,
         readii_index = pd.read_csv(readii_index_filepath)
 
         # Get list of patients that have already been processed and what has been requested based on the dataset index
-        processed_samples = set(readii_index['PatientID'].to_list())
+        processed_samples = set(readii_index['SampleID'].to_list())
         requested_samples = set(dataset_index['SampleID'].to_list())
 
         # Check if all the settings columns are present - handles old READII outputs
