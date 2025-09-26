@@ -1,3 +1,4 @@
+from pathlib import Path
 from readii.utils import logger
 import numpy as np
 
@@ -17,6 +18,43 @@ def get_resize_string(resize: list | tuple | np.ndarray | int) -> str:
         raise TypeError(message)
 
 
+def get_readii_index_filepath(dataset_config:dict,
+                              readii_image_dir:Path):
+    """Construct the full filepath to the READII image index that lists all the processed images from running make_negative_controls.
+       This function requires that the READII index file exist to find the filepath for uncropped images.
+
+    Parameters
+    ----------
+    dataset_config:dict
+        Settings dictionary for the dataset being processed from running `load_dataset_config`
+    readii_image_dir:Path
+        Path to the READII outputs. Would be the same as what was passed as the output_dir to `image_preprocessor` or used to construct the NIFTIWriter for `negative_control_generator`.
+    
+    Returns
+    -------
+    readii_index_path:Path
+        Path to the READII index file
+    """
+    # Get dataset name from config settings
+    dataset_name = dataset_config['DATASET_NAME']
+
+    # Load the requested image processing settings from configuration
+    _regions, _permutations, crop, resize = get_readii_settings(dataset_config)
+
+    # Path to find existing readii index output for checking existing outputs
+    if crop != "" and resize != []:
+        readii_index_filepath = readii_image_dir / f"{crop}_{get_resize_string(resize)}" / f'readii_{dataset_name}_index.csv'
+    else:
+        readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
+        if readii_index_filepath is None:
+            message = f"No READII index file was found in {readii_image_dir}/original_[image size]."
+            logger.error(message)
+            raise FileNotFoundError(message)
+
+    return readii_index_filepath
+
+
+
 def check_setting_superset(setting_list: set, 
                            setting_request: set | list | None
                            ) -> bool:
@@ -27,7 +65,13 @@ def check_setting_superset(setting_list: set,
     ----------
     setting_list: set
         Set of allowed values for a READII setting. Should be set using the global sets in this file.
-    setting_request: set |
+    setting_request: set | list | None
+        Set of requested values for a READII setting.
+
+    Returns
+    -------
+    True if all requested settings are contained in the setting list.
+    False otherwise.
     """
     if setting_request == [] or setting_request is None:
         return True
@@ -38,6 +82,7 @@ def check_setting_superset(setting_list: set,
 
     else:
         return True
+
 
 
 def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:

@@ -16,7 +16,7 @@ from readii.utils import logger
 
 from readii_2_roqc.utils.loaders import load_dataset_config, load_image_and_mask
 from readii_2_roqc.utils.metadata import get_masked_image_metadata, insert_SampleID, make_edges_df
-from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string
+from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
 
 def negative_control_generator(sample_id:str,
                                image:sitk.Image,
@@ -234,14 +234,10 @@ def make_negative_controls(dataset: str,
 
     # Set up the base output directory for the processed images
     readii_image_dir = images_dir_path / f'readii_{dataset_name}'
-
-    # Path to find existing readii index output for checking existing outputs
-    if crop != "" and resize != []:
-        readii_index_filepath = readii_image_dir / f"{crop}_{get_resize_string(resize)}" / f'readii_{dataset_name}_index.csv'
-    else:
-        readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
+    
 
     # Check for existing outputs from this function
+    readii_index_filepath = get_readii_index_filepath(dataset_config, readii_image_dir)
     if readii_index_filepath.exists() and not overwrite:
         # Load in readii index and check:
         # 1. if all negative controls requested have been extracted
