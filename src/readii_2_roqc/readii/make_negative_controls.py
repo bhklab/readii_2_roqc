@@ -168,7 +168,8 @@ def image_preprocessor(dataset_config:dict,
                                                                   resize = resize,
                                                                   image_meta_id = image_meta_id,
                                                                   mask_meta_id = mask_meta_id,
-                                                                  nifti_writer = nifti_writer)
+                                                                  nifti_writer = nifti_writer,
+                                                                  seed = 10)
         readii_image_paths.append(negative_control_image_paths)
     
     return readii_image_paths
