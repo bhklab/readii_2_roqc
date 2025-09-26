@@ -236,44 +236,57 @@ def make_negative_controls(dataset: str,
     readii_image_dir = images_dir_path / f'readii_{dataset_name}'
     
 
-    # Check for existing outputs from this function
-    readii_index_filepath = get_readii_index_filepath(dataset_config, readii_image_dir)
-    if readii_index_filepath.exists() and not overwrite:
-        # Load in readii index and check:
-        # 1. if all negative controls requested have been extracted
-        # 2. for all of the patients
-        readii_index = pd.read_csv(readii_index_filepath)
 
-        # Get list of patients that have already been processed and what has been requested based on the dataset index
-        processed_samples = set(readii_index['SampleID'].to_list())
-        requested_samples = set(dataset_index['SampleID'].to_list())
+    try:
+        # Check for existing outputs from this function
+        readii_index_filepath = get_readii_index_filepath(dataset_config, readii_image_dir)
 
-        # Check if all the settings columns are present - handles old READII outputs
-        readii_settings = ['Permutation', 'Region', 'crop', 'Resize']
-        if not set(readii_index.columns).issuperset(readii_settings):
-            print("Not all READII settings satisfied in existing output. Re-running negative control generation.")
-            overwrite = True
-        
-        else:
-            # Get all combinations of negative control settings that have already been processed and what has been requested in the config file
-            processed_image_types = {itype for itype in readii_index[readii_settings].itertuples(index=False, name=None)}
-            requested_image_types = {itype for itype in itertools.product(permutations,
-                                                                        regions,
-                                                                        [crop],
-                                                                        [get_resize_string(resize)])}
+        if not overwrite:
+            # Load in readii index and check:
+            # 1. if all negative controls requested have been extracted
+            # 2. for all of the patients
+            readii_index = pd.read_csv(readii_index_filepath)
+
+            # Get list of patients that have already been processed and what has been requested based on the dataset index
+            processed_samples = set(readii_index['SampleID'].to_list())
+            requested_samples = set(dataset_index['SampleID'].to_list())
+
+            # Check if all the settings columns are present - handles old READII outputs
+            readii_settings = ['Permutation', 'Region', 'crop', 'Resize']
+            if not set(readii_index.columns).issuperset(readii_settings):
+                print("Not all READII settings satisfied in existing output. Re-running negative control generation.")
+                overwrite = True
             
-            #TODO: add a function to remove processed samples from the list to process again
+            else:
+                # Get all combinations of negative control settings that have already been processed and what has been requested in the config file
+                processed_image_types = {itype for itype in readii_index[readii_settings].itertuples(index=False, name=None)}
+                requested_image_types = {itype for itype in itertools.product(permutations,
+                                                                            regions,
+                                                                            [crop],
+                                                                            [get_resize_string(resize)])}
+                
+                #TODO: add a function to remove processed samples from the list to process again
 
-            # If everything matches, no processing required
-            if requested_image_types.issubset(processed_image_types) and requested_samples.issubset(processed_samples):
-                print("All requested negative controls have already been generated for these samples or are listed in the readii index as if they have been. Set overwrite to true if you want to re-process these.")
-                return readii_index['filepath'].to_list()
-    # end existence checking
-    elif readii_index_filepath.exists() and overwrite:
-        # If overwriting existing files, delete the existing index file
-        # Doing this instead of using overwrite index in the niftiwriter because then it makes a new index file for each sample
-        readii_index_filepath.unlink()
+                # If everything matches, no processing required
+                if requested_image_types.issubset(processed_image_types) and requested_samples.issubset(processed_samples):
+                    message = "All requested negative controls have already been generated for these samples or are listed in the readii index as if they have been. Set overwrite to True if you want to re-process these."
+                    logger.info(message)
+                    print(message)
+                    return readii_index['filepath'].to_list()
+        # end existence checking
 
+        elif overwrite:
+            # If overwriting existing files, delete the existing index file
+            # Doing this instead of using overwrite index in the niftiwriter because then it makes a new index file for each sample
+            message = "Deleting existing readii index file since overwrite is specified True."
+            logger.info(message)
+            readii_index_filepath.unlink()
+
+    except FileNotFoundError:
+        message = "No READII index file found for the specified READII settings. Processing all images."
+        logger.info(message)
+    
+    
     # Make a single row for every image and mask pair to iterate over
     edges_index = make_edges_df(masked_image_index, dataset_config['MIT']['MODALITIES']['image'], dataset_config['MIT']['MODALITIES']['mask'])
 
