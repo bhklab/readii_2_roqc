@@ -38,6 +38,7 @@ READII:
         permutations:           # Permutation type to apply to region
             - "original"
         crop:                   # How to crop the image prior to feature extraction
+        resize:                 # Size to crop the image to. Image will be resampled.
     TRAIN_TEST_SPLIT:           # If using data for modelling, set up method of data splitting here
         split: False            # Whether to split the data
         split_variable: {}      # What variable from `CLINICAL.FILE` to use to split the data and values to group by (Ex. {'split_var': ['training', 'test']})
@@ -124,6 +125,9 @@ Copy the following template and fill it in accordingly for each dataset. If anyt
 data
 |-- procdata
 |   `-- {DATASET_SOURCE}_{DATASET_NAME} --> /path/to/separate/data/dir/procdata/{DiseaseRegion}/{DATASET_SOURCE}_{DATASET_NAME}
+|       |-- clinical
+|       |   |-- {DATASET_NAME}_disease_subset.csv
+|       |   `-- {DATASET_NAME}_outcome_data.csv
 |       |-- correlations
 |       |   `-- {extraction_method}
 |       |       `-- {extraction_configuration_file_name}
@@ -140,16 +144,27 @@ data
 |       |                   `-- {permutation}_{region}_features.csv
 |       |-- images
 |       |   |-- mit_{DATASET_NAME}
-|       |   |   `-- {PatientID}_{SampleNumber}
-|       |   |       |-- {ImageModality}_{SeriesInstanceUID}
-|       |   |       |   `-- {ImageModality}.nii.gz
-|       |   |       `-- {SegmentationModality}_{SeriesInstanceUID}
-|       |   |           `-- {ROI_name}.nii.gz
+|       |   |   |-- {PatientID}_{SampleNumber}
+|       |   |   |   |-- {ImageModality}_{SeriesInstanceUID}
+|       |   |   |   |   `-- {ImageModality}.nii.gz
+|       |   |   |   `-- {SegmentationModality}_{SeriesInstanceUID}
+|       |   |   |       `-- {ROI_name}.nii.gz
+|       |   |   |-- mit_{DATASET_NAME}_index-simple.csv
+|       |   |   `-- mit_{DATASET_NAME}_index.csv
 |       |   `-- readii_{DATASET_NAME}
-|       |       `-- {PatientID}_{SampleNumber}
-|       |           `-- {ImageModality}_{SeriesInstanceUID}
-|       |               |-- {permutation}_{region}.nii.gz
-|       |               `-- {permutation}_{region}.nii.gz
+|       |       |-- {crop}_{resize_x}_{resize_y}_{resize_z}
+|       |       |   |-- {PatientID}_{SampleNumber}
+|       |       |   |   `-- {ImageModality}_{SeriesInstanceUID}
+|       |       |   |       |-- originall_full.nii.gz    
+|       |       |   |       |-- {permutation}_{region}.nii.gz
+|       |       |   |       `-- {permutation}_{region}.nii.gz
+|       |       |   `-- readii_{DATASET_NAME}_index.csv
+|       |       `-- original_{size_x}_{size_y}_n
+|       |           |-- {PatientID}_{SampleNumber}
+|       |           |   `-- {ImageModality}_{SeriesInstanceUID}
+|       |           |       |-- {permutation}_{region}.nii.gz
+|       |           |       `-- {permutation}_{region}.nii.gz
+|       |           `-- readii_{DATASET_NAME}_index.csv
 |       `-- signatures
 |           `-- {signature_name}
 |               |-- full_original_signature_features.csv

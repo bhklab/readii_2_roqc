@@ -387,3 +387,12 @@ dev_binary_prediction.ipynb
 * Leaving HEAD-NECK-RADIOMICS-HN1 to rerun feature extraction on screen - HN1-rerun
 
 * Trying to fix the filtering for HNSCC for making the negative controls - running into issues with the multiple CTs but can't figure out what to do
+
+
+## Adding FMCIB
+#### [2025-09-23]
+
+* Updated the index script to generate the FMCIB extraction file expected
+* Realized I need to update make_negative_controls to add in the crop method
+* Can use this as an opportunity to parallelize the script at the same time
+* Restructuring in a notebook first

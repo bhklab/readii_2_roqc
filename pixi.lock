@@ -342,7 +342,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0f/34/0f54dd9c288941294898877008bcb5c07012340cc9c5db9cff1bd185d449/pywavelets-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/ae/55/90ad03c32e673a9b33cfa7cb43f55d1ab0509b60396afbb1031fa1516fd9/qdldl-0.1.7.post5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -656,7 +656,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/37/3fda13fb2518fdd306528382d6b18c116ceafefff0a7dccd28f1034f4dd2/pywavelets-1.9.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/14/c1/eba61a848f9dfa0b54e954aa71f18eb35576f8842ef31dc76a3569a50526/qdldl-0.1.7.post5-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -970,7 +970,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/65/a5549325daafc3eae4b52de076798839eaf529a07218f8fb18cccefe76a1/pywavelets-1.9.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/02/2e/5daa29b8ecf25277c36a220ef3b509d2ec4079ab81ff3adc544bc12cd675/qdldl-0.1.7.post5-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -1298,7 +1298,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2c/a7/0d9ee3fe454d606e0f5c8e3aebf99d2ecddbfb681826a29397729538c8f1/pywavelets-1.9.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/c1/82/730d0d2c6093c4dc574947eea94e0cddeea836f43823a80fc8b064a82ddf/qdldl-0.1.7.post5-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -1676,7 +1676,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0f/34/0f54dd9c288941294898877008bcb5c07012340cc9c5db9cff1bd185d449/pywavelets-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/ae/55/90ad03c32e673a9b33cfa7cb43f55d1ab0509b60396afbb1031fa1516fd9/qdldl-0.1.7.post5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -2007,7 +2007,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/37/3fda13fb2518fdd306528382d6b18c116ceafefff0a7dccd28f1034f4dd2/pywavelets-1.9.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/14/c1/eba61a848f9dfa0b54e954aa71f18eb35576f8842ef31dc76a3569a50526/qdldl-0.1.7.post5-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -2338,7 +2338,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/65/a5549325daafc3eae4b52de076798839eaf529a07218f8fb18cccefe76a1/pywavelets-1.9.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/02/2e/5daa29b8ecf25277c36a220ef3b509d2ec4079ab81ff3adc544bc12cd675/qdldl-0.1.7.post5-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -2682,7 +2682,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2c/a7/0d9ee3fe454d606e0f5c8e3aebf99d2ecddbfb681826a29397729538c8f1/pywavelets-1.9.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/c1/82/730d0d2c6093c4dc574947eea94e0cddeea836f43823a80fc8b064a82ddf/qdldl-0.1.7.post5-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -3044,7 +3044,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0f/34/0f54dd9c288941294898877008bcb5c07012340cc9c5db9cff1bd185d449/pywavelets-1.9.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/ae/55/90ad03c32e673a9b33cfa7cb43f55d1ab0509b60396afbb1031fa1516fd9/qdldl-0.1.7.post5-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -3359,7 +3359,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/37/3fda13fb2518fdd306528382d6b18c116ceafefff0a7dccd28f1034f4dd2/pywavelets-1.9.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/14/c1/eba61a848f9dfa0b54e954aa71f18eb35576f8842ef31dc76a3569a50526/qdldl-0.1.7.post5-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -3674,7 +3674,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/36/65/a5549325daafc3eae4b52de076798839eaf529a07218f8fb18cccefe76a1/pywavelets-1.9.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/02/2e/5daa29b8ecf25277c36a220ef3b509d2ec4079ab81ff3adc544bc12cd675/qdldl-0.1.7.post5-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -4003,7 +4003,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/5f/ed/539768cf28c661b5b068d66d96a2f155c4971a5d55684a514c1a0e0dec2f/python_dotenv-1.1.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2c/a7/0d9ee3fe454d606e0f5c8e3aebf99d2ecddbfb681826a29397729538c8f1/pywavelets-1.9.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/c1/82/730d0d2c6093c4dc574947eea94e0cddeea836f43823a80fc8b064a82ddf/qdldl-0.1.7.post5-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/30/3c4d035596d3cf444529e0b2953ad0466f6049528a879d27534700580395/rich-14.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b6/c2/9fce4c8a9587c4e90500114d742fe8ef0fd92d7bad29d136bb9941add271/rich_click-1.8.9-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d1/e5/f2a0621f1781b76a38194acae72f01e37b1941470407345b6e8653ad7640/ruamel.yaml-0.18.15-py3-none-any.whl
@@ -12776,10 +12776,10 @@ packages:
   purls: []
   size: 94567291
   timestamp: 1756296858553
-- pypi: https://files.pythonhosted.org/packages/ec/47/e660286bd37a331bd6a2bfd14c93710275ab2f3ef1a892bc3d0b6c5130e7/readii-1.36.2-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/26/53/336f60d64e0258d69bd883de4e19265d5ce6f803ce0de35333915d604ef1/readii-1.37.0-py3-none-any.whl
   name: readii
-  version: 1.36.2
-  sha256: 983cbcbd141ff7bbf9279f4d9c00066749e6363ef80a06c6371123eabdb6bc2e
+  version: 1.37.0
+  sha256: a41df4062a64b268630ad0766582ca71db22adc88af41924845c945e6b3cb3c1
   requires_dist:
   - matplotlib>=3.9.2,<4
   - med-imagetools>=2
