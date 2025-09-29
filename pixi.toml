@@ -70,7 +70,7 @@ args = ["dataset",
 cwd = "src/readii_2_roqc/readii"
 cmd = ["python",
        "make_negative_controls.py",
-       "--dataset", "{{ dataset }}",
+       "{{ dataset }}",
        "--overwrite", "{{ overwrite }}",
        "--seed", "{{ seed }}"
 ]
@@ -80,8 +80,8 @@ args = ["dataset", "method", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
-       "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}",
+       "{{ dataset }}",
+       "{{ method }}",
        "--overwrite", "{{ overwrite }}"
 ]
 
