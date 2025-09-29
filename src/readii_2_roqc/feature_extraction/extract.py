@@ -38,8 +38,18 @@ def sample_feature_writer(feature_vector : OrderedDict,
         OrderedDict[str, str]
             Combined metadata and features that was saved out.
     """
+    # Get image size data for output path
+    resize = metadata['readii_Resize']
+    split_up_resize_vals = resize.split('_')
+    if len(split_up_resize_vals) > 1:
+        image_size_str = f'original{"_".join(split_up_resize_vals[0:2])}_n'
+    elif len(split_up_resize_vals) == 1:
+        image_size_str = f'original{"_".join([split_up_resize_vals[0], split_up_resize_vals[0]])}_n'
+    else:
+        image_size_str = 'original'
+    
     # Construct output path with elements from metadata
-    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / f'original_{metadata['readii_Resize'][:-4]}_n' / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Set up metadata as an OrderedDict to be combined with the features
