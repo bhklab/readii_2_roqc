@@ -90,14 +90,14 @@ args = ["dataset",
         "method", 
         "settings",
         {arg = "overwrite", default = "False"},
-        {arg = "parallel", default = "True"}]
+        {arg = "parallel", default = "False"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "extract.py",
-       "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}",
-       "--settings", "{{ settings }}",
+       "{{ dataset }}",
+       "{{ method }}",
+       "{{ settings }}",
        "--overwrite", "{{ overwrite }}",
        "--parallel", "{{ parallel }}"
 ]

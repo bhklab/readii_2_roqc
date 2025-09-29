@@ -347,9 +347,9 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
 
 @click.command()
-@click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform extraction on.')
-@click.option('--method', type=click.Choice(['pyradiomics']), required=True, help='Feature extraction method to use.')
-@click.option('--settings', type=click.STRING, required=True, help='Name of the feature extraction settings file in config/<method>.')
+@click.argument('dataset', type=click.STRING)
+@click.argument('method', type=click.Choice(['pyradiomics']))
+@click.argument('settings', type=click.STRING)
 @click.option('--overwrite', type=click.BOOL, default=False, help='Overwrite existing feature files.')
 @click.option('--parallel', type=click.BOOL, default=False, help='Run feature extraction in parallel.')
 @click.option('--jobs', type=click.INT, help="Number of jobs to give parallel processor", default=-1)
