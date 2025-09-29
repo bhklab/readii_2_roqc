@@ -291,14 +291,27 @@ def generate_fmcib_index(dataset_config: dict,
 
 
 @click.command()
-@click.option('--dataset', type=click.STRING, help='Dataset configuration file name (e.g. NSCLC-Radiomics.yaml). Must be in config/datasets.')
-@click.option('--method', type=click.STRING, default='pyradiomics', help='Feature extraction method to use.')
+@click.argument('dataset', type=click.STRING)
+@click.argument('method', type=click.STRING)
 @click.option('--overwrite', type=click.BOOL, default=False, help='Overwrite existing index files.')
 def generate_dataset_index(dataset: str, 
                            method: str = 'pyradiomics',
                            overwrite: bool = False
                            ) -> pd.DataFrame:
     """Create data index file for feature extraction listing image and mask file pairs.
+
+    Parameters
+    ----------
+    dataset:str
+        Dataset name (e.g. NSCLC-Radiomics). Must have a .yaml file in config/datasets.
+    method:str
+        Feature extraction method to generate index for. Options are pyradiomics and fmcib.
+    overwrite:bool = False
+        Whether to overwrite existing index files. Default is False.
+    Returns
+    -------
+    dataset_index:pd.DataFrame
+        Dataframe listing metadata required for specified method's feature extraction process.
     """
     if dataset is None:
         message = "Dataset name must be provided."
