@@ -55,6 +55,29 @@ def get_readii_index_filepath(dataset_config:dict,
     return readii_index_filepath
 
 
+def get_extraction_index_filepath(dataset_config:dict,
+                                  extract_features_dir:Path):
+    # Get dataset name from config settings
+    dataset_name = dataset_config['DATASET_NAME']
+
+    extract_method = extract_features_dir.stem
+
+    # Load the requested image processing settings from configuration
+    _regions, _permutations, crop, resize = get_readii_settings(dataset_config)
+
+    try:
+        # Path to find existing readii index output for checking existing outputs
+        if crop != "" and resize != []:
+            extract_index_filepath = extract_features_dir.glob(f"{crop}_{get_resize_string(resize)}/{extract_method}_{dataset_name}_index.csv").__next__()
+        else:
+            extract_index_filepath = extract_features_dir.glob(f"original_*/{extract_method}_{dataset_name}_index.csv").__next__()
+    except StopIteration:
+        message = f"No {extract_method} index file was found for the specified settings"
+        logger.warning(message)
+        raise FileNotFoundError(message)
+
+    return extract_index_filepath
+
 
 def check_setting_superset(setting_list: set, 
                            setting_request: set | list | None
