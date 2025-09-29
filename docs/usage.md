@@ -163,7 +163,7 @@ data
 |       |       |-- {crop}_{resize_x}_{resize_y}_{resize_z}
 |       |       |   |-- {PatientID}_{SampleNumber}
 |       |       |   |   `-- {ImageModality}_{SeriesInstanceUID}
-|       |       |   |       |-- originall_full.nii.gz    
+|       |       |   |       |-- original_full.nii.gz    
 |       |       |   |       |-- {permutation}_{region}.nii.gz
 |       |       |   |       `-- {permutation}_{region}.nii.gz
 |       |       |   `-- readii_{DATASET_NAME}_index.csv
