@@ -7,6 +7,7 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
+import numpy as np
 from radiomics import featureextractor, setVerbosity
 from readii_2_roqc.utils.loaders import load_dataset_config
 from readii_2_roqc.utils.settings import get_extraction_index_filepath
@@ -204,7 +205,7 @@ def extract_sample_features(sample_data: pd.Series,
     match method:
         case "pyradiomics":
             # check if any crop is specified in the settings - haven't handled this for pyradiomics yet
-            if sample_data['readii_Crop'] is not None:
+            if not np.isnan(sample_data['readii_Crop']):
                 message = "No crop methods have been implemented for PyRadiomics extraction with READII yet."
                 logger.error(message)
                 raise NotImplementedError(message)
@@ -351,11 +352,13 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 @click.option('--settings', type=click.STRING, required=True, help='Name of the feature extraction settings file in config/<method>.')
 @click.option('--overwrite', type=click.BOOL, default=False, help='Overwrite existing feature files.')
 @click.option('--parallel', type=click.BOOL, default=False, help='Run feature extraction in parallel.')
+@click.option('--jobs', type=click.INT, help="Number of jobs to give parallel processor", default=-1)
 def extract_dataset_features(dataset: str,
                              method: str,
                              settings: str | Path,
                              overwrite: bool = False,
-                             parallel: bool = False) -> Path:
+                             parallel: bool = False,
+                             jobs: int = -1) -> Path:
     """Extract features from a dataset using the specified method and settings.
 
     Parameters
@@ -370,6 +373,8 @@ def extract_dataset_features(dataset: str,
         Whether to overwrite existing feature files.
     parallel : bool = False
         Whether to run feature extraction in parallel. Defaults to False.
+    jobs : int = -1
+        Number of jobs to give parallel processor.
 
     Returns
     -------
@@ -382,12 +387,12 @@ def extract_dataset_features(dataset: str,
         raise ValueError(message)
     
     # Load in dataset configuration settings from provided dataset name
-    dataset_config, dataset_name, full_data_name = load_dataset_config()
+    dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
     logger.info(f"Extraction {method} radiomic features for {dataset_name}")
 
     try:
         # Load the dataset index
-        dataset_index_path = get_extraction_index_filepath(dataset,
+        dataset_index_path = get_extraction_index_filepath(dataset_config,
                                                            extract_features_dir = dirs.PROCDATA / full_data_name / "features" / method)
         dataset_index = pd.read_csv(dataset_index_path)
     except FileNotFoundError:
@@ -402,7 +407,7 @@ def extract_dataset_features(dataset: str,
     # Extract features for each sample in the dataset index
     if parallel:
         # Use joblib to parallelize feature extraction
-        Parallel(n_jobs=-1)(
+        Parallel(n_jobs=jobs)(
             delayed(extract_sample_features)(
                 sample_data=sample_data,
                 method=method,
