@@ -292,7 +292,7 @@ def generate_fmcib_index(dataset_config: dict,
 
 @click.command()
 @click.argument('dataset', type=click.STRING)
-@click.argument('method', type=click.STRING)
+@click.argument('method', type=click.Choice(['pyradiomics', 'fmcib']))
 @click.option('--overwrite', type=click.BOOL, default=False, help='Overwrite existing index files.')
 def generate_dataset_index(dataset: str, 
                            method: str = 'pyradiomics',
