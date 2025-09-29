@@ -9,7 +9,7 @@ from damply import dirs
 from joblib import Parallel, delayed
 from radiomics import featureextractor, setVerbosity
 from readii_2_roqc.utils.loaders import load_dataset_config
-from readii.process.config import get_full_data_name
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
 from readii.utils import logger
 from tqdm import tqdm
 
@@ -38,7 +38,7 @@ def sample_feature_writer(feature_vector : OrderedDict,
             Combined metadata and features that was saved out.
     """
     # Construct output path with elements from metadata
-    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / f'original_{metadata['readii_Resize'][:-4]}_n' / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Set up metadata as an OrderedDict to be combined with the features
@@ -110,7 +110,7 @@ def pyradiomics_extract(settings: Path | str,
         raise ValueError(message)
 
     # Check if feature file already exists and if overwrite is specified
-    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" /f'original_{metadata["readii_Resize"]}' / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
         logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
         # Load the existing feature file
@@ -203,6 +203,12 @@ def extract_sample_features(sample_data: pd.Series,
 
     match method:
         case "pyradiomics":
+            # check if any crop is specified in the settings - haven't handled this for pyradiomics yet
+            if sample_data['readii_Crop'] is not None:
+                message = "No crop methods have been implemented for PyRadiomics extraction with READII yet."
+                logger.error(message)
+                raise NotImplementedError(message)
+            
             # Extract features using PyRadiomics
             sample_feature_vector = pyradiomics_extract(settings=settings_path,
                                                         image=image,
@@ -241,9 +247,10 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
     compiled_dataset_features : dict[str, pd.DataFrame]
         A dictionary where keys are image type identifiers (e.g., "original_full", "original_partial") and values are DataFrames containing the compiled features for each image type.
     """
+    dataset_row = dataset_index.iloc[0]
     
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
-    features_dir_struct = Path(f"{dataset_index.iloc[0]['DataSource']}_{dataset_index.iloc[0]['DatasetName']}") / "features" / method / settings_name
+    features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / f'original_{dataset_row['readii_Resize'][:-4]}_n' / settings_name
 
     # Set up path to the directory containing the sample feature files
     sample_features_dir = dirs.PROCDATA / features_dir_struct
@@ -380,10 +387,11 @@ def extract_dataset_features(dataset: str,
 
     try:
         # Load the dataset index
-        dataset_index_path = dirs.PROCDATA / full_data_name / "features" / method / f"{method}_{dataset_name}_index.csv"
+        dataset_index_path = get_extraction_index_filepath(dataset,
+                                                           extract_features_dir = dirs.PROCDATA / full_data_name / "features" / method)
         dataset_index = pd.read_csv(dataset_index_path)
     except FileNotFoundError:
-        logger.error(f"Dataset index file for {method} feature extraction does not exist at {dataset_index_path}.")
+        logger.error(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
         raise
 
     # Add dataset source to metadata for file loading and saving purposes
