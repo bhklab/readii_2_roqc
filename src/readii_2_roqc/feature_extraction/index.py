@@ -74,7 +74,7 @@ def get_mit_extraction_index(dataset_config: dict,
                               "readii_Permutation": "original",
                               "readii_Region": "full",
                               "readii_Crop": '',
-                              "readii_Resize": mit_edges_index['size_image'][0].replace(', ', "_").strip('()')
+                              "readii_Resize": mit_edges_index.apply(lambda x: x['size_image'].replace(', ', "_").strip('()'), axis=1)
                              }
                        )
 
