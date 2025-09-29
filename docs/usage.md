@@ -135,13 +135,21 @@ data
 |       |           `-- {image_type}_v_{image_type}_{correlation_method}_matrix.csv
 |       |-- features
 |       |   `-- {extraction_method}
-|       |       |-- extraction_method_index.csv
-|       |       `-- {extraction_configuration_file_name}
-|       |           `-- {PatientID}_{SampleNumber}
-|       |               `-- {ROI_name}
-|       |                   |-- original_full_features.csv
-|       |                   |-- {permutation}_{region}_features.csv
-|       |                   `-- {permutation}_{region}_features.csv
+|       |       |-- {crop}_{resize_x}_{resize_y}_{resize_z}
+|       |       |   `-- {extraction_configuration_file_name}
+|       |       |       `-- {PatientID}_{SampleNumber}
+|       |       |           `-- {ROI_name}
+|       |       |               |-- original_full_features.csv
+|       |       |               |-- {permutation}_{region}_features.csv
+|       |       |               `-- {permutation}_{region}_features.csv
+|       |       `-- original_{size_x}_{size_y}_n 
+|       |           |-- extraction_method_index.csv
+|       |           `-- {extraction_configuration_file_name}
+|       |               `-- {PatientID}_{SampleNumber}
+|       |                   `-- {ROI_name}
+|       |                       |-- original_full_features.csv
+|       |                       |-- {permutation}_{region}_features.csv
+|       |                       `-- {permutation}_{region}_features.csv
 |       |-- images
 |       |   |-- mit_{DATASET_NAME}
 |       |   |   |-- {PatientID}_{SampleNumber}
@@ -187,7 +195,14 @@ data
         |       `-- {signature_name}
         |-- features
         |   `-- {extraction_method}
-        |       `-- {extraction_configuration_file_name}
+        |       |-- {crop}_{resize_x}_{resize_y}_{resize_z}
+        |       |   `-- {extraction_configuration_file_name}
+        |       |       |-- original_full_features.csv
+        |       |       `-- {permutation}_{region}_features.csv
+        |       `-- original_{size_x}_{size_y}_n
+        |           `-- {extraction_configuration_file_name}
+                        |-- original_full_features.csv
+                        `-- {permutation}_{region}_features.csv
         `-- prediction
             `-- {signature_name}
                 |-- prediction_metrics.csv
