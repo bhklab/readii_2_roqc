@@ -8,7 +8,7 @@ import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
 from radiomics import featureextractor, setVerbosity
-from readii.io.loaders import loadImageDatasetConfig
+from readii_2_roqc.utils.loaders import load_dataset_config
 from readii.process.config import get_full_data_name
 from readii.utils import logger
 from tqdm import tqdm
@@ -373,15 +373,9 @@ def extract_dataset_features(dataset: str,
         message = "Dataset name must be provided."
         logger.error(message)
         raise ValueError(message)
-
-    # get path to dataset config directory
-    config_dir_path = dirs.CONFIG / 'datasets'
     
     # Load in dataset configuration settings from provided dataset name
-    dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
-
-    dataset_name = dataset_config['DATASET_NAME']
-    full_data_name = get_full_data_name(config_dir_path / dataset)
+    dataset_config, dataset_name, full_data_name = load_dataset_config()
     logger.info(f"Extraction {method} radiomic features for {dataset_name}")
 
     try:
