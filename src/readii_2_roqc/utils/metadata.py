@@ -236,9 +236,9 @@ def remove_slice_index_from_string(img_size:str):
 
     split_up_img_size_vals = img_size.split('_')
     if len(split_up_img_size_vals) > 1:
-        image_size_str = f'original{"_".join(split_up_img_size_vals[0:2])}_n'
+        image_size_str = f'original_{"_".join(split_up_img_size_vals[0:2])}_n'
     elif len(split_up_img_size_vals) == 1:
-        image_size_str = f'original{"_".join([split_up_img_size_vals[0], split_up_img_size_vals[0]])}_n'
+        image_size_str = f'original_{"_".join([split_up_img_size_vals[0], split_up_img_size_vals[0]])}_n'
     else:
         image_size_str = 'original'
 
