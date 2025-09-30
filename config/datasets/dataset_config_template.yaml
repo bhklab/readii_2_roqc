@@ -28,8 +28,8 @@ READII:
         permutations:
             - "shuffled"
         crop:
-            - "cube"
-        resize: 50 # [50, 50, 50]
+             
+        resize: [] # [50, 50, 50]
 
 ### Feature Extraction settings
 EXTRACTION:

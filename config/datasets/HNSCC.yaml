@@ -32,6 +32,7 @@ READII:
             - "sampled"
             - "randomized"
         crop:
+        resize: []
 
 ### Feature Extraction settings
 EXTRACTION:
