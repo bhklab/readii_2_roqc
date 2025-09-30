@@ -12742,11 +12742,11 @@ packages:
 - pypi: ./
   name: readii-2-roqc
   version: 0.1.0
-  sha256: 8047a2044103724a62e3c26263969429ba628bb3bc0ccd3ddc08dab96eaa41d0
+  sha256: f33118609564acc8fec2bcf7b3c0dc90e0a1c88edc0033a1f7b818dce98a94de
   requires_dist:
   - pydantic-settings>=2.9.1,<3
   - med-imagetools>=2.12.0,<3
-  - readii>=1.37.0,<2
+  - readii>=1.36.2,<2
   - numpy>=2.2.5,<3
   - scikit-learn>=1.6.1,<2
   - scikit-survival>=0.24.1,<0.25
