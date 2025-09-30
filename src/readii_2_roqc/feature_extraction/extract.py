@@ -15,6 +15,20 @@ from readii.utils import logger
 from tqdm import tqdm
 
 
+def remove_slice_index_from_string(img_size:str):
+    """Split up 3D image size into a string that looks like original_##_##_n to remove the slice value and add the original part to the front."""
+
+    split_up_img_size_vals = img_size.split('_')
+    if len(split_up_img_size_vals) > 1:
+        image_size_str = f'original{"_".join(split_up_img_size_vals[0:2])}_n'
+    elif len(split_up_img_size_vals) == 1:
+        image_size_str = f'original{"_".join([split_up_img_size_vals[0], split_up_img_size_vals[0]])}_n'
+    else:
+        image_size_str = 'original'
+
+    return image_size_str
+
+
 def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
                           extraction_method: str,
@@ -39,14 +53,7 @@ def sample_feature_writer(feature_vector : OrderedDict,
             Combined metadata and features that was saved out.
     """
     # Get image size data for output path
-    resize = metadata['readii_Resize']
-    split_up_resize_vals = resize.split('_')
-    if len(split_up_resize_vals) > 1:
-        image_size_str = f'original{"_".join(split_up_resize_vals[0:2])}_n'
-    elif len(split_up_resize_vals) == 1:
-        image_size_str = f'original{"_".join([split_up_resize_vals[0], split_up_resize_vals[0]])}_n'
-    else:
-        image_size_str = 'original'
+    image_size_str = remove_slice_index_from_string(metadata['readii_Resize'])
     
     # Construct output path with elements from metadata
     output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
@@ -119,9 +126,11 @@ def pyradiomics_extract(settings: Path | str,
     if metadata is None:
         message = "`metadata` must be provided when overwrite is False."
         raise ValueError(message)
+    
+    image_size_str = remove_slice_index_from_string(metadata["readii_Resize"])
 
     # Check if feature file already exists and if overwrite is specified
-    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" /f'original_{metadata["readii_Resize"]}' / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / image_size_str / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
         logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
         # Load the existing feature file
@@ -259,9 +268,16 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         A dictionary where keys are image type identifiers (e.g., "original_full", "original_partial") and values are DataFrames containing the compiled features for each image type.
     """
     dataset_row = dataset_index.iloc[0]
+    # Validate that all rows share the same DataSource and DatasetName  
+    if not (dataset_index['DataSource'].nunique() == 1 and dataset_index['DatasetName'].nunique() == 1):  
+        message = "Dataset index contains mixed DataSource or DatasetName values."  
+        logger.error(message)  
+        raise ValueError(message)
     
+    image_size_str = remove_slice_index_from_string(dataset_row['readii_Resize'])
+
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
-    features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / f'original_{dataset_row['readii_Resize'][:-4]}_n' / settings_name
+    features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / image_size_str / settings_name
 
     # Set up path to the directory containing the sample feature files
     sample_features_dir = dirs.PROCDATA / features_dir_struct
