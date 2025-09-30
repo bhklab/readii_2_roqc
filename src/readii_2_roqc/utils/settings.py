@@ -48,9 +48,9 @@ def get_readii_index_filepath(dataset_config:dict,
         else:
             readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
     except StopIteration:
-        message = f"No READII index file was found for the specified settings"
+        message = "No READII index file was found for the specified settings"
         logger.warning(message)
-        raise FileNotFoundError(message)
+        raise FileNotFoundError(message) from None
 
     return readii_index_filepath
 
@@ -74,7 +74,7 @@ def get_extraction_index_filepath(dataset_config:dict,
     except StopIteration:
         message = f"No {extract_method} index file was found for the specified settings"
         logger.warning(message)
-        raise FileNotFoundError(message)
+        raise FileNotFoundError(message) from None
 
     return extract_index_filepath
 
@@ -109,7 +109,7 @@ def check_setting_superset(setting_list: set,
 
 
 
-def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
+def get_readii_settings(dataset_config: dict) -> tuple[list, list, str, int | list[int]]:
     """Extract READII settings from a configuration dictionary.
     
     Parameters
@@ -119,11 +119,12 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
     
     Returns
     -------
-    tuple
-        A tuple containing:
-        - regions: list of regions to process
-        - permutations: list of permutations to apply
-        - crop: list of crop settings
+    tuple  
+        Returns a tuple of four elements:  
+        - regions: list[str] of regions to process  
+        - permutations: list[str] of permutations to apply  
+        - crop: str indicating the selected crop ("" when unset)  
+        - resize: int for isotropic resize, or list[int] of length 0 or 3 
     """
     readii_config = dataset_config['READII']
     if 'IMAGE_TYPES' not in readii_config:
@@ -133,16 +134,16 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
     
     regions = readii_config['IMAGE_TYPES']['regions']
     # Confirm requested regions are available settings
-    assert check_setting_superset(REGIONS, regions)
+    check_setting_superset(REGIONS, regions)
         
     permutations = readii_config['IMAGE_TYPES']['permutations']
     # Confirm requested permutations are available settings
-    assert check_setting_superset(PERMUTATIONS, permutations)
+    check_setting_superset(PERMUTATIONS, permutations)
 
     crop = readii_config['IMAGE_TYPES']['crop']
     if crop is not None and crop != []:
         # Confirm requested crop is an available setting
-        assert check_setting_superset(CROP, crop)
+        check_setting_superset(CROP, crop)
         # Get single crop value out of list format
         crop = crop[0]
     else:
@@ -153,9 +154,12 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
         resize = []
     elif isinstance(resize, list):
         match len(resize):
-            case 1: resize = resize[0]
-            case 3: resize = resize
-            case 0: resize
+            case 1: 
+                resize = resize[0]
+            case 3: 
+                pass # resize already has 3 elements
+            case 0: 
+                pass # resize is already empty
             case _: 
                 message = f"READII resize must be a single int, or list of three ints (e.g. [50, 50, 50]). Current value: {resize}"
                 logger.error(message)

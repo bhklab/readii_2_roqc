@@ -27,7 +27,8 @@ READII:
             - "roi"
         permutations:
             - "shuffled"
-        crop:
+        crop:   
+        resize: []
 
 ### Feature Extraction settings
 EXTRACTION:

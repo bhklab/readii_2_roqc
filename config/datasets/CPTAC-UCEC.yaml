@@ -25,7 +25,9 @@ READII:
     IMAGE_TYPES:
         regions: []
         permutations: []
-        crop: []
+        crop:
+             
+        resize: []
 
 ### Feature Extraction settings
 EXTRACTION:

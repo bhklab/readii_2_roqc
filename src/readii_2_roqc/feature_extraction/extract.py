@@ -11,8 +11,10 @@ import numpy as np
 from radiomics import featureextractor, setVerbosity
 from readii_2_roqc.utils.loaders import load_dataset_config
 from readii_2_roqc.utils.settings import get_extraction_index_filepath
+from readii_2_roqc.utils.metadata import remove_slice_index_from_string
 from readii.utils import logger
 from tqdm import tqdm
+
 
 
 def sample_feature_writer(feature_vector : OrderedDict,
@@ -38,8 +40,11 @@ def sample_feature_writer(feature_vector : OrderedDict,
         OrderedDict[str, str]
             Combined metadata and features that was saved out.
     """
+    # Get image size data for output path
+    image_size_str = remove_slice_index_from_string(metadata['readii_Resize'])
+    
     # Construct output path with elements from metadata
-    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / f'original_{metadata['readii_Resize'][:-4]}_n' / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Set up metadata as an OrderedDict to be combined with the features
@@ -109,9 +114,11 @@ def pyradiomics_extract(settings: Path | str,
     if metadata is None:
         message = "`metadata` must be provided when overwrite is False."
         raise ValueError(message)
+    
+    image_size_str = remove_slice_index_from_string(metadata["readii_Resize"])
 
     # Check if feature file already exists and if overwrite is specified
-    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" /f'original_{metadata["readii_Resize"]}' / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / image_size_str / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
         logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
         # Load the existing feature file
@@ -204,12 +211,6 @@ def extract_sample_features(sample_data: pd.Series,
 
     match method:
         case "pyradiomics":
-            # check if any crop is specified in the settings - haven't handled this for pyradiomics yet
-            if not np.isnan(sample_data['readii_Crop']):
-                message = "No crop methods have been implemented for PyRadiomics extraction with READII yet."
-                logger.error(message)
-                raise NotImplementedError(message)
-            
             # Extract features using PyRadiomics
             sample_feature_vector = pyradiomics_extract(settings=settings_path,
                                                         image=image,
@@ -249,9 +250,16 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         A dictionary where keys are image type identifiers (e.g., "original_full", "original_partial") and values are DataFrames containing the compiled features for each image type.
     """
     dataset_row = dataset_index.iloc[0]
+    # Validate that all rows share the same DataSource and DatasetName  
+    if not (dataset_index['DataSource'].nunique() == 1 and dataset_index['DatasetName'].nunique() == 1):  
+        message = "Dataset index contains mixed DataSource or DatasetName values."  
+        logger.error(message)  
+        raise ValueError(message)
     
+    image_size_str = remove_slice_index_from_string(dataset_row['readii_Resize'])
+
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
-    features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / f'original_{dataset_row['readii_Resize'][:-4]}_n' / settings_name
+    features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / image_size_str / settings_name
 
     # Set up path to the directory containing the sample feature files
     sample_features_dir = dirs.PROCDATA / features_dir_struct
@@ -358,7 +366,7 @@ def extract_dataset_features(dataset: str,
                              settings: str | Path,
                              overwrite: bool = False,
                              parallel: bool = False,
-                             jobs: int = -1) -> Path:
+                             jobs: int = -1) -> dict[str, pd.DataFrame]: 
     """Extract features from a dataset using the specified method and settings.
 
     Parameters
@@ -378,8 +386,8 @@ def extract_dataset_features(dataset: str,
 
     Returns
     -------
-    Path
-        Path to the output feature file.
+    dict[str, pd.DataFrame]
+        Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
     if dataset is None:
         message = "Dataset name must be provided."
@@ -402,6 +410,15 @@ def extract_dataset_features(dataset: str,
     # Add dataset source to metadata for file loading and saving purposes
     if 'DataSource' not in dataset_index.columns:
         dataset_index['DataSource'] = dataset_config['DATA_SOURCE']
+
+    # PyRadiomics READII does not support crop in this pipeline; raise if any crop value is present
+    if method == 'pyradiomics':
+        crop_series = dataset_index['readii_Crop']
+        has_crop = crop_series.notna() & (crop_series.astype(str).str.strip() != '')
+        if has_crop.any():
+            message = 'No crop methods have been implemented for PyRadiomics extraction with READII yet.'
+            logger.error(message)
+            raise NotImplementedError(message)
 
     logger.info("Starting feature extraction for individual image type + mask pairs.")
     # Extract features for each sample in the dataset index

@@ -127,7 +127,7 @@ def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame:
     """
     if "SampleID" in dataset_index.columns:
         logger.info("SampleID column already exists in this dataset_index.")
-        return
+        return dataset_index
     
     if "PatientID" not in dataset_index.columns:
         message = "PatientID column is missing in this dataset_index. Cannot make SampleID."
@@ -139,7 +139,7 @@ def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame:
         logger.error(message)
         raise KeyError(message)
 
-    sample_id_series = dataset_index['PatientID'] + "_" + dataset_index['SampleNumber'].astype(str).str.zfill(4)
+    sample_id_series = dataset_index['PatientID'].astype(str) + "_" + dataset_index['SampleNumber'].astype(str).str.zfill(4)
     dataset_index.insert(0, "SampleID", sample_id_series)
 
     return dataset_index
@@ -206,16 +206,13 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
         DataFrame where each row contains metadata for an image and mask pair. 
     """
     if isinstance(mit_index, Path):
-        try:
-            # Check that the correct file name has been passed
-            assert mit_index.name.endswith("index.csv") or mit_index.name.endswith("index-simple.csv")
-            # Load the file into a pandas DataFrame
-            mit_index = pd.read_csv(mit_index)
-
-        except AssertionError:
+        # Check that the correct file name has been passed
+        if not (mit_index.name.endswith("index.csv") or mit_index.name.endswith("index-simple.csv")):
             message = "Expected imgtools autopipeline index file ending in 'index.csv' or 'index-simple.csv'."
             logger.error(message)
-            raise
+            raise ValueError(message)
+        # Load the file into a pandas DataFrame
+        mit_index = pd.read_csv(mit_index)
     
     # Get the image rows and mask rows from the MIT index and merge based on 
     #   - mask's ReferencedSeriesUID == image's SeriesInstanceUID
@@ -229,3 +226,17 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
     )
         
     return edges_df
+
+
+def remove_slice_index_from_string(img_size:str):
+    """Split up 3D image size into a string that looks like original_##_##_n to remove the slice value and add the original part to the front."""
+
+    split_up_img_size_vals = img_size.split('_')
+    if len(split_up_img_size_vals) > 1:
+        image_size_str = f'original_{"_".join(split_up_img_size_vals[0:2])}_n'
+    elif len(split_up_img_size_vals) == 1:
+        image_size_str = f'original_{"_".join([split_up_img_size_vals[0], split_up_img_size_vals[0]])}_n'
+    else:
+        image_size_str = 'original'
+
+    return image_size_str

@@ -15,7 +15,7 @@ from readii.negative_controls_refactor.manager import NegativeControlManager
 from readii.utils import logger
 
 from readii_2_roqc.utils.loaders import load_dataset_config, load_image_and_mask
-from readii_2_roqc.utils.metadata import get_masked_image_metadata, insert_SampleID, make_edges_df
+from readii_2_roqc.utils.metadata import get_masked_image_metadata, insert_SampleID, make_edges_df, remove_slice_index_from_string
 from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
 
 def negative_control_generator(sample_id:str,
@@ -42,13 +42,14 @@ def negative_control_generator(sample_id:str,
     for proc_image, permutation, region in manager.apply(image, mask):
         # apply crop and resize
         if crop != "" and resize != []:
-            proc_image, proc_mask = crop_and_resize_image_and_mask(proc_image, 
+            proc_image, _proc_mask = crop_and_resize_image_and_mask(proc_image, 
                                                                    mask, 
                                                                    crop_method = crop, 
                                                                    resize_dimension = resize)
             resize_string = get_resize_string(resize)
+            crop_value = crop
         else:
-            crop = 'None'
+            crop_value = ""
             resize_string = get_resize_string(image.GetSize())
         
         # save out negative controls
@@ -62,16 +63,16 @@ def negative_control_generator(sample_id:str,
                             Region=region,
                             Resize=resize_string,
                             SampleID=sample_id,
-                            crop=crop
+                            crop=crop_value
                         )
+            negative_control_image_paths.append(out_path)
+        
         except NiftiWriterIOError:
             message = f"{permutation} {region} negative control file already exists for {sample_id}. If you wish to overwrite, set overwrite to True."
             logger.debug(message)
+            continue
         
-        negative_control_image_paths.append(out_path)
-
     return negative_control_image_paths
-
 
 
 
@@ -112,9 +113,7 @@ def image_preprocessor(dataset_config:dict,
     # Set up the readii subdirectory for the image being processed, specifically the crop and resize level
     if crop == '' and resize == []:
         # get the original image size to use for output directory, without the slice count
-        image_size_string = get_resize_string(image.GetSize()[0:2])
-        # make the slice index an n since different images have different slice counts
-        crop_setting_string = f'original_{image_size_string}_n'
+        crop_setting_string = remove_slice_index_from_string(get_resize_string(image.GetSize()))
     else:
         crop_setting_string = f'{crop}_{resize_string}'
 
@@ -155,11 +154,10 @@ def image_preprocessor(dataset_config:dict,
                             SampleID=sample_id,
                             crop=crop
                         )
+            readii_image_paths.append(out_path)
         except NiftiWriterIOError:
             message = f"{crop} {resize_string} original image file already exists for {sample_id}. If you wish to overwrite, set overwrite to True."
             logger.debug(message)
-        
-        readii_image_paths.append(out_path)
     # end original image processing
 
     if permutations != [] and regions != []:
@@ -175,7 +173,7 @@ def image_preprocessor(dataset_config:dict,
                                                                   mask_meta_id = mask_meta_id,
                                                                   nifti_writer = nifti_writer,
                                                                   seed = seed)
-        readii_image_paths.append(negative_control_image_paths)
+        readii_image_paths.extend(negative_control_image_paths)
     
     return readii_image_paths
 
@@ -295,35 +293,45 @@ def make_negative_controls(dataset: str,
 
     if parallel:
         # Use joblib to parallelize negative control generation
-        readii_image_paths = Parallel(n_jobs=jobs)(
-                                delayed(image_preprocessor)(
-                                    dataset_config=dataset_config, 
-                                    image_path=Path(data_row.filepath_image), 
-                                    mask_path=Path(data_row.filepath_mask), 
-                                    images_dir_path=images_dir_path, 
-                                    output_dir=readii_image_dir,
-                                    sample_id=data_row.SampleID_image,
-                                    mask_image_id=data_row.ImageID_mask, 
-                                    overwrite=overwrite
-                                )
-                                for _, data_row in tqdm(
-                                    edges_index.iterrows(),
-                                    desc="Generating negative controls for each image-mask pair...",
-                                    total=len(edges_index)
-                                )
-                            )
+        results = Parallel(n_jobs=jobs)(
+            delayed(image_preprocessor)(
+                        dataset_config=dataset_config, 
+                        image_path=Path(data_row.filepath_image), 
+                        mask_path=Path(data_row.filepath_mask), 
+                        images_dir_path=images_dir_path, 
+                        output_dir=readii_image_dir,
+                        sample_id=data_row.SampleID_image,
+                        mask_image_id=data_row.ImageID_mask, 
+                        overwrite=overwrite,
+                        seed=seed
+                    )
+                    for _, data_row in tqdm(
+                        edges_index.iterrows(),
+                        desc="Generating negative controls for each image-mask pair...",
+                        total=len(edges_index)
+                    )
+        )
     else:
-        readii_image_paths = [image_preprocessor(dataset_config=dataset_config, 
-                                                image_path=Path(data_row.filepath_image), 
-                                                mask_path=Path(data_row.filepath_mask), 
-                                                images_dir_path=images_dir_path, 
-                                                output_dir=readii_image_dir,
-                                                sample_id=data_row.SampleID_image,
-                                                mask_image_id=data_row.ImageID_mask, 
-                                                overwrite=overwrite
-                                                ) for _, data_row in tqdm(edges_index.iterrows(),
-                                                                            desc="Generating negative controls for each image-mask pair...",
-                                                                            total=len(edges_index))]
+        results = [
+            image_preprocessor(
+                dataset_config=dataset_config, 
+                image_path=Path(data_row.filepath_image), 
+                mask_path=Path(data_row.filepath_mask), 
+                images_dir_path=images_dir_path, 
+                output_dir=readii_image_dir,
+                sample_id=data_row.SampleID_image,
+                mask_image_id=data_row.ImageID_mask, 
+                overwrite=overwrite,
+                seed=seed
+                ) 
+                for _, data_row in tqdm(
+                    edges_index.iterrows(),
+                    desc="Generating negative controls for each image-mask pair...",
+                    total=len(edges_index)
+                )
+        ]
+        
+    readii_image_paths = [path for sublist in results for path in sublist]  
 
     return readii_image_paths
 

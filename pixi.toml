@@ -65,6 +65,8 @@ cmd = ["imgtools",
 [tasks.readii_negative]
 args = ["dataset",
          {arg = "overwrite", default = "false"},
+         {arg = "parallel", default = "false"},
+         {arg = "jobs", default = "-1"},
          {arg = "seed", default = "10"}
 ]
 cwd = "src/readii_2_roqc/readii"
@@ -72,6 +74,8 @@ cmd = ["python",
        "make_negative_controls.py",
        "{{ dataset }}",
        "--overwrite", "{{ overwrite }}",
+       "--parallel", "{{ parallel }}",
+       "--jobs", "{{ jobs }}",
        "--seed", "{{ seed }}"
 ]
 
