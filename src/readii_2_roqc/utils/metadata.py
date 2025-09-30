@@ -139,7 +139,7 @@ def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame:
         logger.error(message)
         raise KeyError(message)
 
-    sample_id_series = dataset_index['PatientID'] + "_" + dataset_index['SampleNumber'].astype(str).str.zfill(4)
+    sample_id_series = dataset_index['PatientID'].astype(str) + "_" + dataset_index['SampleNumber'].astype(str).str.zfill(4)
     dataset_index.insert(0, "SampleID", sample_id_series)
 
     return dataset_index
