@@ -100,7 +100,7 @@ def image_preprocessor(dataset_config:dict,
     # make image identifier string for file writer
     image_meta_id = f"{image_path.parent.name}"
     # make mask identifier string for file writer
-    mask_meta_id = f"{mask_path.parent.name}/{mask_image_id.replace(' ', "_")}"
+    mask_meta_id = f"{mask_path.parent.name}/{mask_image_id.replace(' ', '_')}"
     
     # Get beginning of the path to the nifti images dir
     mit_images_dir = images_dir_path / f'mit_{dataset_name}'
