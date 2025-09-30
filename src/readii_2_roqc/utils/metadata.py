@@ -127,7 +127,7 @@ def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame:
     """
     if "SampleID" in dataset_index.columns:
         logger.info("SampleID column already exists in this dataset_index.")
-        return
+        return dataset_index
     
     if "PatientID" not in dataset_index.columns:
         message = "PatientID column is missing in this dataset_index. Cannot make SampleID."
