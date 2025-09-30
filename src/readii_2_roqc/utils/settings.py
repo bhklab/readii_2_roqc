@@ -48,9 +48,9 @@ def get_readii_index_filepath(dataset_config:dict,
         else:
             readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
     except StopIteration:
-        message = f"No READII index file was found for the specified settings"
+        message = "No READII index file was found for the specified settings"
         logger.warning(message)
-        raise FileNotFoundError(message)
+        raise FileNotFoundError(message) from None
 
     return readii_index_filepath
 
