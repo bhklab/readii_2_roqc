@@ -366,7 +366,7 @@ def extract_dataset_features(dataset: str,
                              settings: str | Path,
                              overwrite: bool = False,
                              parallel: bool = False,
-                             jobs: int = -1) -> Path:
+                             jobs: int = -1) -> dict[str, pd.DataFrame]: 
     """Extract features from a dataset using the specified method and settings.
 
     Parameters
@@ -386,8 +386,8 @@ def extract_dataset_features(dataset: str,
 
     Returns
     -------
-    Path
-        Path to the output feature file.
+    dict[str, pd.DataFrame]
+        Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
     if dataset is None:
         message = "Dataset name must be provided."
