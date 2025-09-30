@@ -42,13 +42,14 @@ def negative_control_generator(sample_id:str,
     for proc_image, permutation, region in manager.apply(image, mask):
         # apply crop and resize
         if crop != "" and resize != []:
-            proc_image, proc_mask = crop_and_resize_image_and_mask(proc_image, 
+            proc_image, _proc_mask = crop_and_resize_image_and_mask(proc_image, 
                                                                    mask, 
                                                                    crop_method = crop, 
                                                                    resize_dimension = resize)
             resize_string = get_resize_string(resize)
+            crop_value = crop
         else:
-            crop = ""
+            crop_value = ""
             resize_string = get_resize_string(image.GetSize())
         
         # save out negative controls
@@ -62,16 +63,16 @@ def negative_control_generator(sample_id:str,
                             Region=region,
                             Resize=resize_string,
                             SampleID=sample_id,
-                            crop=crop
+                            crop=crop_value
                         )
+            negative_control_image_paths.append(out_path)
+        
         except NiftiWriterIOError:
             message = f"{permutation} {region} negative control file already exists for {sample_id}. If you wish to overwrite, set overwrite to True."
             logger.debug(message)
+            continue
         
-        negative_control_image_paths.append(out_path)
-
     return negative_control_image_paths
-
 
 
 
@@ -153,11 +154,10 @@ def image_preprocessor(dataset_config:dict,
                             SampleID=sample_id,
                             crop=crop
                         )
+            readii_image_paths.append(out_path)
         except NiftiWriterIOError:
             message = f"{crop} {resize_string} original image file already exists for {sample_id}. If you wish to overwrite, set overwrite to True."
             logger.debug(message)
-        
-        readii_image_paths.append(out_path)
     # end original image processing
 
     if permutations != [] and regions != []:
@@ -173,7 +173,7 @@ def image_preprocessor(dataset_config:dict,
                                                                   mask_meta_id = mask_meta_id,
                                                                   nifti_writer = nifti_writer,
                                                                   seed = seed)
-        readii_image_paths.append(negative_control_image_paths)
+        readii_image_paths.extend(negative_control_image_paths)
     
     return readii_image_paths
 
