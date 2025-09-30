@@ -304,7 +304,8 @@ def make_negative_controls(dataset: str,
                                     output_dir=readii_image_dir,
                                     sample_id=data_row.SampleID_image,
                                     mask_image_id=data_row.ImageID_mask, 
-                                    overwrite=overwrite
+                                    overwrite=overwrite,
+                                    seed=seed
                                 )
                                 for _, data_row in tqdm(
                                     edges_index.iterrows(),
@@ -320,7 +321,8 @@ def make_negative_controls(dataset: str,
                                                 output_dir=readii_image_dir,
                                                 sample_id=data_row.SampleID_image,
                                                 mask_image_id=data_row.ImageID_mask, 
-                                                overwrite=overwrite
+                                                overwrite=overwrite,
+                                                seed=seed
                                                 ) for _, data_row in tqdm(edges_index.iterrows(),
                                                                             desc="Generating negative controls for each image-mask pair...",
                                                                             total=len(edges_index))]
