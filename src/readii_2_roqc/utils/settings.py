@@ -74,7 +74,7 @@ def get_extraction_index_filepath(dataset_config:dict,
     except StopIteration:
         message = f"No {extract_method} index file was found for the specified settings"
         logger.warning(message)
-        raise FileNotFoundError(message)
+        raise FileNotFoundError(message) from None
 
     return extract_index_filepath
 
@@ -153,9 +153,12 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, list]:
         resize = []
     elif isinstance(resize, list):
         match len(resize):
-            case 1: resize = resize[0]
-            case 3: resize = resize
-            case 0: resize
+            case 1: 
+                resize = resize[0]
+            case 3: 
+                pass # resize already has 3 elements
+            case 0: 
+                pass # resize is already empty
             case _: 
                 message = f"READII resize must be a single int, or list of three ints (e.g. [50, 50, 50]). Current value: {resize}"
                 logger.error(message)
