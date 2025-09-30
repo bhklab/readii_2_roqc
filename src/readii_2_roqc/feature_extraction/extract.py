@@ -211,12 +211,6 @@ def extract_sample_features(sample_data: pd.Series,
 
     match method:
         case "pyradiomics":
-            # check if any crop is specified in the settings - haven't handled this for pyradiomics yet
-            if sample_data['readii_Crop']:
-                message = "No crop methods have been implemented for PyRadiomics extraction with READII yet."
-                logger.error(message)
-                raise NotImplementedError(message)
-            
             # Extract features using PyRadiomics
             sample_feature_vector = pyradiomics_extract(settings=settings_path,
                                                         image=image,
@@ -416,6 +410,12 @@ def extract_dataset_features(dataset: str,
     # Add dataset source to metadata for file loading and saving purposes
     if 'DataSource' not in dataset_index.columns:
         dataset_index['DataSource'] = dataset_config['DATA_SOURCE']
+
+    # Check if method is pyradiomics that no crop has been requested
+    if method == 'pyradiomics' and not dataset_index['readii_Crop'].isna().any():
+        message = 'No crop methods have been implemented for PyRadiomics extraction with READII yet.'
+        logger.error(message)
+        raise NotImplementedError(message)
 
     logger.info("Starting feature extraction for individual image type + mask pairs.")
     # Extract features for each sample in the dataset index
