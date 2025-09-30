@@ -27,7 +27,9 @@ READII:
 
         permutations: []
 
-        crop: []
+        crop:
+             
+        resize: []
 
 ### Feature Extraction settings
 EXTRACTION:

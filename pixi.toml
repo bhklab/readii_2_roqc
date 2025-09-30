@@ -65,13 +65,17 @@ cmd = ["imgtools",
 [tasks.readii_negative]
 args = ["dataset",
          {arg = "overwrite", default = "false"},
+         {arg = "parallel", default = "false"},
+         {arg = "jobs", default = "-1"},
          {arg = "seed", default = "10"}
 ]
 cwd = "src/readii_2_roqc/readii"
 cmd = ["python",
        "make_negative_controls.py",
-       "--dataset", "{{ dataset }}",
+       "{{ dataset }}",
        "--overwrite", "{{ overwrite }}",
+       "--parallel", "{{ parallel }}",
+       "--jobs", "{{ jobs }}",
        "--seed", "{{ seed }}"
 ]
 
@@ -80,8 +84,8 @@ args = ["dataset", "method", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
-       "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}",
+       "{{ dataset }}",
+       "{{ method }}",
        "--overwrite", "{{ overwrite }}"
 ]
 
@@ -90,14 +94,14 @@ args = ["dataset",
         "method", 
         "settings",
         {arg = "overwrite", default = "False"},
-        {arg = "parallel", default = "True"}]
+        {arg = "parallel", default = "False"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "extract.py",
-       "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}",
-       "--settings", "{{ settings }}",
+       "{{ dataset }}",
+       "{{ method }}",
+       "{{ settings }}",
        "--overwrite", "{{ overwrite }}",
        "--parallel", "{{ parallel }}"
 ]
