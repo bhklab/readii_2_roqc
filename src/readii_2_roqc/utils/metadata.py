@@ -206,16 +206,13 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
         DataFrame where each row contains metadata for an image and mask pair. 
     """
     if isinstance(mit_index, Path):
-        try:
-            # Check that the correct file name has been passed
-            assert mit_index.name.endswith("index.csv") or mit_index.name.endswith("index-simple.csv")
-            # Load the file into a pandas DataFrame
-            mit_index = pd.read_csv(mit_index)
-
-        except AssertionError:
+        # Check that the correct file name has been passed
+        if not (mit_index.name.endswith("index.csv") or mit_index.name.endswith("index-simple.csv")):
             message = "Expected imgtools autopipeline index file ending in 'index.csv' or 'index-simple.csv'."
             logger.error(message)
-            raise
+            raise ValueError(message)
+        # Load the file into a pandas DataFrame
+        mit_index = pd.read_csv(mit_index)
     
     # Get the image rows and mask rows from the MIT index and merge based on 
     #   - mask's ReferencedSeriesUID == image's SeriesInstanceUID
