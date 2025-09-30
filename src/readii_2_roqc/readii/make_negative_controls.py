@@ -293,37 +293,45 @@ def make_negative_controls(dataset: str,
 
     if parallel:
         # Use joblib to parallelize negative control generation
-        readii_image_paths = Parallel(n_jobs=jobs)(
-                                delayed(image_preprocessor)(
-                                    dataset_config=dataset_config, 
-                                    image_path=Path(data_row.filepath_image), 
-                                    mask_path=Path(data_row.filepath_mask), 
-                                    images_dir_path=images_dir_path, 
-                                    output_dir=readii_image_dir,
-                                    sample_id=data_row.SampleID_image,
-                                    mask_image_id=data_row.ImageID_mask, 
-                                    overwrite=overwrite,
-                                    seed=seed
-                                )
-                                for _, data_row in tqdm(
-                                    edges_index.iterrows(),
-                                    desc="Generating negative controls for each image-mask pair...",
-                                    total=len(edges_index)
-                                )
-                            )
+        results = Parallel(n_jobs=jobs)(
+            delayed(image_preprocessor)(
+                        dataset_config=dataset_config, 
+                        image_path=Path(data_row.filepath_image), 
+                        mask_path=Path(data_row.filepath_mask), 
+                        images_dir_path=images_dir_path, 
+                        output_dir=readii_image_dir,
+                        sample_id=data_row.SampleID_image,
+                        mask_image_id=data_row.ImageID_mask, 
+                        overwrite=overwrite,
+                        seed=seed
+                    )
+                    for _, data_row in tqdm(
+                        edges_index.iterrows(),
+                        desc="Generating negative controls for each image-mask pair...",
+                        total=len(edges_index)
+                    )
+        )
     else:
-        readii_image_paths = [image_preprocessor(dataset_config=dataset_config, 
-                                                image_path=Path(data_row.filepath_image), 
-                                                mask_path=Path(data_row.filepath_mask), 
-                                                images_dir_path=images_dir_path, 
-                                                output_dir=readii_image_dir,
-                                                sample_id=data_row.SampleID_image,
-                                                mask_image_id=data_row.ImageID_mask, 
-                                                overwrite=overwrite,
-                                                seed=seed
-                                                ) for _, data_row in tqdm(edges_index.iterrows(),
-                                                                            desc="Generating negative controls for each image-mask pair...",
-                                                                            total=len(edges_index))]
+        results = [
+            image_preprocessor(
+                dataset_config=dataset_config, 
+                image_path=Path(data_row.filepath_image), 
+                mask_path=Path(data_row.filepath_mask), 
+                images_dir_path=images_dir_path, 
+                output_dir=readii_image_dir,
+                sample_id=data_row.SampleID_image,
+                mask_image_id=data_row.ImageID_mask, 
+                overwrite=overwrite,
+                seed=seed
+                ) 
+                for _, data_row in tqdm(
+                    edges_index.iterrows(),
+                    desc="Generating negative controls for each image-mask pair...",
+                    total=len(edges_index)
+                )
+        ]
+        
+    readii_image_paths = [path for sublist in results for path in sublist]  
 
     return readii_image_paths
 
