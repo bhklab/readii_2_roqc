@@ -11,22 +11,10 @@ import numpy as np
 from radiomics import featureextractor, setVerbosity
 from readii_2_roqc.utils.loaders import load_dataset_config
 from readii_2_roqc.utils.settings import get_extraction_index_filepath
+from readii_2_roqc.utils.metadata import remove_slice_index_from_string
 from readii.utils import logger
 from tqdm import tqdm
 
-
-def remove_slice_index_from_string(img_size:str):
-    """Split up 3D image size into a string that looks like original_##_##_n to remove the slice value and add the original part to the front."""
-
-    split_up_img_size_vals = img_size.split('_')
-    if len(split_up_img_size_vals) > 1:
-        image_size_str = f'original{"_".join(split_up_img_size_vals[0:2])}_n'
-    elif len(split_up_img_size_vals) == 1:
-        image_size_str = f'original{"_".join([split_up_img_size_vals[0], split_up_img_size_vals[0]])}_n'
-    else:
-        image_size_str = 'original'
-
-    return image_size_str
 
 
 def sample_feature_writer(feature_vector : OrderedDict,
@@ -224,7 +212,7 @@ def extract_sample_features(sample_data: pd.Series,
     match method:
         case "pyradiomics":
             # check if any crop is specified in the settings - haven't handled this for pyradiomics yet
-            if not np.isnan(sample_data['readii_Crop']):
+            if sample_data['readii_Crop']:
                 message = "No crop methods have been implemented for PyRadiomics extraction with READII yet."
                 logger.error(message)
                 raise NotImplementedError(message)

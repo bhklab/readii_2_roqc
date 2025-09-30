@@ -15,7 +15,7 @@ from readii.negative_controls_refactor.manager import NegativeControlManager
 from readii.utils import logger
 
 from readii_2_roqc.utils.loaders import load_dataset_config, load_image_and_mask
-from readii_2_roqc.utils.metadata import get_masked_image_metadata, insert_SampleID, make_edges_df
+from readii_2_roqc.utils.metadata import get_masked_image_metadata, insert_SampleID, make_edges_df, remove_slice_index_from_string
 from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
 
 def negative_control_generator(sample_id:str,
@@ -48,7 +48,7 @@ def negative_control_generator(sample_id:str,
                                                                    resize_dimension = resize)
             resize_string = get_resize_string(resize)
         else:
-            crop = 'None'
+            crop = ""
             resize_string = get_resize_string(image.GetSize())
         
         # save out negative controls
@@ -112,9 +112,7 @@ def image_preprocessor(dataset_config:dict,
     # Set up the readii subdirectory for the image being processed, specifically the crop and resize level
     if crop == '' and resize == []:
         # get the original image size to use for output directory, without the slice count
-        image_size_string = get_resize_string(image.GetSize()[0:2])
-        # make the slice index an n since different images have different slice counts
-        crop_setting_string = f'original_{image_size_string}_n'
+        crop_setting_string = remove_slice_index_from_string(get_resize_string(image.GetSize()))
     else:
         crop_setting_string = f'{crop}_{resize_string}'
 
