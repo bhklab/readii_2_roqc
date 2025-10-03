@@ -121,12 +121,17 @@ def get_readii_extraction_index(dataset_config: dict,
     regions, permutations, crop, resize = get_readii_settings(dataset_config)
     
     # Add the original full negative control options to their respective list to catch these when a crop has been applied
-    if crop is not None:
-        regions += ["full"]
-        permutations += ["original"]
+    if crop is not None:  
+        regions = (list(regions) if regions is not None else []) + ["full"]  
+        permutations = (list(permutations) if permutations is not None else []) + ["original"] 
 
     # Filter the index file by the specified READII settings
-    settings_readii_index = readii_index[readii_index['Region'].isin(regions) & readii_index['Permutation'].isin(permutations)]
+    mask = pd.Series(True, index=readii_index.index)  
+    if regions is not None:  
+        mask &= readii_index['Region'].isin(regions)  
+    if permutations is not None:  
+        mask &= readii_index['Permutation'].isin(permutations)  
+    settings_readii_index = readii_index[mask]  
 
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
     mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
