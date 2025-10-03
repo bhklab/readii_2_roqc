@@ -43,7 +43,7 @@ def get_readii_index_filepath(dataset_config:dict,
 
     try:
         # Path to find existing readii index output for checking existing outputs
-        if crop != "" and resize != []:
+        if crop is not None and resize is not None:
             readii_index_filepath = readii_image_dir.glob(f"{crop}_{get_resize_string(resize)}/readii_{dataset_name}_index.csv").__next__()
         else:
             readii_index_filepath = readii_image_dir.glob(f"original_*/readii_{dataset_name}_index.csv").__next__()
@@ -67,7 +67,7 @@ def get_extraction_index_filepath(dataset_config:dict,
 
     try:
         # Path to find existing readii index output for checking existing outputs
-        if crop != "" and resize != []:
+        if crop is not None and resize is not None:
             extract_index_filepath = extract_features_dir.glob(f"{crop}_{get_resize_string(resize)}/{extract_method}_{dataset_name}_index.csv").__next__()
         else:
             extract_index_filepath = extract_features_dir.glob(f"original_*/{extract_method}_{dataset_name}_index.csv").__next__()
@@ -147,7 +147,7 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, str, int | li
     crop = readii_config['IMAGE_TYPES']['crop']
     if crop is not None and crop != []:
         # Confirm requested crop is an available setting
-        check_setting_superset(CROP, crop)
+        crop = check_setting_superset(CROP, crop)
         # Get single crop value out of list format
         crop = crop[0]
     else:
