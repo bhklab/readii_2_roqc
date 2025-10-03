@@ -81,7 +81,7 @@ def get_extraction_index_filepath(dataset_config:dict,
 
 def check_setting_superset(setting_list: set, 
                            setting_request: set | list | None
-                           ) -> bool:
+                           ) -> set | list | None:
     """
     Check if the requested settings are all in the global settings list for READII.
 
@@ -94,18 +94,22 @@ def check_setting_superset(setting_list: set,
 
     Returns
     -------
-    True if all requested settings are contained in the setting list.
-    False otherwise.
+    Returns the settings requested if they are a subset of the implemented options
+    Returns None if the setting request is any kind of blank ([], "", None)
+    
+    Raises
+    ------
+    ValueError if the requested settings are not a subset of the allowed settings.
     """
-    if setting_request == [] or setting_request is None:
-        return True
+    if setting_request == [] or setting_request is None or setting_request == "":
+        return None
     if not setting_list.issuperset(setting_request):
         message = f"Requested settings ({setting_request}) is not a subset of the allowed settings ({setting_list})."
         logger.error(message)
         raise ValueError(message)
 
     else:
-        return True
+        return setting_request
 
 
 
@@ -134,11 +138,11 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, str, int | li
     
     regions = readii_config['IMAGE_TYPES']['regions']
     # Confirm requested regions are available settings
-    check_setting_superset(REGIONS, regions)
+    regions = check_setting_superset(REGIONS, regions)
         
     permutations = readii_config['IMAGE_TYPES']['permutations']
     # Confirm requested permutations are available settings
-    check_setting_superset(PERMUTATIONS, permutations)
+    permutations = check_setting_superset(PERMUTATIONS, permutations)
 
     crop = readii_config['IMAGE_TYPES']['crop']
     if crop is not None and crop != []:
@@ -147,11 +151,11 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, str, int | li
         # Get single crop value out of list format
         crop = crop[0]
     else:
-        crop = ""
+        crop = None
 
     resize = readii_config['IMAGE_TYPES']['resize']
     if resize is None:
-        resize = []
+        resize = None
     elif isinstance(resize, list):
         match len(resize):
             case 1: 
