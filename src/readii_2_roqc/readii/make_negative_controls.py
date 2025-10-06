@@ -41,7 +41,7 @@ def negative_control_generator(sample_id:str,
     # Process and save negative control images
     for proc_image, permutation, region in manager.apply(image, mask):
         # apply crop and resize
-        if crop != "" and resize != []:
+        if crop is not None and resize is not None:
             proc_image, _proc_mask = crop_and_resize_image_and_mask(proc_image, 
                                                                    mask, 
                                                                    crop_method = crop, 
@@ -111,7 +111,7 @@ def image_preprocessor(dataset_config:dict,
     
 
     # Set up the readii subdirectory for the image being processed, specifically the crop and resize level
-    if crop == '' and resize == []:
+    if crop is None and resize is None:
         # get the original image size to use for output directory, without the slice count
         crop_setting_string = remove_slice_index_from_string(get_resize_string(image.GetSize()))
     else:
@@ -135,7 +135,7 @@ def image_preprocessor(dataset_config:dict,
     
     readii_image_paths = []
     # Process crop and resize of original image if needed, and save
-    if crop != '' and resize != []:
+    if crop is not None and resize is not None:
         logger.info("Making cropped version of original image")
         crop_image, crop_mask = crop_and_resize_image_and_mask(image, 
                                                                mask, 
