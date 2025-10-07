@@ -127,6 +127,14 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#radcure-processing">RADCURE processing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-10-06">[2025-10-06]</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-10-07">[2025-10-07]</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../shabnam_notes/">Shabnam's Notes</a>
@@ -652,6 +660,38 @@ apptainer<span class="w"> </span>shell<span class="w"> </span>amd64-r2r_latest.s
 <li>Realized I need to update make_negative_controls to add in the crop method</li>
 <li>Can use this as an opportunity to parallelize the script at the same time</li>
 <li>Restructuring in a notebook first</li>
+</ul>
+<h2 id="radcure-processing">RADCURE processing</h2>
+<h4 id="2025-10-06">[2025-10-06]</h4>
+<p>Error when processing roi negative controls for RADCURE_GTVp_test
+<div class="highlight"><pre><span></span><code><span class="go">Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets.</span>
+<span class="go">Traceback (most recent call last):</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py&quot;, line 466, in &lt;module&gt;</span>
+<span class="go">    extract_dataset_features()</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 1442, in __call__</span>
+<span class="go">    return self.main(*args, **kwargs)</span>
+<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 1363, in main</span>
+<span class="go">    rv = self.invoke(ctx)</span>
+<span class="go">         ^^^^^^^^^^^^^^^^</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 1226, in invoke</span>
+<span class="go">    return ctx.invoke(self.callback, **ctx.params)</span>
+<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 794, in invoke</span>
+<span class="go">    return callback(*args, **kwargs)</span>
+<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py&quot;, line 456, in extract_dataset_features</span>
+<span class="go">    dataset_feature_vectors = compile_dataset_features(dataset_index,</span>
+<span class="go">                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py&quot;, line 353, in compile_dataset_features</span>
+<span class="go">    return compiled_dataset_features</span>
+<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+<span class="go">UnboundLocalError: cannot access local variable &#39;compiled_dataset_features&#39; where it is not associated with a value</span>
+</code></pre></div></p>
+<h4 id="2025-10-07">[2025-10-07]</h4>
+<p>Solved the problem from yesterday, was a bug in the logic if only some of the image types had been extracted before, the rest weren't being processed</p>
+<ul>
+<li>Added a return to the if statement that checks if all the image classes have been processed</li>
 </ul>
               
             </div>
