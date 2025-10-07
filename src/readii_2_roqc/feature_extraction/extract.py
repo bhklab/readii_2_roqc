@@ -269,86 +269,89 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
     # Check for existing result feature dataset files
     existing_dataset_files = sorted((dirs.RESULTS / features_dir_struct).glob('*.csv'))
+
+    # Initialize dictionary to store compiled feature dataframes
+    compiled_dataset_features = {}
+
     if existing_dataset_files and not overwrite:
         # Get the image classes in the same format as readii_image_classes (a set of tuples)
         compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_')) for file in existing_dataset_files}
+
+        # Load in the existing compiled dataset files into a dictionary to match function output
+        compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}        
         
         # Check whether there are new image classes to compile
         if readii_image_classes.issubset(compiled_image_classes):
             message = "All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
-            print(message)
             logger.info(message)
-            
-            # Load in the existing compiled dataset files into a dictionary to match function output
-            compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}
+            return compiled_dataset_features
+
         else:
             message = "Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets."
-            print(message)
             logger.info(message)
+            # drop any readii classes that have already been compiled
+            readii_image_classes = readii_image_classes.difference(compiled_image_classes)
 
-    else:
-        # Initialize dictionary to store compiled feature dataframes
-        compiled_dataset_features = {}
+    # Process each of the new readii_image_classes
+    for permutation, region in readii_image_classes:
+        logger.info(f"Compiling features for {permutation} {region} images.")
+        # Filter the dataset index for this image class
+        filtered_class_index = dataset_index[(dataset_index['readii_Permutation'] == permutation) & 
+                                    (dataset_index['readii_Region'] == region)]
 
-        for permutation, region in readii_image_classes:
-            logger.info(f"Compiling features for {permutation} {region} images.")
-            # Filter the dataset index for this image class
-            filtered_class_index = dataset_index[(dataset_index['readii_Permutation'] == permutation) & 
-                                        (dataset_index['readii_Region'] == region)]
+        # If there are no samples for this image class, skip it
+        if filtered_class_index.empty:
+            logger.warning(f"No samples found for image class {permutation} {region}. Skipping.")
+            continue
 
-            # If there are no samples for this image class, skip it
-            if filtered_class_index.empty:
-                logger.warning(f"No samples found for image class {permutation} {region}. Skipping.")
-                continue
+        # Compile features for this image class
+        # Regex for directory search
+        filename_pattern = f"**/{permutation}_{region}_features.csv"
+        # Recursively search for sample feature files for this image type and sort them into a list
+        sample_feature_files = sorted(sample_features_dir.rglob(filename_pattern))
 
-            # Compile features for this image class
-            # Regex for directory search
-            filename_pattern = f"**/{permutation}_{region}_features.csv"
-            # Recursively search for sample feature files for this image type and sort them into a list
-            sample_feature_files = sorted(sample_features_dir.rglob(filename_pattern))
+        # Set up output file path for this image type
+        dataset_features_path = dirs.RESULTS / features_dir_struct / f"{permutation}_{region}_features.csv"
+        
+        # Check if this image type has compiled features already 
+        if dataset_features_path.exists() and not overwrite:
+            # Load existing features into dictionary for return
+            compiled_dataset_features[f"{permutation}_{region}"] = pd.read_csv(dataset_features_path)
 
-            # Set up output file path for this image type
-            dataset_features_path = dirs.RESULTS / features_dir_struct / f"{permutation}_{region}_features.csv"
-            
-            # Check if this image type has compiled features already 
-            if dataset_features_path.exists() and not overwrite:
-                # Load existing features into dictionary for return
-                compiled_dataset_features[f"{permutation}_{region}"] = pd.read_csv(dataset_features_path)
+        # No existing feature file OR overwrite requested
+        else:
+            dataset_features_path.parent.mkdir(parents=True, exist_ok=True)
 
-            # No existing feature file OR overwrite requested
-            else:
-                dataset_features_path.parent.mkdir(parents=True, exist_ok=True)
+            # Generator
+            def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame, list[Path], None]:
+                for file in file_list:
+                    try:
+                        file_df = pd.read_csv(file, index_col=0, header=None, sep=";")
+                        if not file_df.empty:
+                            yield file_df.T
+                    except pd.errors.EmptyDataError:
+                        pass
 
-                # Generator
-                def non_empty_dfs(file_list:list[Path]) -> Generator[pd.DataFrame, list[Path], None]:
-                    for file in file_list:
-                        try:
-                            file_df = pd.read_csv(file, index_col=0, header=None, sep=";")
-                            if not file_df.empty:
-                                yield file_df.T
-                        except pd.errors.EmptyDataError:
-                            pass
+            try:
+                # Find all non-empty feature dataframes in the globbed list and concatenate them
+                dataset_features = pd.concat(non_empty_dfs(sample_feature_files))
+                # Sort the dataframes by the sample ID column
+                dataset_features = dataset_features.sort_values(by="SampleID")
+                # Save out the combined feature dataframe
+                dataset_features.to_csv(dataset_features_path, index=False)
 
-                try:
-                    # Find all non-empty feature dataframes in the globbed list and concatenate them
-                    dataset_features = pd.concat(non_empty_dfs(sample_feature_files))
-                    # Sort the dataframes by the sample ID column
-                    dataset_features = dataset_features.sort_values(by="SampleID")
-                    # Save out the combined feature dataframe
-                    dataset_features.to_csv(dataset_features_path, index=False)
+            except ValueError:
+                # Handle case where all dataframes are empty
+                logger.error(f"No non-empty dataframes found for {permutation} {region}.")
+                # Create empty dataframe for compiled dataset features
+                dataset_features = pd.DataFrame()
+                # write empty file to the output file
+                with dataset_features_path.open("w") as f:
+                    # write an empty file
+                    f.write("")
+                logger.error(f"Empty file written to {dataset_features_path}")
 
-                except ValueError:
-                    # Handle case where all dataframes are empty
-                    logger.error(f"No non-empty dataframes found for {permutation} {region}.")
-                    # Create empty dataframe for compiled dataset features
-                    dataset_features = pd.DataFrame()
-                    # write empty file to the output file
-                    with dataset_features_path.open("w") as f:
-                        # write an empty file
-                        f.write("")
-                    logger.error(f"Empty file written to {dataset_features_path}")
-
-                compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
+            compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
 
     return compiled_dataset_features
 
