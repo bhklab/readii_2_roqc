@@ -396,3 +396,38 @@ dev_binary_prediction.ipynb
 * Realized I need to update make_negative_controls to add in the crop method
 * Can use this as an opportunity to parallelize the script at the same time
 * Restructuring in a notebook first
+
+
+## RADCURE processing
+#### [2025-10-06]
+Error when processing roi negative controls for RADCURE_GTVp_test
+```console
+Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets.
+Traceback (most recent call last):
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py", line 466, in <module>
+    extract_dataset_features()
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 1363, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 794, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py", line 456, in extract_dataset_features
+    dataset_feature_vectors = compile_dataset_features(dataset_index,
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py", line 353, in compile_dataset_features
+    return compiled_dataset_features
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'compiled_dataset_features' where it is not associated with a value
+```
+
+#### [2025-10-07]
+Solved the problem from yesterday, was a bug in the logic if only some of the image types had been extracted before, the rest weren't being processed
+
+* Added a return to the if statement that checks if all the image classes have been processed
