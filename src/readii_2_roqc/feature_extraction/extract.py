@@ -278,8 +278,14 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_')) for file in existing_dataset_files}
 
         # Load in the existing compiled dataset files into a dictionary to match function output
-        compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}        
-        
+        for file in existing_dataset_files:
+            image_class = file.name.removesuffix('_features.csv')
+            try:
+                compiled_dataset_features[image_class] = pd.read_csv(file)
+            except pd.errors.EmptyDataError as e:        
+                logger.info(f"The existing compiled dataset feature file for {file.name} image class is empty. Will reprocess.")
+                compiled_image_classes.remove(image_class)
+
         # Check whether there are new image classes to compile
         if readii_image_classes.issubset(compiled_image_classes):
             message = "All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
