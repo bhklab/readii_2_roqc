@@ -396,3 +396,38 @@ dev_binary_prediction.ipynb
 * Realized I need to update make_negative_controls to add in the crop method
 * Can use this as an opportunity to parallelize the script at the same time
 * Restructuring in a notebook first
+
+
+## Debugging updated negative control generation
+#### [2025-10-14]
+
+* RADCURE data experiences overflow errors for the randomized full negative control feature extraction
+
+```python
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:127: RuntimeWarning: overflow encountered in scalar subtract
+  lowBound = minimum - (minimum % binWidth)
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:132: RuntimeWarning: overflow encountered in scalar add
+  highBound = maximum + 2 * binWidth
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:134: RuntimeWarning: overflow encountered in scalar subtract
+  binEdges = numpy.arange(lowBound, highBound, binWidth)
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:134: RuntimeWarning: overflow encountered in scalar add
+  binEdges = numpy.arange(lowBound, highBound, binWidth)
+```
+
+* So digging into this revealed it's an issue when the range of voxel values in an image exceeds what can be handled by np.int64
+* Trying out windowing the image to see if this solves the problem
+    * Running med-imagetools autopipeline with the following
+
+    ```bash
+    imgtools autopipeline \
+    --filename-format '{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz' \
+    --modalities CT,RTSTRUCT \
+    --roi-strategy SEPARATE \
+    -rmap "ROI:GTVp" \
+    --window-level 8500 \ # important change
+    --window-width 23000 \ # important change
+    data/rawdata/TCIA_RADCURE_test/images \
+    data/procdata/TCIA_RADCURE_window_test/images/mit_RADCURE_window_test
+    ```
+
+* OHHH I think this is the original randomized bug!! Why the randomized wouldn't run - that's why I haven't run into until now.
