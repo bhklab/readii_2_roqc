@@ -1,6 +1,7 @@
 import click
 import pandas as pd
 import itertools
+import logging
 import SimpleITK as sitk
 
 from damply import dirs
@@ -21,15 +22,15 @@ from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string,
 def negative_control_generator(sample_id:str,
                                image:sitk.Image,
                                mask:sitk.Image,
-                               regions, 
-                               permutations, 
-                               crop, 
-                               resize,
-                               image_meta_id,
-                               mask_meta_id,
+                               regions:list[str], 
+                               permutations:list[str], 
+                               crop:str | None, 
+                               resize:list[int] | None,
+                               image_meta_id:str,
+                               mask_meta_id:str,
                                nifti_writer:NIFTIWriter,
-                               seed = 10
-                               ):
+                               seed:int = 10
+                               ) -> list[Path]:
     negative_control_image_paths = []
 
     # Set up negative control manager with settings from config
@@ -89,8 +90,6 @@ def image_preprocessor(dataset_config:dict,
 
     # Get READII image preprocessing settings from config file
     regions, permutations, crop, resize = get_readii_settings(dataset_config)
-    # Make a string version of the resize argument for file writing
-    resize_string = get_resize_string(resize)
 
     # Get sample metadata from path if not provided
     if sample_id is None:
@@ -109,12 +108,12 @@ def image_preprocessor(dataset_config:dict,
     # get image modality for file writer
     image_modality = dataset_config['MIT']['MODALITIES']['image']
     
-
     # Set up the readii subdirectory for the image being processed, specifically the crop and resize level
     if crop is None and resize is None:
         # get the original image size to use for output directory, without the slice count
         crop_setting_string = remove_slice_index_from_string(get_resize_string(image.GetSize()))
     else:
+        resize_string = get_resize_string(resize)
         crop_setting_string = f'{crop}_{resize_string}'
 
     # Set up writer for saving out the negative controls and index file
@@ -144,6 +143,7 @@ def image_preprocessor(dataset_config:dict,
         # save out cropped image
         try:
             # The capitalized arguments are here on purpose to manipulate the order of the columns in the index file
+            # All of these arguments are here to be columns in the index file, even if they're not used in the filepath
             out_path = nifti_writer.save(
                             crop_image,
                             ImageID = image_meta_id,
@@ -212,6 +212,9 @@ def make_negative_controls(dataset: str,
     readii_image_paths : list[Path]
         List of paths to the saved out negative control NIfTI files.
     """
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=dirs.LOGS / (dataset + "_make_negative_controls.log"), encoding='utf-8', level=logging.DEBUG)
+
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
@@ -248,40 +251,55 @@ def make_negative_controls(dataset: str,
             # 2. for all of the patients
             readii_index = pd.read_csv(readii_index_filepath)
 
-            # Get list of patients that have already been processed and what has been requested based on the dataset index
-            processed_samples = set(readii_index['SampleID'].to_list())
-            requested_samples = set(dataset_index['SampleID'].to_list())
-
-            # Check if all the settings columns are present - handles old READII outputs
-            readii_settings = ['Permutation', 'Region', 'crop', 'Resize']
-            if not set(readii_index.columns).issuperset(readii_settings):
-                print("Not all READII settings satisfied in existing output. Re-running negative control generation.")
+            # Check if SampleID column exists in existing readii index output - if not, re-run everything
+            if 'SampleID' not in readii_index.columns:
+                message = "No SampleID column found in existing readii index. Re-running negative control generation."
+                logger.info(message)
                 overwrite = True
-            
+
             else:
-                # Get all combinations of negative control settings that have already been processed and what has been requested in the config file
-                processed_image_types = {itype for itype in readii_index[readii_settings].itertuples(index=False, name=None)}
-                requested_image_types = {itype for itype in itertools.product(permutations,
-                                                                            regions,
-                                                                            [crop],
-                                                                            [get_resize_string(resize)])}
+                # Get list of patients that have already been processed and what has been requested based on the dataset index
+                processed_samples = set(readii_index['SampleID'].to_list())
+                requested_samples = set(dataset_index['SampleID'].to_list())
+
+                # Check if all the settings columns are present - handles old READII outputs
+                readii_settings = ['Permutation', 'Region', 'crop', 'Resize']
+                if not set(readii_index.columns).issuperset(readii_settings):
+                    print("Not all READII settings satisfied in existing output. Re-running negative control generation.")
+                    overwrite = True
                 
-                #TODO: add a function to remove processed samples from the list to process again
+                else:
+                    if crop is None:
+                        crop_string = ""
+                        # TODO: make size string processing from index into a function
+                        resize_string = get_resize_string(dataset_index['size'][0].strip('()').split(', '))
+                    else:
+                        crop_string = crop
+                        resize_string = get_resize_string(resize)
+                    
+                    # Get all combinations of negative control settings that have already been processed and what has been requested in the config file
+                    processed_image_types = {itype for itype in readii_index[readii_settings].itertuples(index=False, name=None)}
+                    requested_image_types = {itype for itype in itertools.product(permutations,
+                                                                                  regions,
+                                                                                  [crop_string],
+                                                                                  [resize_string])}
+                    
+                    #TODO: add a function to remove processed samples from the list to process again
 
-                # If everything matches, no processing required
-                if requested_image_types.issubset(processed_image_types) and requested_samples.issubset(processed_samples):
-                    message = "All requested negative controls have already been generated for these samples or are listed in the readii index as if they have been. Set overwrite to True if you want to re-process these."
-                    logger.info(message)
-                    print(message)
-                    return readii_index['filepath'].to_list()
-        # end existence checking
-
+                    # If everything matches, no processing required
+                    if requested_image_types.issubset(processed_image_types) and requested_samples.issubset(processed_samples):
+                        message = "All requested negative controls have already been generated for these samples or are listed in the readii index as if they have been. Set overwrite to True if you want to re-process these."
+                        logger.info(message)
+                        print(message)
+                        return readii_index['filepath'].to_list()
+       
         elif overwrite:
             # If overwriting existing files, delete the existing index file
             # Doing this instead of using overwrite index in the niftiwriter because then it makes a new index file for each sample
             message = "Deleting existing readii index file since overwrite is specified True."
             logger.info(message)
             readii_index_filepath.unlink()
+         # end existence checking
 
     except FileNotFoundError:
         message = "No READII index file found for the specified READII settings. Processing all images."
