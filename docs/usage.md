@@ -1,5 +1,8 @@
 # Usage Guide
 
+## Environment
+**IMPORTANT NOTE** This project will not work with Med-ImageTools properly with Python 3.12 or above. You must have Python < 3.12 installed.
+
 ## Project Configuration
 
 `config` should have three subdirectories: `datasets/`, `extraction/`, and `signatures/`
