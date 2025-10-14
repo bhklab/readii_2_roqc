@@ -431,3 +431,16 @@ dev_binary_prediction.ipynb
     ```
 
 * OHHH I think this is the original randomized bug!! Why the randomized wouldn't run - that's why I haven't run into until now.
+
+* Ok SO in order to handle this bug there are two updated settings to be applied in the full pipeline
+
+1. In autopipeline, use windowing settings:
+    ```
+    --window-level 1500 
+    --window-width 7000 
+    ```
+    This will set the range of values to -2000 to 5000 in the processed nifti images. This range was chosen to maintain the artifacts in the RADCURE dataset while preventing the overflow errors in the GLCM calculations during PyRadiomics feature extraction on the randomized negative control images.
+
+2. In feature extraction, set the interpolator to `sitk.Linear`. This is better for CT images and prevents the interpolated values from falling outside the -2000 to 5000 range we made in the windowing of med-imagetools.
+
+Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.
