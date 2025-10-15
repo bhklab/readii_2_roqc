@@ -28,12 +28,12 @@ READII:
         regions:
             - "full"
             - "roi"
+            - "non_roi"
         permutations:
             - "shuffled"
             - "sampled"
+            - "randomized"
         crop:
-            - []
-        resize: [] # [50, 50, 50]
 
 ### Feature Extraction settings
 EXTRACTION:
