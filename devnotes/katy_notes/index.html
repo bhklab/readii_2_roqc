@@ -127,11 +127,9 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#radcure-processing">RADCURE processing</a>
+    <li class="toctree-l2"><a class="reference internal" href="#debugging-updated-negative-control-generation">Debugging updated negative control generation</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#2025-10-06">[2025-10-06]</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#2025-10-07">[2025-10-07]</a>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-10-14">[2025-10-14]</a>
     </li>
         </ul>
     </li>
@@ -661,38 +659,56 @@ apptainer<span class="w"> </span>shell<span class="w"> </span>amd64-r2r_latest.s
 <li>Can use this as an opportunity to parallelize the script at the same time</li>
 <li>Restructuring in a notebook first</li>
 </ul>
-<h2 id="radcure-processing">RADCURE processing</h2>
-<h4 id="2025-10-06">[2025-10-06]</h4>
-<p>Error when processing roi negative controls for RADCURE_GTVp_test
-<div class="highlight"><pre><span></span><code><span class="go">Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets.</span>
-<span class="go">Traceback (most recent call last):</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py&quot;, line 466, in &lt;module&gt;</span>
-<span class="go">    extract_dataset_features()</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 1442, in __call__</span>
-<span class="go">    return self.main(*args, **kwargs)</span>
-<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 1363, in main</span>
-<span class="go">    rv = self.invoke(ctx)</span>
-<span class="go">         ^^^^^^^^^^^^^^^^</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 1226, in invoke</span>
-<span class="go">    return ctx.invoke(self.callback, **ctx.params)</span>
-<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py&quot;, line 794, in invoke</span>
-<span class="go">    return callback(*args, **kwargs)</span>
-<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py&quot;, line 456, in extract_dataset_features</span>
-<span class="go">    dataset_feature_vectors = compile_dataset_features(dataset_index,</span>
-<span class="go">                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-<span class="go">  File &quot;/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py&quot;, line 353, in compile_dataset_features</span>
-<span class="go">    return compiled_dataset_features</span>
-<span class="go">           ^^^^^^^^^^^^^^^^^^^^^^^^^</span>
-<span class="go">UnboundLocalError: cannot access local variable &#39;compiled_dataset_features&#39; where it is not associated with a value</span>
-</code></pre></div></p>
-<h4 id="2025-10-07">[2025-10-07]</h4>
-<p>Solved the problem from yesterday, was a bug in the logic if only some of the image types had been extracted before, the rest weren't being processed</p>
+<h2 id="debugging-updated-negative-control-generation">Debugging updated negative control generation</h2>
+<h4 id="2025-10-14">[2025-10-14]</h4>
 <ul>
-<li>Added a return to the if statement that checks if all the image classes have been processed</li>
+<li>RADCURE data experiences overflow errors for the randomized full negative control feature extraction</li>
 </ul>
+<div class="highlight"><pre><span></span><code><span class="o">/</span><span class="n">readii_2_roqc</span><span class="o">/.</span><span class="n">pixi</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.11</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">radiomics</span><span class="o">/</span><span class="n">imageoperations</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">127</span><span class="p">:</span> <span class="ne">RuntimeWarning</span><span class="p">:</span> <span class="n">overflow</span> <span class="n">encountered</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">subtract</span>
+  <span class="n">lowBound</span> <span class="o">=</span> <span class="n">minimum</span> <span class="o">-</span> <span class="p">(</span><span class="n">minimum</span> <span class="o">%</span> <span class="n">binWidth</span><span class="p">)</span>
+<span class="o">/</span><span class="n">readii_2_roqc</span><span class="o">/.</span><span class="n">pixi</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.11</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">radiomics</span><span class="o">/</span><span class="n">imageoperations</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">132</span><span class="p">:</span> <span class="ne">RuntimeWarning</span><span class="p">:</span> <span class="n">overflow</span> <span class="n">encountered</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">add</span>
+  <span class="n">highBound</span> <span class="o">=</span> <span class="n">maximum</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">binWidth</span>
+<span class="o">/</span><span class="n">readii_2_roqc</span><span class="o">/.</span><span class="n">pixi</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.11</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">radiomics</span><span class="o">/</span><span class="n">imageoperations</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">134</span><span class="p">:</span> <span class="ne">RuntimeWarning</span><span class="p">:</span> <span class="n">overflow</span> <span class="n">encountered</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">subtract</span>
+  <span class="n">binEdges</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lowBound</span><span class="p">,</span> <span class="n">highBound</span><span class="p">,</span> <span class="n">binWidth</span><span class="p">)</span>
+<span class="o">/</span><span class="n">readii_2_roqc</span><span class="o">/.</span><span class="n">pixi</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.11</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">radiomics</span><span class="o">/</span><span class="n">imageoperations</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">134</span><span class="p">:</span> <span class="ne">RuntimeWarning</span><span class="p">:</span> <span class="n">overflow</span> <span class="n">encountered</span> <span class="ow">in</span> <span class="n">scalar</span> <span class="n">add</span>
+  <span class="n">binEdges</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">lowBound</span><span class="p">,</span> <span class="n">highBound</span><span class="p">,</span> <span class="n">binWidth</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>So digging into this revealed it's an issue when the range of voxel values in an image exceeds what can be handled by np.int64</li>
+<li>
+<p>Trying out windowing the image to see if this solves the problem</p>
+<ul>
+<li>Running med-imagetools autopipeline with the following</li>
+</ul>
+<div class="highlight"><pre><span></span><code>imgtools<span class="w"> </span>autopipeline<span class="w"> </span><span class="se">\</span>
+--filename-format<span class="w"> </span><span class="s1">&#39;{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz&#39;</span><span class="w"> </span><span class="se">\</span>
+--modalities<span class="w"> </span>CT,RTSTRUCT<span class="w"> </span><span class="se">\</span>
+--roi-strategy<span class="w"> </span>SEPARATE<span class="w"> </span><span class="se">\</span>
+-rmap<span class="w"> </span><span class="s2">&quot;ROI:GTVp&quot;</span><span class="w"> </span><span class="se">\</span>
+--window-level<span class="w"> </span><span class="m">8500</span><span class="w"> </span><span class="se">\ </span><span class="c1"># important change</span>
+--window-width<span class="w"> </span><span class="m">23000</span><span class="w"> </span><span class="se">\ </span><span class="c1"># important change</span>
+data/rawdata/TCIA_RADCURE_test/images<span class="w"> </span><span class="se">\</span>
+data/procdata/TCIA_RADCURE_window_test/images/mit_RADCURE_window_test
+</code></pre></div>
+</li>
+<li>
+<p>OHHH I think this is the original randomized bug!! Why the randomized wouldn't run - that's why I haven't run into until now.</p>
+</li>
+<li>
+<p>Ok SO in order to handle this bug there are two updated settings to be applied in the full pipeline</p>
+</li>
+<li>
+<p>In autopipeline, use windowing settings:
+    <div class="highlight"><pre><span></span><code>--window-level 1500 
+--window-width 7000 
+</code></pre></div>
+    This will set the range of values to -2000 to 5000 in the processed nifti images. This range was chosen to maintain the artifacts in the RADCURE dataset while preventing the overflow errors in the GLCM calculations during PyRadiomics feature extraction on the randomized negative control images.</p>
+</li>
+<li>
+<p>In feature extraction, set the interpolator to <code>sitk.Linear</code>. This is better for CT images and prevents the interpolated values from falling outside the -2000 to 5000 range we made in the windowing of med-imagetools.</p>
+</li>
+</ul>
+<p>Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.</p>
               
             </div>
           </div><footer>
