@@ -270,7 +270,7 @@ def make_negative_controls(dataset: str,
                 # Check if all the settings columns are present - handles old READII outputs
                 readii_settings = ['Permutation', 'Region', 'crop', 'Resize']
                 if not set(readii_index.columns).issuperset(readii_settings):
-                    print("Not all READII settings satisfied in existing output. Re-running negative control generation.")
+                    logger.info("Not all READII settings satisfied in existing output. Re-running negative control generation.")
                     overwrite = True
                 
                 else:
