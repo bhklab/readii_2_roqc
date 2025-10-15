@@ -398,36 +398,49 @@ dev_binary_prediction.ipynb
 * Restructuring in a notebook first
 
 
-## RADCURE processing
-#### [2025-10-06]
-Error when processing roi negative controls for RADCURE_GTVp_test
-```console
-Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets.
-Traceback (most recent call last):
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py", line 466, in <module>
-    extract_dataset_features()
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
-    return self.main(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 1363, in main
-    rv = self.invoke(ctx)
-         ^^^^^^^^^^^^^^^^
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/click/core.py", line 794, in invoke
-    return callback(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py", line 456, in extract_dataset_features
-    dataset_feature_vectors = compile_dataset_features(dataset_index,
-                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/cluster/home/t118840uhn/projects/readii_2_roqc/src/readii_2_roqc/feature_extraction/extract.py", line 353, in compile_dataset_features
-    return compiled_dataset_features
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-UnboundLocalError: cannot access local variable 'compiled_dataset_features' where it is not associated with a value
+## Debugging updated negative control generation
+#### [2025-10-14]
+
+* RADCURE data experiences overflow errors for the randomized full negative control feature extraction
+
+```python
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:127: RuntimeWarning: overflow encountered in scalar subtract
+  lowBound = minimum - (minimum % binWidth)
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:132: RuntimeWarning: overflow encountered in scalar add
+  highBound = maximum + 2 * binWidth
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:134: RuntimeWarning: overflow encountered in scalar subtract
+  binEdges = numpy.arange(lowBound, highBound, binWidth)
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:134: RuntimeWarning: overflow encountered in scalar add
+  binEdges = numpy.arange(lowBound, highBound, binWidth)
 ```
 
-#### [2025-10-07]
-Solved the problem from yesterday, was a bug in the logic if only some of the image types had been extracted before, the rest weren't being processed
+* So digging into this revealed it's an issue when the range of voxel values in an image exceeds what can be handled by np.int64
+* Trying out windowing the image to see if this solves the problem
+    * Running med-imagetools autopipeline with the following
 
-* Added a return to the if statement that checks if all the image classes have been processed
+    ```bash
+    imgtools autopipeline \
+    --filename-format '{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz' \
+    --modalities CT,RTSTRUCT \
+    --roi-strategy SEPARATE \
+    -rmap "ROI:GTVp" \
+    --window-level 8500 \ # important change
+    --window-width 23000 \ # important change
+    data/rawdata/TCIA_RADCURE_test/images \
+    data/procdata/TCIA_RADCURE_window_test/images/mit_RADCURE_window_test
+    ```
+
+* OHHH I think this is the original randomized bug!! Why the randomized wouldn't run - that's why I haven't run into until now.
+
+* Ok SO in order to handle this bug there are two updated settings to be applied in the full pipeline
+
+1. In autopipeline, use windowing settings:
+    ```
+    --window-level 1500 
+    --window-width 7000 
+    ```
+    This will set the range of values to -2000 to 5000 in the processed nifti images. This range was chosen to maintain the artifacts in the RADCURE dataset while preventing the overflow errors in the GLCM calculations during PyRadiomics feature extraction on the randomized negative control images.
+
+2. In feature extraction, set the interpolator to `sitk.Linear`. This is better for CT images and prevents the interpolated values from falling outside the -2000 to 5000 range we made in the windowing of med-imagetools.
+
+Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.

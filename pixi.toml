@@ -86,7 +86,8 @@ args = ["dataset",
         "method", 
         "settings",
         {arg = "overwrite", default = "False"},
-        {arg = "parallel", default = "False"}]
+        {arg = "parallel", default = "False"},
+        {arg = "jobs", default = "-1"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
@@ -95,7 +96,8 @@ cmd = ["python",
        "{{ method }}",
        "{{ settings }}",
        "--overwrite", "{{ overwrite }}",
-       "--parallel", "{{ parallel }}"
+       "--parallel", "{{ parallel }}",
+       "--jobs", "{{ jobs }}"
 ]
 
 [tasks.predict]
