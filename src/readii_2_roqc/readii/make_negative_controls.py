@@ -213,8 +213,13 @@ def make_negative_controls(dataset: str,
         List of paths to the saved out negative control NIfTI files.
     """
     logger = logging.getLogger(__name__)
-    logging.basicConfig(filename=dirs.LOGS / (dataset + "_make_negative_controls.log"), encoding='utf-8', level=logging.DEBUG)
-
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        filename=str(dirs.LOGS / f"{dataset}_make_negative_controls.log"),
+        encoding='utf-8',
+        level=logging.DEBUG,
+        force=True
+    )
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
