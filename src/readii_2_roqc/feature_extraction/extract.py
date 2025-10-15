@@ -7,6 +7,7 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
+import logging
 import numpy as np
 from radiomics import featureextractor, setVerbosity
 from readii_2_roqc.utils.loaders import load_dataset_config
@@ -389,6 +390,10 @@ def extract_dataset_features(dataset: str,
     dict[str, pd.DataFrame]
         Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=dirs.LOGS / (dataset + "_extract.log"), encoding='utf-8', level=logging.DEBUG)
+
+
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
