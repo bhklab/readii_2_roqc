@@ -85,13 +85,16 @@ def load_signature_config(file: str | Path) -> pd.Series:
     Raises
     ------
     ValueError
-        If the input file does not end in ".yaml"
+        If the input file does not end in ".yaml". 
     """
-    signature_file_path = dirs.CONFIG / "signatures" / file
 
-    if signature_file_path.suffix not in [".yaml", ".yml"]:
+    if Path(file).suffix == '':
+        file = file + '.yaml'
+    elif Path(file).suffix not in [".yaml", ".yml"]:
         logger.error(f"Signature file must be a .yaml. Provided file is type {signature_file_path.suffix}")
         raise ValueError
+
+    signature_file_path = dirs.CONFIG / "signatures" / file
 
     try:
         with signature_file_path.open('r') as f:
