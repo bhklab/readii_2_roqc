@@ -5,7 +5,9 @@ from readii.process.config import get_full_data_name
 from readii.utils import logger
 from readii.image_processing import alignImages, flattenImage
 
+import pandas as pd
 import SimpleITK as sitk
+import yaml
 
 
 def load_dataset_config(dataset:str):
@@ -63,3 +65,44 @@ def load_image_and_mask(image_path:Path,
         return image, mask
     
     return image
+
+
+
+# Load signature file
+def load_signature_config(file: str | Path) -> pd.Series:
+    """Load in a predictive signature from a yaml file. The signature is expected to be organized as a dictionary of {feature: value} pairs. Features should be strings and values a numeric type.
+
+    Parameters
+    ----------
+    file : str | Path
+        Name of the signature file contained in the config/signatures directory.
+
+    Returns
+    -------
+    signature : pd.Series
+        Signature set up as a pd.Series, with the index being the features.
+
+    Raises
+    ------
+    ValueError
+        If the input file does not end in ".yaml"
+    """
+    signature_file_path = dirs.CONFIG / "signatures" / file
+
+    if signature_file_path.suffix not in [".yaml", ".yml"]:
+        logger.error(f"Signature file must be a .yaml. Provided file is type {signature_file_path.suffix}")
+        raise ValueError
+
+    try:
+        with signature_file_path.open('r') as f:
+            yaml_data = yaml.safe_load(f)
+            if not isinstance(yaml_data, dict):
+                message = "ROI match YAML must contain a dictionary"
+                raise TypeError(message)
+            signature = pd.Series(yaml_data['signature'])
+    except Exception as e:
+        message = f"Error loading YAML file: {e}"
+        logger.error(message)
+        raise
+
+    return signature
