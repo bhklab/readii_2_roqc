@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import click
+import logging
 import numpy as np
 import pandas as pd
 import yaml
 from damply import dirs
 from joblib import Parallel, delayed
-from readii.io.loaders import loadFileToDataFrame, loadImageDatasetConfig
+from readii.io.loaders import loadFileToDataFrame
 from readii.process.label import (
     eventOutcomeColumnSetup,
     getPatientIdentifierLabel,
@@ -15,6 +16,8 @@ from readii.process.label import (
 from readii.process.split import splitDataByColumnValue
 from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
 from readii.utils import logger
+from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.metadata import insert_r2r_index
 from sksurv.metrics import concordance_index_censored
 
 # Load signature file
@@ -76,52 +79,20 @@ def prediction_data_splitting(dataset_config: dict,
     else:
         logger.debug('Split setting is set to False. Returning original data.')
         return data
-    
-
-
-def insert_r2r_index(dataset_config: dict,
-                     data_to_index: pd.DataFrame
-                     ) -> pd.DataFrame:
-    """Add the Med-ImageTools SampleID index column to a dataframe (e.g. a clinical table) to align with processed imaging data"""
-    # Find the existing patient identifier for the data_to_index
-    existing_pat_id = getPatientIdentifierLabel(data_to_index)
-    extraction_method = f"{dataset_config['EXTRACTION']['METHOD']}"
-
-    # Load the med-imagetools autopipeline simple index output for the dataset
-    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
-    r2r_index_path = dirs.PROCDATA / full_dataset_name / "features" / extraction_method / f"{extraction_method}_{dataset_config['DATASET_NAME']}_index.csv"
-
-    if r2r_index_path.exists():
-        r2r_index = loadFileToDataFrame(r2r_index_path)
-    else:
-        message = f"READII {extraction_method} index output don't exist for the {full_dataset_name} dataset. Run index to generate this file."
-        print(message)
-        logger.error(message)
-        raise FileNotFoundError(message)
-
-    # Generate a mapping from PatientID to SampleID (PatientID_SampleNumber from Med-ImageTools autopipeline output)
-    id_map = r2r_index["SampleID"]
-    id_map.index = [id_parts[0] for id_parts in r2r_index["SampleID"].str.split('_')]  # Use the first part of SampleID as the index
-    id_map = id_map.drop_duplicates()
-
-    # Apply the map to the dataset to index
-    data_to_index['SampleID'] = data_to_index[existing_pat_id].map(id_map)
-
-    return data_to_index
 
 
 
 def clinical_data_setup(dataset_config: dict,
-                       full_dataset_name : str | None = None,
+                       full_data_name : str | None = None,
                        split: str | None = None
                        ) -> pd.DataFrame:
     """Process the clinical data to get outcome variables for use in signature prediction"""
-    if full_dataset_name is None:
-        full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    if full_data_name is None:
+        full_data_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
 
     # load clinical metadata
     clinical = dataset_config['CLINICAL']
-    clinical_path = dirs.RAWDATA / full_dataset_name / "clinical" / clinical['FILE']
+    clinical_path = dirs.RAWDATA / full_data_name / "clinical" / clinical['FILE']
     clinical_data = loadFileToDataFrame(clinical_path)
 
     # insert the MIT index
@@ -279,9 +250,9 @@ def predict_with_one_image_type(feature_data: pd.DataFrame,
 DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', 'NONE']
 
 @click.command()
-@click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform prediction with.')
-@click.option('--features', type=click.STRING, required=True, help='Feature type to load for prediction. Will match a feature extraction settings file in config.')
-@click.option('--signature', type=click.STRING, required=True, help='Name of the signature to perform prediction with. Must have file in config/signatures.')
+@click.argument('dataset', type=click.STRING)
+@click.argument('features', type=click.STRING)
+@click.argument('signature', type=click.STRING)
 @click.option('--bootstrap', type=click.INT, default=0, help='Number of bootstrap iterations to run for confidence interval generation.')
 @click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='NONE', help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
 def predict_with_signature(dataset: str,
@@ -290,7 +261,36 @@ def predict_with_signature(dataset: str,
                            bootstrap: int = 0,
                            split: str = 'NONE'
                            ) ->tuple[pd.DataFrame, dict, dict]:
-    """Run outcome prediction of a signature for multiple image types"""
+    """Run outcome prediction of a signature for multiple image types
+    
+    Parameters
+    ----------
+    dataset : str
+        Name of the dataset to perform prediction with.
+    features : str
+        Feature type to load for prediction. Will match a feature extraction settings file in config.
+    signature : str
+        Name of the signature to perform prediction with. Must have file in config/signatures.
+    bootstrap : int (default = 0)
+        Number of bootstrap iterations to run for confidence interval generation. Default if 0, no bootstrap will be run.
+    split : str (default = 'NONE')
+        Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.
+
+    Returns
+    -------
+    prediction_df : pd.DataFrame 
+    bootstrap_data : dict
+    hazard_data : dict
+    """
+    logger = logging.getLogger(__name__)  
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)  
+    logging.basicConfig(  
+        filename=str(dirs.LOGS / f"{dataset}_predict.log"),  
+        encoding='utf-8',  
+        level=logging.DEBUG,  
+        force=True  
+    )
+
     # Input checking
     if dataset is None:
         message = "Dataset name must be provided."
@@ -309,26 +309,21 @@ def predict_with_signature(dataset: str,
     if split == 'NONE':
         split = ""
 
-    # get path to dataset config directory
-    config_dir_path = dirs.CONFIG / 'datasets'
-    
     # Load in dataset configuration settings from provided dataset name
-    dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
-    dataset_name = f"{dataset_config['DATASET_NAME']} {split}".strip()
-    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
-
+    dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
     logger.info(f"Performing prediction with {signature} signature on {dataset_name}.")
 
     # load clinical metadata
-    clinical_data = clinical_data_setup(dataset_config, full_dataset_name)
+    clinical_data = clinical_data_setup(dataset_config, full_data_name)
     # get outcome variable data from clinical data
     outcome_data = outcome_data_setup(dataset_config, clinical_data)
 
     # Get image types from results of feature extraction
-    image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_dataset_name / "features").rglob(pattern = f"**/{features}/*_features.csv"))
+    # two **/** in the pattern cover the feature type and image type processed
+    image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_data_name / "features").rglob(pattern = f"**/**/{features}/*_features.csv"))
 
     # Set up analysis outputs
-    prediction_out_dir = dirs.RESULTS / full_dataset_name / "prediction" / signature / split
+    prediction_out_dir = dirs.RESULTS / full_data_name / "prediction" / signature / split
 
     hazards_out_dir = prediction_out_dir / "hazards"
     hazards_out_dir.mkdir(parents=True, exist_ok=True)
