@@ -109,9 +109,9 @@ args = ["dataset",
 cwd = "src/readii_2_roqc/analysis"
 cmd = ["python",
        "predict.py",
-       "--dataset", "{{ dataset }}",
-       "--features", "{{ features }}",
-       "--signature", "{{ signature }}",
+       "{{ dataset }}",
+       "{{ features }}",
+       "{{ signature }}",
        "--bootstrap", "{{ bootstrap }}",
        "--split", "{{ split }}"
        ]
