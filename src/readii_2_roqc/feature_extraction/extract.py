@@ -270,27 +270,25 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
     # Check for existing result feature dataset files
     existing_dataset_files = sorted((dirs.RESULTS / features_dir_struct).glob('*.csv'))
+    # Initialize dictionary to store compiled feature dataframes
+    compiled_dataset_features: dict[str, pd.DataFrame] = {}
     if existing_dataset_files and not overwrite:
         # Get the image classes in the same format as readii_image_classes (a set of tuples)
-        compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_')) for file in existing_dataset_files}
+        compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_', 1)) for file in existing_dataset_files}
         
         # Check whether there are new image classes to compile
         if readii_image_classes.issubset(compiled_image_classes):
             message = "All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
-            print(message)
             logger.info(message)
             
             # Load in the existing compiled dataset files into a dictionary to match function output
             compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}
+            return compiled_dataset_features
         else:
             message = "Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets."
-            print(message)
             logger.info(message)
 
     else:
-        # Initialize dictionary to store compiled feature dataframes
-        compiled_dataset_features = {}
-
         for permutation, region in readii_image_classes:
             logger.info(f"Compiling features for {permutation} {region} images.")
             # Filter the dataset index for this image class
@@ -390,9 +388,14 @@ def extract_dataset_features(dataset: str,
     dict[str, pd.DataFrame]
         Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(filename=dirs.LOGS / (dataset + "_extract.log"), encoding='utf-8', level=logging.DEBUG)
-
+    logger = logging.getLogger(__name__)  
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)  
+    logging.basicConfig(  
+        filename=str(dirs.LOGS / f"{dataset}_extract.log"),  
+        encoding='utf-8',  
+        level=logging.DEBUG,  
+        force=True  
+    )
 
     if dataset is None:
         message = "Dataset name must be provided."
