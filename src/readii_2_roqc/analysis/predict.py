@@ -114,7 +114,7 @@ def clinical_data_setup(dataset_config: dict,
             case 'TRAIN':
                 keep_data = {split_info['split_variable']: [split_info['train_label']]}
             case 'TEST':
-                keep_data = {split_info['split_variable']: [split_info['train_label']]}
+                keep_data = {split_info['split_variable']: [split_info['test_label']]}
         
         clinical_data = selectByColumnValue(clinical_data,
                                             include_col_values=keep_data)
