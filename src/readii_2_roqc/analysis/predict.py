@@ -10,7 +10,7 @@ from readii.io.loaders import loadFileToDataFrame
 from readii.process.subset import getPatientIntersectionDataframes
 from readii.utils import logger
 from readii_2_roqc.utils.loaders import load_dataset_config, load_signature_config
-from readii_2_roqc.utils.analysis import clinical_data_setup, outcome_data_setup
+from readii_2_roqc.utils.analysis import clinical_data_setup, outcome_data_setup, get_signature_features
 from sksurv.metrics import concordance_index_censored
 
 
@@ -18,7 +18,7 @@ def calculate_signature_hazards(feature_data : pd.DataFrame,
                                 signature : pd.DataFrame) -> pd.DataFrame:
     """Calculate the feature hazards with Cox Proportional Hazards by multiplying feature values by the signature weights"""
     # Get signature feature values for the dataset
-    signature_feature_data = feature_data[signature.index]
+    signature_feature_data = get_signature_features(feature_data, signature)
 
     # Calculate and return the feature hazards
     return signature_feature_data.dot(signature)

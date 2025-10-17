@@ -106,3 +106,12 @@ def prediction_data_splitting(dataset_config: dict,
     else:
         logger.debug('Split setting is set to False. Returning original data.')
         return data
+    
+
+
+def get_signature_features(feature_data : pd.DataFrame,
+                           signature : pd.DataFrame
+                           ) -> pd.DataFrame:
+    """Get just the feature values for the features listed in the signature"""
+
+    return feature_data[signature.index]
