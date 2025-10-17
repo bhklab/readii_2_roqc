@@ -5,18 +5,10 @@ import pandas as pd
 
 from damply import dirs
 from pathlib import Path
-from readii.io.loaders import loadFileToDataFrame
-from readii.process.subset import getPatientIntersectionDataframes
-from readii_2_roqc.utils.loaders import load_signature_config, load_dataset_config
-from readii_2_roqc.analysis.predict import clinical_data_setup, outcome_data_setup
+from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.analysis import prediction_data_setup
 from sksurv.linear_model import CoxPHSurvivalAnalysis
 
-def get_signature_features(feature_data : pd.DataFrame,
-                           signature : pd.DataFrame
-                           ) -> pd.DataFrame:
-    """Get just the feature values for the features listed in the signature"""
-
-    return feature_data[signature.index]
 
 
 def fit_cph(feature_data,
@@ -38,47 +30,19 @@ def fit_cph(feature_data,
     outcome_arr = np.array(outcome_data.to_records(index=False, 
                                           column_dtypes={'survival_event_binary': 'bool', 
                                                          'survival_event_time': 'float'}))
+    # Convert feature data to array for fitting and evaluation
+    feature_arr = feature_data.to_numpy()
 
-    estimator = CoxPHSurvivalAnalysis().fit(feature_data.to_numpy(), outcome_arr)
+    estimator = CoxPHSurvivalAnalysis().fit(feature_arr, outcome_arr)
 
     coefficients = dict(zip(feature_data.columns, estimator.coef_))
-    hazards = estimator.predict(feature_data)
-    cidx = estimator.score(feature_data, outcome_arr)
+    hazards = estimator.predict(feature_arr)
+    cidx = estimator.score(feature_arr, outcome_arr)
 
     # TODO: Save out signature, hazards, and c-index
 
     # Return fitted signature feature coefficients, hazards, and c-index for the fitting data
     return coefficients, hazards, cidx
-
-
-def prediction_data_setup(dataset_config : dict,
-                          feature_file : Path,
-                          signature_name : str | None):
-    """Set up the feature and label data for prediction"""
-    # load clinical metadata
-    clinical_data = clinical_data_setup(dataset_config)
-    # get outcome variable data from clinical data
-    outcome_data = outcome_data_setup(dataset_config, clinical_data)
-
-    # Load feature data to create signature with
-    feature_data = loadFileToDataFrame(feature_file)
-
-    # Set index in feature data to match outcome data
-    feature_data = feature_data.set_index(['SampleID'])
-    
-    # Intersect outcome and feature data to get overlapping SampleIDs
-    outcome_subset, feature_subset = getPatientIntersectionDataframes(outcome_data,
-                                                                      feature_data,
-                                                                      need_pat_index_A=False,
-                                                                      need_pat_index_B=False)
-
-    if signature_name is not None:
-        # Load signature as a pd.Series with the index being the feature names
-        signature = load_signature_config(signature_name)
-        # Select out the features specified in the signature
-        feature_subset = get_signature_features(feature_subset, signature)
-
-    return feature_subset, outcome_subset
 
 
 
@@ -88,11 +52,13 @@ def prediction_data_setup(dataset_config : dict,
 @click.argument('model', type=click.Choice(['cph']))
 @click.option('--signature', type=click.STRING, default=None)
 @click.option('--image_type', type=click.STRING, default="original_full")
+@click.option('--split', type=click.STRING, default='None')
 def fit_model(dataset:str,
               features:str,
               model:str,
               signature:str | None = None,
-              image_type:str = 'original'):
+              image_type:str = 'original',
+              split:str | None = None):
     """Fit a specified model with a signature list of features.
 
     Parameters
@@ -139,6 +105,8 @@ def fit_model(dataset:str,
             message = f"{signature}.yaml file does not exist in the config/signatures directory."
             logger.error(message)
             raise FileNotFoundError(message)
+    if split == 'None':
+        split = None
 
     # Load in dataset configuration settings from provided dataset name
     dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
@@ -158,15 +126,16 @@ def fit_model(dataset:str,
 
     logger.info(f"Setting up data for prediction.")
     feature_data, outcome_data = prediction_data_setup(dataset_config,
-                                                           feature_file,
-                                                           signature)
+                                                       feature_file,
+                                                       signature,
+                                                       split)
     
     match model:
         case 'cph':
             coefficients, hazards, cidx = fit_cph(feature_data, outcome_data)
             
             print(coefficients)
-            print(hazards)
+            print(len(hazards))
             print(cidx)
         case '_':
             message = f"{model} type has not been implemented yet. Try another model please."
@@ -174,7 +143,9 @@ def fit_model(dataset:str,
             raise NotImplementedError(message)
 
     return None
-    
+
+
+
 
 
 
