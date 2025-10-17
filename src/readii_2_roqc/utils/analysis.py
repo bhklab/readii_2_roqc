@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from damply import dirs
-from imgtools.loggers import logger
+from readii.utils import logger
 from readii.io.loaders import loadFileToDataFrame
 from readii.process.label import (
     eventOutcomeColumnSetup,
