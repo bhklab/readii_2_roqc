@@ -1,13 +1,49 @@
 import click
 import logging
 import numpy as np
-import pandas as pd
+import yaml
 
 from damply import dirs
 from pathlib import Path
+from readii.utils import logger
 from readii_2_roqc.utils.loaders import load_dataset_config
 from readii_2_roqc.utils.analysis import prediction_data_setup
 from sksurv.linear_model import CoxPHSurvivalAnalysis
+
+def save_signature(dataset_name:str,
+                   signature_name:str,
+                   signature_coefficients:dict[str, np.float64],
+                   overwrite:bool = False):
+
+    # add dataset name to front of signature incase same signature features are used on another dataset
+    save_signature_name = dataset_name + signature_name
+    
+    # add or change file suffix to yaml if not already there
+    if not save_signature_name.endswith(".yaml"):
+        save_signature_name = Path(save_signature_path).stem + ".yaml"
+
+    # setup full output path with 
+    save_signature_path = dirs.CONFIG / "signatures" / save_signature_name
+
+    if save_signature_path.exists() and not overwrite:
+        logger.info(f"Signature file already exists at {save_signature_path}. Set overwrite to True if you wish to update it.")
+        return save_signature_path
+    
+    else:
+        try:
+            # create folder structure if it doesn't exist
+            save_signature_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # write out the signature with coefficients
+            with open(save_signature_path, 'w') as outfile:
+                yaml.dump("signature:", outfile)
+                yaml.dump(signature_coefficients, outfile, default_flow_style=False)
+        except Exception as e:
+            message = f"Error occurred saving the {save_signature_name} signature."
+            logger.error(message)
+            raise e
+
+        return save_signature_path
 
 
 
@@ -23,6 +59,12 @@ def fit_cph(feature_data,
         Labels for feature data with first column as survival event and second column as survival time
     Returns
     -------
+    coefficients : dict[str, np.float64]
+        Weights for each of the features used to fit the CPH
+    hazards : list
+        Hazard value for each sample
+    cidx : float
+        Harrell's concordance index for the predictions of the set used to fit the model
     """
     #TODO: add check that the survival labels actually exist in the dataframe
 
@@ -52,13 +94,15 @@ def fit_cph(feature_data,
 @click.argument('model', type=click.Choice(['cph']))
 @click.option('--signature', type=click.STRING, default=None)
 @click.option('--image_type', type=click.STRING, default="original_full")
-@click.option('--split', type=click.STRING, default='None')
+@click.option('--split', type=click.STRING, default=None)
+@click.option('--overwrite', type=click.BOOL, default=False)
 def fit_model(dataset:str,
               features:str,
               model:str,
               signature:str | None = None,
               image_type:str = 'original',
-              split:str | None = None):
+              split:str | None = None,
+              overwrite:bool = False):
     """Fit a specified model with a signature list of features.
 
     Parameters
@@ -75,7 +119,11 @@ def fit_model(dataset:str,
         If None is passed, will use all of the features in the model.
     image_type : str (default = "original_full")
         Image type to use for model fitting. Defaults to the original features, but can be set with any of the
-        negative control options from READII.        
+        negative control options from READII.
+    split : str | None (default = None)
+        Train or test split to use for fitting the model. Must be TRAIN, TEST, or None.
+    overwrite : bool (defaul = False)
+        Used to determine if outputs should be overwritten if file already exists.
     """
     logger = logging.getLogger(__name__)  
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
@@ -132,15 +180,22 @@ def fit_model(dataset:str,
     
     match model:
         case 'cph':
-            coefficients, hazards, cidx = fit_cph(feature_data, outcome_data)
+            coefficients, predictions, cidx = fit_cph(feature_data, outcome_data)
             
             print(coefficients)
-            print(len(hazards))
+            print(len(predictions))
             print(cidx)
         case '_':
             message = f"{model} type has not been implemented yet. Try another model please."
             logger.error(message)
             raise NotImplementedError(message)
+
+    save_signature(dataset_name, 
+                   signature_name = signature, 
+                   signature_coefficients=coefficients, 
+                   overwrite = overwrite)
+
+    
 
     return None
 
