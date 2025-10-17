@@ -3,14 +3,16 @@ import numpy as np
 import pandas as pd
 
 from damply import dirs
+from pathlib import Path
 from readii.utils import logger
 from readii.io.loaders import loadFileToDataFrame
 from readii.process.label import (
     eventOutcomeColumnSetup,
     timeOutcomeColumnSetup,
 )
-from readii.process.subset import selectByColumnValue
+from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
 from readii.process.split import splitDataByColumnValue
+from readii_2_roqc.utils.loaders import load_signature_config
 from readii_2_roqc.utils.metadata import insert_r2r_index
 
 
@@ -75,7 +77,7 @@ def outcome_data_setup(dataset_config: dict,
         outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
                                                 outcome_column_label=outcome_labels['event_label'],
                                                 standard_column_label=standard_event_label,
-                                                event_column_value_mapping=None #outcome_labels['event_value_mapping']
+                                                event_column_value_mapping=None
                                                 )
     
     outcome_data = timeOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
@@ -87,6 +89,43 @@ def outcome_data_setup(dataset_config: dict,
     outcome_data = outcome_data[[standard_event_label, standard_time_label]]
 
     return outcome_data
+
+
+def prediction_data_setup(dataset_config : dict,
+                          feature_file : Path,
+                          signature_name : str | None,
+                          split : str | None):
+    """Set up the feature and label data for prediction
+       Clinical data is loaded, SampleID column added as index, subsetted by inclusion/exclusion variables and into the train or test cohort defined in the dataset config.
+       Outcome data (time to event and event status) is extracted from the clinical data; event is converted to numeric, time is converted to years if needed.
+       Feature data is loaded and intersected with outcome data to get overlap between the two.
+       If a signature is provided, feature data is subsetted to just those features.
+    """
+    # load clinical metadata
+    clinical_data = clinical_data_setup(dataset_config, split = split)
+
+    # get outcome variable data from clinical data
+    outcome_data = outcome_data_setup(dataset_config, clinical_data)
+
+    # Load feature data to create signature with
+    feature_data = loadFileToDataFrame(feature_file)
+
+    # Set index in feature data to match outcome data
+    feature_data = feature_data.set_index(['SampleID'])
+    
+    # Intersect outcome and feature data to get overlapping SampleIDs
+    outcome_subset, feature_subset = getPatientIntersectionDataframes(outcome_data,
+                                                                      feature_data,
+                                                                      need_pat_index_A=False,
+                                                                      need_pat_index_B=False)
+
+    if signature_name is not None:
+        # Load signature as a pd.Series with the index being the feature names
+        signature = load_signature_config(signature_name)
+        # Select out the features specified in the signature
+        feature_subset = get_signature_features(feature_subset, signature)
+
+    return feature_subset, outcome_subset
 
 
 
