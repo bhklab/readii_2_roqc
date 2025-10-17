@@ -16,11 +16,11 @@ def save_signature(dataset_name:str,
                    overwrite:bool = False):
 
     # add dataset name to front of signature incase same signature features are used on another dataset
-    save_signature_name = dataset_name + signature_name
+    save_signature_name = dataset_name + "_" + signature_name
     
     # add or change file suffix to yaml if not already there
     if not save_signature_name.endswith(".yaml"):
-        save_signature_name = Path(save_signature_path).stem + ".yaml"
+        save_signature_name = Path(save_signature_name).stem + ".yaml"
 
     # setup full output path with 
     save_signature_path = dirs.CONFIG / "signatures" / save_signature_name
@@ -33,11 +33,11 @@ def save_signature(dataset_name:str,
         try:
             # create folder structure if it doesn't exist
             save_signature_path.parent.mkdir(parents=True, exist_ok=True)
+            signature_formatted = {'signature': signature_coefficients}
 
             # write out the signature with coefficients
             with open(save_signature_path, 'w') as outfile:
-                yaml.dump("signature:", outfile)
-                yaml.dump(signature_coefficients, outfile, default_flow_style=False)
+                yaml.dump(signature_formatted, outfile, default_flow_style=False)
         except Exception as e:
             message = f"Error occurred saving the {save_signature_name} signature."
             logger.error(message)
@@ -45,6 +45,9 @@ def save_signature(dataset_name:str,
 
         return save_signature_path
 
+
+# def save_predictions(dataset_name:str,
+#                      model)
 
 
 def fit_cph(feature_data,
@@ -77,12 +80,9 @@ def fit_cph(feature_data,
 
     estimator = CoxPHSurvivalAnalysis().fit(feature_arr, outcome_arr)
 
-    coefficients = dict(zip(feature_data.columns, estimator.coef_))
+    coefficients = {feature_name:value.item() for (feature_name, value) in zip(feature_data.columns, estimator.coef_)}
     hazards = estimator.predict(feature_arr)
     cidx = estimator.score(feature_arr, outcome_arr)
-
-    # TODO: Save out signature, hazards, and c-index
-
     # Return fitted signature feature coefficients, hazards, and c-index for the fitting data
     return coefficients, hazards, cidx
 
@@ -181,8 +181,7 @@ def fit_model(dataset:str,
     match model:
         case 'cph':
             coefficients, predictions, cidx = fit_cph(feature_data, outcome_data)
-            
-            print(coefficients)
+    
             print(len(predictions))
             print(cidx)
         case '_':
@@ -195,7 +194,7 @@ def fit_model(dataset:str,
                    signature_coefficients=coefficients, 
                    overwrite = overwrite)
 
-    
+
 
     return None
 
