@@ -98,7 +98,7 @@ def load_signature_config(file: str | Path) -> pd.Series:
     signature_file_path = dirs.CONFIG / "signatures" / file
 
     try:
-        with signature_file_path.open('r', encoding='uft-8') as f:
+        with signature_file_path.open('r', encoding='utf-8') as f:
             yaml_data = yaml.safe_load(f)
             if not isinstance(yaml_data, dict):
                 message = "ROI match YAML must contain a dictionary"
