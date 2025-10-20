@@ -81,7 +81,7 @@ def fit_cph(feature_data,
     outcome_arr = np.array(
         outcome_data[['survival_event_binary', 'survival_time_years']].to_records(
             index=False, 
-            column_dtypes={'survival_event_binary': 'bool', 'survival_event_time': 'float'}
+            column_dtypes={'survival_event_binary': 'bool', 'survival_time_years': 'float'}
         )
     )
     
