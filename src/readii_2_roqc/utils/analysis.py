@@ -44,11 +44,15 @@ def clinical_data_setup(dataset_config: dict,
     # Get the train or test sub-cohort based on config file setup
     if split is not None:
         split_info = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
-        match split:
+        match split.upper():
             case 'TRAIN':
                 keep_data = {split_info['split_variable']: [split_info['train_label']]}
             case 'TEST':
                 keep_data = {split_info['split_variable']: [split_info['test_label']]}
+            case _:
+                message = f"Invalid split={split!r}. Expected 'TRAIN' or 'TEST'."
+                logger.error(message)
+                raise ValueError(message)
         
         clinical_data = selectByColumnValue(clinical_data,
                                             include_col_values=keep_data)
@@ -70,9 +74,22 @@ def outcome_data_setup(dataset_config: dict,
     outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
 
     event_variable_type = outcome_data[outcome_labels['event_label']].dtype
-    if np.issubdtype(event_variable_type, np.object_):
-        # TEMP: handle value mapping to integers
-        outcome_data[standard_event_label] = outcome_data[outcome_labels['event_label']].map(outcome_labels['event_value_mapping'])
+    if pd.api.types.is_object_dtype(event_variable_type):
+        mapping = outcome_labels.get('event_value_mapping')
+        if not isinstance(mapping, dict):
+            message = ("Outcome event column is object dtype; "
+                       "CLINICAL.OUTCOME_VARIABLES.event_value_mapping must be a dict.")
+            logger.error(message)
+            raise ValueError(message)
+        
+        mapped = outcome_data[outcome_labels['event_label']].map(mapping)
+        if mapped.isna().any():  
+            bad_vals = outcome_data.loc[mapped.isna(), outcome_labels['event_label']].unique()[:10]  
+            message = f"Unmapped event values: {bad_vals}. Update event_value_mapping."  
+            logger.error(message)  
+            raise ValueError(message)  
+        outcome_data[standard_event_label] = mapped.astype(int)  
+        
     else:
         outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
                                                 outcome_column_label=outcome_labels['event_label'],
