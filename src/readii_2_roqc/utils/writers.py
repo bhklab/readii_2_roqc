@@ -73,3 +73,25 @@ def save_evaluation(dataset_config:str,
     evaluation_data.to_csv(evaluation_out_path, index=False)
 
     return evaluation_out_path, evaluation_data
+
+
+def save_predictions(dataset_config:str,
+                     prediction_data:dict[str,pd.DataFrame],
+                     signature:str,
+                     prediction_type:str | None = None,
+                     split:str | None = None):
+    
+    if prediction_type is None:
+        prediction_type = 'predictions'
+
+    full_data_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    prediction_out_dir = dirs.RESULTS / full_data_name / "prediction" / signature / split / prediction_type
+    prediction_out_dir.mkdir(parents=True, exist_ok=True)
+
+    prediction_out_paths = []
+    for image_type, prediction_df in prediction_data.items():
+        out_path = prediction_out_dir / f"{image_type}.csv"
+        prediction_df.to_csv(out_path)
+        prediction_out_paths.append(out_path)
+
+    return prediction_out_paths
