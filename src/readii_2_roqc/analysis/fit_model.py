@@ -19,8 +19,8 @@ def save_signature(dataset_name:str,
     save_signature_name = dataset_name + "_" + signature_name
     
     # add or change file suffix to yaml if not already there
-    if not save_signature_name.endswith(".yaml"):
-        save_signature_name = Path(save_signature_name).stem + ".yaml"
+    if Path(save_signature_name).suffix not in {".yaml", ".yml"}:
+        save_signature_name = Path(save_signature_name).with_suffix(".yaml").name
 
     # setup full output path with 
     save_signature_path = dirs.CONFIG / "signatures" / save_signature_name
@@ -36,12 +36,12 @@ def save_signature(dataset_name:str,
             signature_formatted = {'signature': signature_coefficients}
 
             # write out the signature with coefficients
-            with open(save_signature_path, 'w') as outfile:
-                yaml.dump(signature_formatted, outfile, default_flow_style=False)
-        except Exception as e:
+            with open(save_signature_path, 'w', encoding='utf-8') as outfile:
+                yaml.safe_dump(signature_formatted, outfile, default_flow_style=False)
+        except Exception:
             message = f"Error occurred saving the {save_signature_name} signature."
-            logger.error(message)
-            raise e
+            logger.exception(message)
+            raise
 
         return save_signature_path
 
@@ -69,18 +69,31 @@ def fit_cph(feature_data,
     cidx : float
         Harrell's concordance index for the predictions of the set used to fit the model
     """
-    #TODO: add check that the survival labels actually exist in the dataframe
+    # Validate required columns exist
+    required_cols = {'survival_event_binary', 'survival_time_years'}
+    missing = required_cols.difference(outcome_data.columns)  
+    if missing:
+        message = f"Outcome data missing required columns: {sorted(missing)}"
+        logger.error(message)
+        raise KeyError(message)
 
     # Convert outcome labels to a structured array
-    outcome_arr = np.array(outcome_data.to_records(index=False, 
-                                          column_dtypes={'survival_event_binary': 'bool', 
-                                                         'survival_event_time': 'float'}))
+    outcome_arr = np.array(
+        outcome_data[['survival_event_binary', 'survival_time_years']].to_records(
+            index=False, 
+            column_dtypes={'survival_event_binary': 'bool', 'survival_event_time': 'float'}
+        )
+    )
+    
     # Convert feature data to array for fitting and evaluation
     feature_arr = feature_data.to_numpy()
 
     estimator = CoxPHSurvivalAnalysis().fit(feature_arr, outcome_arr)
 
-    coefficients = {feature_name:value.item() for (feature_name, value) in zip(feature_data.columns, estimator.coef_)}
+    coefficients = {
+        feature_name:value.item() 
+        for (feature_name, value) in zip(feature_data.columns, estimator.coef_, strict=True)}
+    
     hazards = estimator.predict(feature_arr)
     cidx = estimator.score(feature_arr, outcome_arr)
     # Return fitted signature feature coefficients, hazards, and c-index for the fitting data
@@ -95,12 +108,12 @@ def fit_cph(feature_data,
 @click.option('--signature', type=click.STRING, default=None)
 @click.option('--image_type', type=click.STRING, default="original_full")
 @click.option('--split', type=click.STRING, default=None)
-@click.option('--overwrite', type=click.BOOL, default=False)
+@click.option('--overwrite', is_flag=True, default=False, help="Overwrite existing outputs if present.")
 def fit_model(dataset:str,
               features:str,
               model:str,
               signature:str | None = None,
-              image_type:str = 'original',
+              image_type:str = 'original_full',
               split:str | None = None,
               overwrite:bool = False):
     """Fit a specified model with a signature list of features.
@@ -148,9 +161,12 @@ def fit_model(dataset:str,
         logger.error(message)
         raise ValueError(message)
     if signature is not None:
-        # Check that signature file exists
-        if not Path(dirs.CONFIG / "signatures" / f"{signature}.yaml").exists():
-            message = f"{signature}.yaml file does not exist in the config/signatures directory."
+        # Check that signature file exists (.yaml or .yml)  
+        sig_dir = dirs.CONFIG / "signatures"  
+        sig_yaml = sig_dir / f"{signature}.yaml"  
+        sig_yml = sig_dir / f"{signature}.yml"  
+        if not (sig_yaml.exists() or sig_yml.exists()):  
+            message = f"Signature file '{signature}.yaml|.yml' not found in {sig_dir}." 
             logger.error(message)
             raise FileNotFoundError(message)
     if split == 'None':
@@ -165,6 +181,10 @@ def fit_model(dataset:str,
     # two **/** in the pattern cover the feature type and image type processed
     image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_data_name / "features").rglob(pattern = f"**/**/{features}/{image_type}_features.csv"))
 
+    if len(image_type_feature_file_list) == 0:  
+        message = f"No feature file found for '{features}' from '{image_type}' under {dirs.RESULTS / full_data_name / 'features'}."  
+        logger.error(message)  
+        raise FileNotFoundError(message) 
     if len(image_type_feature_file_list) > 1:
         message = f"Multiple feature files found for {features} from {image_type}. Can only have one to process."
         logger.error(message)
@@ -181,9 +201,7 @@ def fit_model(dataset:str,
     match model:
         case 'cph':
             coefficients, predictions, cidx = fit_cph(feature_data, outcome_data)
-    
-            print(len(predictions))
-            print(cidx)
+            logger.info("Fitted CPH: %d samples, c-index=%.4f", len(predictions), cidx)
         case '_':
             message = f"{model} type has not been implemented yet. Try another model please."
             logger.error(message)
