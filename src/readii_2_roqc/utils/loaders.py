@@ -87,25 +87,37 @@ def load_signature_config(file: str | Path) -> pd.Series:
     ValueError
         If the input file does not end in ".yaml". 
     """
-
-    if Path(file).suffix == '':
-        file = file + '.yaml'
-    elif Path(file).suffix not in [".yaml", ".yml"]:
-        logger.error(f"Signature file must be a .yaml. Provided file is type {signature_file_path.suffix}")
-        raise ValueError
+    p = Path(file)  
+    if p.suffix == "":  
+        file = p.with_suffix(".yaml")  
+    elif p.suffix not in {".yaml", ".yml"}:  
+        message = f"Signature file must have .yaml or .yml extension. Got {p.suffix!r}."  
+        logger.error(message)  
+        raise ValueError(message)  
 
     signature_file_path = dirs.CONFIG / "signatures" / file
 
     try:
-        with signature_file_path.open('r') as f:
+        with signature_file_path.open('r', encoding='uft-8') as f:
             yaml_data = yaml.safe_load(f)
             if not isinstance(yaml_data, dict):
                 message = "ROI match YAML must contain a dictionary"
+                logger.error(message)
                 raise TypeError(message)
+            if "signature" not in yaml_data:
+                message = "Signature YAML missing required key 'signature'."
+                logger.error(message)
+                raise KeyError(message)
+            if not isinstance(yaml_data["signature"], dict): 
+                message = "Signature must be a mapping of {feature: weight}."
+                logger.error(message)
+                raise TypeError(message)
+            
             signature = pd.Series(yaml_data['signature'])
-    except Exception as e:
-        message = f"Error loading YAML file: {e}"
-        logger.error(message)
+
+    except Exception:
+        message = f"Error loading signature YAML file at {signature_file_path}"
+        logger.exception(message)
         raise
 
     return signature
