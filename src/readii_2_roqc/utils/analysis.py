@@ -149,8 +149,15 @@ def prediction_data_splitting(dataset_config: dict,
 
 
 def get_signature_features(feature_data : pd.DataFrame,
-                           signature : pd.DataFrame
+                           signature : pd.Series
                            ) -> pd.DataFrame:
     """Get just the feature values for the features listed in the signature"""
-
+    # Check that signature features are in the feature_data provided
+    missing = [f for f in signature.index if f not in feature_data.columns]  
+    if missing:  
+        preview = ", ".join(missing[:10]) + ("..." if len(missing) > 10 else "")  
+        message = f"{len(missing)} signature feature(s) not found in feature_data: {preview}"  
+        logger.error(message)  
+        raise KeyError(message)  
+    
     return feature_data[signature.index]
