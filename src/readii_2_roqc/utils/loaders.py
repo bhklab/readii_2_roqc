@@ -5,7 +5,9 @@ from readii.process.config import get_full_data_name
 from readii.utils import logger
 from readii.image_processing import alignImages, flattenImage
 
+import pandas as pd
 import SimpleITK as sitk
+import yaml
 
 
 def load_dataset_config(dataset:str):
@@ -63,3 +65,59 @@ def load_image_and_mask(image_path:Path,
         return image, mask
     
     return image
+
+
+
+# Load signature file
+def load_signature_config(file: str | Path) -> pd.Series:
+    """Load in a predictive signature from a yaml file. The signature is expected to be organized as a dictionary of {feature: value} pairs. Features should be strings and values a numeric type.
+
+    Parameters
+    ----------
+    file : str | Path
+        Name of the signature file contained in the config/signatures directory.
+
+    Returns
+    -------
+    signature : pd.Series
+        Signature set up as a pd.Series, with the index being the features.
+
+    Raises
+    ------
+    ValueError
+        If the input file does not end in ".yaml". 
+    """
+    p = Path(file)  
+    if p.suffix == "":  
+        file = p.with_suffix(".yaml")  
+    elif p.suffix not in {".yaml", ".yml"}:  
+        message = f"Signature file must have .yaml or .yml extension. Got {p.suffix!r}."  
+        logger.error(message)  
+        raise ValueError(message)  
+
+    signature_file_path = dirs.CONFIG / "signatures" / file
+
+    try:
+        with signature_file_path.open('r', encoding='uft-8') as f:
+            yaml_data = yaml.safe_load(f)
+            if not isinstance(yaml_data, dict):
+                message = "ROI match YAML must contain a dictionary"
+                logger.error(message)
+                raise TypeError(message)
+            if "signature" not in yaml_data:
+                message = "Signature YAML missing required key 'signature'."
+                logger.error(message)
+                raise KeyError(message)
+            if not isinstance(yaml_data["signature"], dict): 
+                message = "Signature must be a mapping of {feature: weight}."
+                logger.error(message)
+                raise TypeError(message)
+            
+            signature = pd.Series(yaml_data['signature'])
+
+    except Exception:
+        message = f"Error loading signature YAML file at {signature_file_path}"
+        logger.exception(message)
+        raise
+
+    return signature
