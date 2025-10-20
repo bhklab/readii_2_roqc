@@ -179,7 +179,7 @@ def fit_model(dataset:str,
     logger.info("Listing image types ")
     # Get image types from results of feature extraction
     # two **/** in the pattern cover the feature type and image type processed
-    image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_data_name / "features").rglob(pattern = f"**/**/{features}/{image_type}_features.csv"))
+    image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_data_name / "features").rglob(f"**/**/{features}/{image_type}_features.csv"))
 
     if len(image_type_feature_file_list) == 0:  
         message = f"No feature file found for '{features}' from '{image_type}' under {dirs.RESULTS / full_data_name / 'features'}."  
@@ -207,11 +207,15 @@ def fit_model(dataset:str,
             logger.error(message)
             raise NotImplementedError(message)
 
+    if signature is None:
+        signature_name = "all_features"
+    else:
+        signature_name = signature
+        
     save_signature(dataset_name, 
-                   signature_name = signature, 
+                   signature_name = signature_name, 
                    signature_coefficients=coefficients, 
                    overwrite = overwrite)
-
 
 
     return None
