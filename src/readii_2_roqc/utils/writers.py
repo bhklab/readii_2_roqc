@@ -7,13 +7,15 @@ from pathlib import Path
 from readii.utils import logger
 
 
-
 def save_signature(dataset_name:str,
                    signature_name:str,
                    signature_coefficients:dict[str, np.float64],
                    model_type:str = None,
-                   overwrite:bool = False):
-
+                   overwrite:bool = False
+                   ) -> Path:
+    """Save out a radiomic signature used for predictive modelling as a .yaml file
+       Will contain the model type (e.g. CoxPHSurvivalAnalysis) and the signature as a dictionary of feature names and weights/coefficients.
+    """
     # add dataset name to front of signature incase same signature features are used on another dataset
     save_signature_name = dataset_name + "_" + signature_name
     
@@ -44,3 +46,30 @@ def save_signature(dataset_name:str,
             raise
 
         return save_signature_path
+    
+
+
+def save_evaluation(dataset_config:str,
+                    evaluation_data:pd.DataFrame,
+                    signature:str,
+                    split:str | None = None,
+                    ) -> tuple[Path, pd.DataFrame]:
+    """Save out table of evaluation metrics for a predictive model.
+       Return the path to the saved output and the updated evaluation data dataframe with the Dataset and Image Type columns added if they were not present.
+    """
+    # Set up analysis outputs
+    full_data_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    evaluation_out_path = dirs.RESULTS / full_data_name / "prediction" / signature / split / "prediction_metrics.csv"
+    evaluation_out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if "Dataset" not in evaluation_data.columns:
+        evaluation_data['Dataset'] = dataset_config['DATASET_NAME']
+        
+    if "Image_Type" not in evaluation_data.columns:
+        evaluation_data["Image_Type"] = 'unknown'
+    else:
+        evaluation_data = evaluation_data.sort_values(by=["Image_Type"])
+
+    evaluation_data.to_csv(evaluation_out_path, index=False)
+
+    return evaluation_out_path, evaluation_data
