@@ -131,7 +131,7 @@ def prediction_data_setup(dataset_config : dict,
 
 def prediction_data_splitting(dataset_config: dict,
                               data : pd.DataFrame,
-                              ) -> tuple[pd.DataFrame]:
+                              ) -> tuple[pd.DataFrame, pd.DataFrame | None]:
     """Split metadata into train and test for model development and validation purposes"""
     split_settings = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
     # Construct the dictionary input expected to describe the split column and labels within it
@@ -143,8 +143,8 @@ def prediction_data_splitting(dataset_config: dict,
                                             impute_value=split_settings['impute'])
         return split_data[split_settings['train_label']], split_data[split_settings['test_label']]
     else:
-        logger.debug('Split setting is set to False. Returning original data.')
-        return data
+        logger.debug('Split setting is set to False. Returning (data, None)')
+        return data, None
     
 
 
