@@ -69,7 +69,7 @@ def predict_with_one_image_type(feature_data: pd.DataFrame,
                                 ) -> tuple[list[float], list[float], pd.DataFrame]:
     """Evaluate the outcome prediction performance of a provided signature with a feature dataset from one image type. Optional bootstrapping for confidence intervals."""
     # load signature
-    signature = load_signature_config(Path(f"{signature_name}.yaml"))
+    signature = load_signature_config(signature_name)
 
     feature_hazards = calculate_signature_hazards(feature_data, signature)
     
