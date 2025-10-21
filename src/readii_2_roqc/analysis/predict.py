@@ -105,7 +105,7 @@ def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
                            bootstrap: int = 0,
-                           split: str = 'NONE'
+                           split: str | None = None
                            ) ->tuple[pd.DataFrame, dict, dict]:
     """Run outcome prediction of a signature for multiple image types
     
@@ -151,9 +151,6 @@ def predict_with_signature(dataset: str,
         message = "Signature name must be provided."
         logger.error(message)
         raise ValueError(message)
-    # Input checking
-    if split == 'NONE':
-        split = ""
 
     # Load in dataset configuration settings from provided dataset name
     dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
@@ -164,11 +161,6 @@ def predict_with_signature(dataset: str,
     image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_data_name / "features").rglob(pattern = f"**/**/{features}/*_features.csv"))
 
     # Set up analysis outputs
-    prediction_out_dir = dirs.RESULTS / full_data_name / "prediction" / signature / split
-
-    hazards_out_dir = prediction_out_dir / "hazards"
-    hazards_out_dir.mkdir(parents=True, exist_ok=True)
-
     evaluation_data = []
     hazard_data = {}
     bootstrap_data = {}
