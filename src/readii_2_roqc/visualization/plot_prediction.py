@@ -1,20 +1,23 @@
 from pathlib import Path
 
 import click
+import logging
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+
 from damply import dirs
 from matplotlib.figure import Figure
-from readii.io.loaders.general import loadImageDatasetConfig
 from readii.io.writers.plot_writer import PlotWriter
 from readii.utils import logger
+from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
 
 
 def build_prediction_df(dataset_config: dict,
                         signature_name: str,
                         bootstrap_count: int = 1000,
                         evaluation_metric: str = "C-index",
+                        split: str | None = None,
                         ) -> pd.DataFrame:
     """Combine the bootstrapped prediction values for all image types into a single dataframe.
        Useful for plot functions like prediction_violin.
@@ -29,7 +32,8 @@ def build_prediction_df(dataset_config: dict,
         Number of bootstrap iterations used to make prediction files. Used to set up data loading path.
     evaluation_metric
         Name of the evaluation metric used. Must match the column title in the prediction files in the bootstrap_count directory.
-    
+    split
+        Train or test split to use for fitting the model. Must be TRAIN, TEST, or None.
     Returns
     -------
     predictions : pd.DataFrame
@@ -37,7 +41,10 @@ def build_prediction_df(dataset_config: dict,
     """
     dataset_name = dataset_config['DATASET_NAME']
 
-    bootstrap_predictions_path = dirs.RESULTS / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "prediction" / signature_name / f"bootstrap_{bootstrap_count}"
+    if split is None:
+        split = ""
+
+    bootstrap_predictions_path = dirs.RESULTS / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "prediction" / signature_name / split / f"bootstrap_{bootstrap_count}"
 
     predictions = pd.DataFrame()
     for image_predictions_file in sorted(bootstrap_predictions_path.rglob('*.csv')):
@@ -46,6 +53,11 @@ def build_prediction_df(dataset_config: dict,
 
         predictions[image_type] = image_type_predictions[evaluation_metric]
 
+    if predictions.empty:
+        message = f"No boostrap predictions found at {bootstrap_predictions_path}. Check that the dataset and signature names are correct."
+        logger.error(message)
+        raise pd.errors.EmptyDataError(message)
+
     return predictions
 
 
@@ -53,6 +65,7 @@ def build_prediction_df(dataset_config: dict,
 def prediction_violin(predictions: pd.DataFrame,
                       signature_name: str,
                       dataset_name: str | None = None,
+                      split: str | None = None,
                       title_text: str | None = None,
                       subtitle_text: str | None = None,
                       x_label: str = "Image Type",
@@ -98,7 +111,10 @@ def prediction_violin(predictions: pd.DataFrame,
 
     # Set up subtitle
     if subtitle_text is None:
-        subtitle_text = dataset_name
+        if split:
+            subtitle_text = f"{dataset_name} ({split} set)"
+        else:
+            subtitle_text = dataset_name
     ax.set_title(subtitle_text)
 
     # Set axis labels
@@ -114,9 +130,13 @@ def save_plot(plot_figure: Figure,
               signature: str,
               data_description: str,
               evaluation_metric: str,
+              split: str | None = None,
               overwrite: bool = False
               ) -> Path:
-    plot_writer = PlotWriter(root_directory = dirs.RESULTS / full_dataset_name  /"visualization" / signature,
+    if split is None:
+        split = ''
+    
+    plot_writer = PlotWriter(root_directory = dirs.RESULTS / full_dataset_name  /"visualization" / signature / split,
                             filename_format= "{PlotType}_{PlotDataDesc}_{Metric}.png",
                             overwrite=overwrite,
                             create_dirs=True)
@@ -130,9 +150,11 @@ def save_plot(plot_figure: Figure,
 @click.command()
 @click.argument('dataset', type=click.STRING)
 @click.argument('signature', type=click.STRING)
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default=None, help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
 @click.option('--overwrite', type=click.BOOL, default=False, help='Whether to overwrite existing plots. An error will be thrown if set to False and any plots exist.')
 def plot(dataset: str,
          signature: str,
+         split: str | None = None,
          overwrite: bool = False
          ) -> None:
     """Create and save out prediction plots for a given dataset and signature.
@@ -149,6 +171,15 @@ def plot(dataset: str,
         Whether to overwrite existing plot files.
 
     """
+    logger = logging.getLogger(__name__)  
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)  
+    logging.basicConfig(  
+        filename=str(dirs.LOGS / f"{dataset}_plot_prediction.log"),  
+        encoding='utf-8',  
+        level=logging.DEBUG,  
+        force=True  
+    )
+
     # Input checking
     if dataset is None:
         message = "Dataset name must be provided."
@@ -160,33 +191,32 @@ def plot(dataset: str,
         logger.error(message)
         raise ValueError(message)
     
-    # get path to dataset config directory
-    config_dir_path = dirs.CONFIG / 'datasets'
-    
     # Load in dataset configuration settings from provided dataset name
-    dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
-    dataset_name = dataset_config['DATASET_NAME']
-    full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
+    dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
+    logger.info(f"Loaded {dataset_name} for prediction plotting.")
 
     # Remove the file extension from the signature if it's included
     signature = signature.strip().removesuffix('.yaml')
     # Set up predictions dataframe for plotting
     predictions = build_prediction_df(dataset_config,
-                                      signature_name = signature)
+                                      signature_name = signature,
+                                      split = split)
 
     # Make violin plot
     violin_fig = prediction_violin(predictions,
                                    signature_name = signature,
                                    dataset_name = dataset_name,
-                                   vol_line = dataset_config['VOL_LINE'])
+                                   vol_line = dataset_config['VOL_LINE'],
+                                   split = split)
     
     # Save out the violin plot
     _output_path = save_plot(violin_fig,
                             plot_type = "violin",
-                            full_dataset_name = full_dataset_name,
+                            full_dataset_name = full_data_name,
                             signature = signature,
                             data_description = "bootstrap_1000",
                             evaluation_metric = "C-index",
+                            split = split,
                             overwrite=overwrite
                             )
 
