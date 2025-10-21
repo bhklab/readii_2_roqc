@@ -9,6 +9,8 @@ import pandas as pd
 import SimpleITK as sitk
 import yaml
 
+# Global variable used for --split input argument throughout package
+DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', None]
 
 def load_dataset_config(dataset:str):
     if dataset is None:

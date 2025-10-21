@@ -7,7 +7,7 @@ from damply import dirs
 from joblib import Parallel, delayed
 from pathlib import Path
 from readii.utils import logger
-from readii_2_roqc.utils.loaders import load_dataset_config, load_signature_config
+from readii_2_roqc.utils.loaders import load_dataset_config, load_signature_config, DATA_SPLIT_CHOICES
 from readii_2_roqc.utils.analysis import get_signature_features, prediction_data_setup
 from readii_2_roqc.utils.writers import save_evaluation, save_predictions
 from sksurv.metrics import concordance_index_censored
@@ -95,14 +95,12 @@ def predict_with_one_image_type(feature_data: pd.DataFrame,
 
 
 
-DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', 'NONE']
-
 @click.command()
 @click.argument('dataset', type=click.STRING)
 @click.argument('features', type=click.STRING)
 @click.argument('signature', type=click.STRING)
 @click.option('--bootstrap', type=click.INT, default=0, help='Number of bootstrap iterations to run for confidence interval generation.')
-@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='NONE', help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default=None, help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
 def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,

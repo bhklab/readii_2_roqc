@@ -1,12 +1,11 @@
 import click
 import logging
 import numpy as np
-import yaml
 
 from damply import dirs
 from pathlib import Path
 from readii.utils import logger
-from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.loaders import load_dataset_config, DATA_SPLIT_CHOICES
 from readii_2_roqc.utils.analysis import prediction_data_setup
 from readii_2_roqc.utils.writers import save_signature
 from sksurv.linear_model import CoxPHSurvivalAnalysis
@@ -69,7 +68,7 @@ def fit_cph(feature_data,
 @click.argument('model', type=click.Choice(['cph']))
 @click.option('--signature', type=click.STRING, default=None)
 @click.option('--image_type', type=click.STRING, default="original_full")
-@click.option('--split', type=click.STRING, default=None)
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default=None, help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
 @click.option('--overwrite', is_flag=True, default=False, help="Overwrite existing outputs if present.")
 def fit_model(dataset:str,
               features:str,
