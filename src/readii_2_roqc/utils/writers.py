@@ -57,6 +57,8 @@ def save_evaluation(dataset_config:str,
     """Save out table of evaluation metrics for a predictive model.
        Return the path to the saved output and the updated evaluation data dataframe with the Dataset and Image Type columns added if they were not present.
     """
+    if split is None:
+        split = ''
     # Set up analysis outputs
     full_data_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
     evaluation_out_path = dirs.RESULTS / full_data_name / "prediction" / signature / split / "prediction_metrics.csv"
@@ -83,6 +85,9 @@ def save_predictions(dataset_config:str,
     
     if prediction_type is None:
         prediction_type = 'predictions'
+    
+    if split is None:
+        split = ''
 
     full_data_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
     prediction_out_dir = dirs.RESULTS / full_data_name / "prediction" / signature / split / prediction_type
