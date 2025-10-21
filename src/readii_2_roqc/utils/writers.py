@@ -6,11 +6,13 @@ from damply import dirs
 from pathlib import Path
 from readii.utils import logger
 
+from collections.abc import Mapping
+
 
 def save_signature(dataset_name:str,
                    signature_name:str,
-                   signature_coefficients:dict[str, np.float64],
-                   model_type:str = None,
+                   signature_coefficients:Mapping[str, float],
+                   model_type:str | None = None,
                    overwrite:bool = False
                    ) -> Path:
     """Save out a radiomic signature used for predictive modelling as a .yaml file
