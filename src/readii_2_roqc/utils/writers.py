@@ -6,7 +6,7 @@ from damply import dirs
 from pathlib import Path
 from readii.utils import logger
 
-from collections.abc import Mapping
+from typing import Any, Mapping
 
 
 def save_signature(dataset_name:str,
@@ -51,7 +51,7 @@ def save_signature(dataset_name:str,
     
 
 
-def save_evaluation(dataset_config:str,
+def save_evaluation(dataset_config:dict[str, Any],
                     evaluation_data:pd.DataFrame,
                     signature:str,
                     split:str | None = None,
@@ -79,7 +79,7 @@ def save_evaluation(dataset_config:str,
     return evaluation_out_path, evaluation_data
 
 
-def save_predictions(dataset_config:str,
+def save_predictions(dataset_config:dict[str, Any],
                      prediction_data:dict[str,pd.DataFrame],
                      signature:str,
                      prediction_type:str | None = None,
