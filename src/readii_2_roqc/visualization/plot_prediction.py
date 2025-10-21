@@ -33,7 +33,7 @@ def build_prediction_df(dataset_config: dict,
     evaluation_metric
         Name of the evaluation metric used. Must match the column title in the prediction files in the bootstrap_count directory.
     split
-        Train or test split to use for fitting the model. Must be TRAIN, TEST, or None.
+        Train or test split being plotted. Must be TRAIN, TEST, or None.
     Returns
     -------
     predictions : pd.DataFrame
@@ -42,7 +42,7 @@ def build_prediction_df(dataset_config: dict,
     dataset_name = dataset_config['DATASET_NAME']
 
     if split is None:
-        split = ""
+        split = ''
 
     bootstrap_predictions_path = dirs.RESULTS / f"{dataset_config['DATA_SOURCE']}_{dataset_name}" / "prediction" / signature_name / split / f"bootstrap_{bootstrap_count}"
 
@@ -112,7 +112,7 @@ def prediction_violin(predictions: pd.DataFrame,
     # Set up subtitle
     if subtitle_text is None:
         if split:
-            subtitle_text = f"{dataset_name} ({split} set)"
+            subtitle_text = f"{dataset_name} ({split})"
         else:
             subtitle_text = dataset_name
     ax.set_title(subtitle_text)
@@ -150,7 +150,7 @@ def save_plot(plot_figure: Figure,
 @click.command()
 @click.argument('dataset', type=click.STRING)
 @click.argument('signature', type=click.STRING)
-@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default=None, help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
 @click.option('--overwrite', type=click.BOOL, default=False, help='Whether to overwrite existing plots. An error will be thrown if set to False and any plots exist.')
 def plot(dataset: str,
          signature: str,
@@ -190,6 +190,8 @@ def plot(dataset: str,
         message = "Signature name must be provided."
         logger.error(message)
         raise ValueError(message)
+    if split == 'None':
+        split = None
     
     # Load in dataset configuration settings from provided dataset name
     dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
