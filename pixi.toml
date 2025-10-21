@@ -119,12 +119,14 @@ cmd = ["python",
 [tasks.plot_predict]
 args = ["dataset", 
         "signature",
+        {arg = "split", default = 'NONE'},
         {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/visualization"
 cmd = ["python",
        "plot_prediction.py",
        "{{ dataset }}",
        "{{ signature }}",
+       "--split", "{{ split }}",
        "--overwrite", "{{ overwrite }}"
        ]
 
