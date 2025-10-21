@@ -9,7 +9,7 @@ import seaborn as sns
 from damply import dirs
 from matplotlib.figure import Figure
 from readii.io.writers.plot_writer import PlotWriter
-from readii.utils import logger
+# from readii.utils import logger
 from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
 
 
@@ -54,7 +54,7 @@ def build_prediction_df(dataset_config: dict,
         predictions[image_type] = image_type_predictions[evaluation_metric]
 
     if predictions.empty:
-        message = f"No boostrap predictions found at {bootstrap_predictions_path}. Check that the dataset and signature names are correct."
+        message = f"No bootstrap predictions found at {bootstrap_predictions_path}. Check that the dataset and signature names are correct."
         logger.error(message)
         raise pd.errors.EmptyDataError(message)
 
@@ -208,7 +208,7 @@ def plot(dataset: str,
     violin_fig = prediction_violin(predictions,
                                    signature_name = signature,
                                    dataset_name = dataset_name,
-                                   vol_line = dataset_config['VOL_LINE'],
+                                   vol_line = dataset_config.get['VOL_LINE'],
                                    split = split)
     
     # Save out the violin plot
