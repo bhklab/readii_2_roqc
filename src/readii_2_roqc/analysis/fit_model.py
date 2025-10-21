@@ -68,7 +68,7 @@ def fit_cph(feature_data,
 @click.argument('model', type=click.Choice(['cph']))
 @click.option('--signature', type=click.STRING, default=None)
 @click.option('--image_type', type=click.STRING, default="original_full")
-@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default=None, help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Use 'None' for all data; settings taken from dataset config.")
 @click.option('--overwrite', is_flag=True, default=False, help="Overwrite existing outputs if present.")
 def fit_model(dataset:str,
               features:str,

@@ -100,7 +100,7 @@ def predict_with_one_image_type(feature_data: pd.DataFrame,
 @click.argument('features', type=click.STRING)
 @click.argument('signature', type=click.STRING)
 @click.option('--bootstrap', type=click.INT, default=0, help='Number of bootstrap iterations to run for confidence interval generation.')
-@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default=None, help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Use 'None' for all data; settings taken from dataset config.")
 def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
@@ -151,6 +151,8 @@ def predict_with_signature(dataset: str,
         message = "Signature name must be provided."
         logger.error(message)
         raise ValueError(message)
+    if split == 'None':
+        split = None
 
     # Load in dataset configuration settings from provided dataset name
     dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)

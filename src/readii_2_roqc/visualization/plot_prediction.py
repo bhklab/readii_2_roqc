@@ -150,7 +150,7 @@ def save_plot(plot_figure: Figure,
 @click.command()
 @click.argument('dataset', type=click.STRING)
 @click.argument('signature', type=click.STRING)
-@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to plot, TRAIN or TEST. Use 'None' for all data; settings taken from dataset config.")
 @click.option('--overwrite', type=click.BOOL, default=False, help='Whether to overwrite existing plots. An error will be thrown if set to False and any plots exist.')
 def plot(dataset: str,
          signature: str,
