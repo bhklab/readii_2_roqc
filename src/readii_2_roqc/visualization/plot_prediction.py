@@ -9,7 +9,6 @@ import seaborn as sns
 from damply import dirs
 from matplotlib.figure import Figure
 from readii.io.writers.plot_writer import PlotWriter
-from readii.utils import logger
 from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
 
 logger = logging.getLogger(__name__)  
