@@ -9,8 +9,10 @@ import seaborn as sns
 from damply import dirs
 from matplotlib.figure import Figure
 from readii.io.writers.plot_writer import PlotWriter
-# from readii.utils import logger
+from readii.utils import logger
 from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
+
+logger = logging.getLogger(__name__)  
 
 
 def build_prediction_df(dataset_config: dict,
@@ -171,7 +173,6 @@ def plot(dataset: str,
         Whether to overwrite existing plot files.
 
     """
-    logger = logging.getLogger(__name__)  
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
     logging.basicConfig(  
         filename=str(dirs.LOGS / f"{dataset}_plot_prediction.log"),  
@@ -208,7 +209,7 @@ def plot(dataset: str,
     violin_fig = prediction_violin(predictions,
                                    signature_name = signature,
                                    dataset_name = dataset_name,
-                                   vol_line = dataset_config.get['VOL_LINE'],
+                                   vol_line = dataset_config.get('VOL_LINE'),
                                    split = split)
     
     # Save out the violin plot
