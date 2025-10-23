@@ -107,7 +107,7 @@ args = ["dataset",
         {arg = "signature", default = 'None'},
         {arg = "split", default = 'None'},
         {arg = "image_type", default = "original_full"},
-        {arg = "overwrite", default = 'False'}
+        {arg = "overwrite", default = 'false'}
        ]
 cwd = "src/readii_2_roqc/analysis"
 cmd = ["python",
