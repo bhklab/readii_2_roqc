@@ -132,7 +132,7 @@ def outcome_data_setup(dataset_config: dict,
                                               )
         
         # add the standardized time label to the list of labels to select at the end of the function
-        standard_labels.append()
+        standard_labels.append(standard_time_label)
     
     # Select out the standardized outcome columns
     select_outcome_data = outcome_data[standard_labels]
