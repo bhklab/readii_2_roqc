@@ -105,7 +105,7 @@ args = ["dataset",
         "features", 
         "signature",
         {arg = "bootstrap", default = '1000'},
-        {arg = "split", default = 'NONE'}]
+        {arg = "split", default = 'None'}]
 cwd = "src/readii_2_roqc/analysis"
 cmd = ["python",
        "predict.py",
@@ -119,12 +119,14 @@ cmd = ["python",
 [tasks.plot_predict]
 args = ["dataset", 
         "signature",
+        {arg = "split", default = 'None'},
         {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/visualization"
 cmd = ["python",
        "plot_prediction.py",
        "{{ dataset }}",
        "{{ signature }}",
+       "--split", "{{ split }}",
        "--overwrite", "{{ overwrite }}"
        ]
 

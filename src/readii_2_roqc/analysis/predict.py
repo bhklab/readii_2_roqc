@@ -6,11 +6,10 @@ import pandas as pd
 from damply import dirs
 from joblib import Parallel, delayed
 from pathlib import Path
-from readii.io.loaders import loadFileToDataFrame
-from readii.process.subset import getPatientIntersectionDataframes
 from readii.utils import logger
-from readii_2_roqc.utils.loaders import load_dataset_config, load_signature_config
-from readii_2_roqc.utils.analysis import clinical_data_setup, outcome_data_setup, get_signature_features
+from readii_2_roqc.utils.loaders import load_dataset_config, load_signature_config, DATA_SPLIT_CHOICES
+from readii_2_roqc.utils.analysis import get_signature_features, prediction_data_setup
+from readii_2_roqc.utils.writers import save_evaluation, save_predictions
 from sksurv.metrics import concordance_index_censored
 
 
@@ -70,21 +69,13 @@ def predict_with_one_image_type(feature_data: pd.DataFrame,
                                 ) -> tuple[list[float], list[float], pd.DataFrame]:
     """Evaluate the outcome prediction performance of a provided signature with a feature dataset from one image type. Optional bootstrapping for confidence intervals."""
     # load signature
-    signature = load_signature_config(Path(f"{signature_name}.yaml"))
-    # Set index in feature data to match outcome data
-    feature_data = feature_data.set_index(['SampleID'])
-    
-    # Intersect outcome and feature data to get overlapping SampleIDs
-    outcome_subset, feature_subset = getPatientIntersectionDataframes(outcome_data,
-                                                                      feature_data,
-                                                                      need_pat_index_A=False,
-                                                                      need_pat_index_B=False)
+    signature = load_signature_config(signature_name)
 
-    feature_hazards = calculate_signature_hazards(feature_subset, signature)
+    feature_hazards = calculate_signature_hazards(feature_data, signature)
     
     # Add hazards as a column to a dataframe with the ground truth time and event labels and SampleID index
     # This will make it easier to evaluate the predictions
-    hazards_and_outcomes = outcome_subset.copy()
+    hazards_and_outcomes = outcome_data.copy()
     hazards_and_outcomes['hazards'] = feature_hazards
 
     # Calculate the c-index for the predicted hazards
@@ -103,19 +94,18 @@ def predict_with_one_image_type(feature_data: pd.DataFrame,
     return metrics, bootstrap_cidxs, hazards_and_outcomes
 
 
-DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', 'NONE']
 
 @click.command()
 @click.argument('dataset', type=click.STRING)
 @click.argument('features', type=click.STRING)
 @click.argument('signature', type=click.STRING)
 @click.option('--bootstrap', type=click.INT, default=0, help='Number of bootstrap iterations to run for confidence interval generation.')
-@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='NONE', help="Data subset to use for prediction, TRAIN or TEST. Will get settings from dataset config.")
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Use 'None' for all data; settings taken from dataset config.")
 def predict_with_signature(dataset: str,
                            features: str,
                            signature: str,
                            bootstrap: int = 0,
-                           split: str = 'NONE'
+                           split: str | None = None
                            ) ->tuple[pd.DataFrame, dict, dict]:
     """Run outcome prediction of a signature for multiple image types
     
@@ -140,7 +130,7 @@ def predict_with_signature(dataset: str,
     """
     logger = logging.getLogger(__name__)  
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
-    logging.basicConfig(  
+    logging.basicConfig(
         filename=str(dirs.LOGS / f"{dataset}_predict.log"),  
         encoding='utf-8',  
         level=logging.DEBUG,  
@@ -161,66 +151,64 @@ def predict_with_signature(dataset: str,
         message = "Signature name must be provided."
         logger.error(message)
         raise ValueError(message)
-    # Input checking
-    if split == 'NONE':
-        split = ""
+    if split == 'None':
+        split = None
 
     # Load in dataset configuration settings from provided dataset name
     dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
     logger.info(f"Performing prediction with {signature} signature on {dataset_name}.")
-
-    # load clinical metadata
-    clinical_data = clinical_data_setup(dataset_config, full_data_name)
-    # get outcome variable data from clinical data
-    outcome_data = outcome_data_setup(dataset_config, clinical_data)
 
     # Get image types from results of feature extraction
     # two **/** in the pattern cover the feature type and image type processed
     image_type_feature_file_list = sorted(Path(dirs.RESULTS / full_data_name / "features").rglob(pattern = f"**/**/{features}/*_features.csv"))
 
     # Set up analysis outputs
-    prediction_out_dir = dirs.RESULTS / full_data_name / "prediction" / signature / split
-
-    hazards_out_dir = prediction_out_dir / "hazards"
-    hazards_out_dir.mkdir(parents=True, exist_ok=True)
-
-    prediction_data = []
+    evaluation_data = []
     hazard_data = {}
     bootstrap_data = {}
 
     for feature_file_path in image_type_feature_file_list:
         image_type = feature_file_path.name.removesuffix('_features.csv')
         logger.info(f"Predicting with {signature} signature for {dataset_name} {image_type} image type.")
-        feature_data = loadFileToDataFrame(feature_file_path)
+        feature_data, outcome_data = prediction_data_setup(dataset_config,
+                                                           feature_file=feature_file_path,
+                                                           signature_name=signature,
+                                                           split=split)
 
         prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,
-                                                                                outcome_data = outcome_data,
-                                                                                signature_name = signature,
-                                                                                bootstrap = bootstrap)
+                                                                                  outcome_data = outcome_data,
+                                                                                  signature_name = signature,
+                                                                                  bootstrap = bootstrap)
 
-        prediction_data = prediction_data + [[dataset_name, image_type] + prediction_metrics]
+        evaluation_data = evaluation_data + [[dataset_name, image_type] + prediction_metrics]
         hazard_data[image_type] = hazards
         bootstrap_data[image_type] = pd.DataFrame(data = bootstrap_cidx, columns=["C-index"])
         
-
-    prediction_df = pd.DataFrame(prediction_data,
+    # Save out results
+    evaluation_df = pd.DataFrame(evaluation_data,
                                  columns=['Dataset',
                                           'Image_Type',
                                           'C-index',
                                           'Lower_CI',
                                           'Upper_CI'])
-    prediction_df = prediction_df.sort_values(by=["Image_Type"])
-    prediction_df.to_csv(prediction_out_dir / "prediction_metrics.csv", index=False)
-
-    [hazard_df.to_csv(hazards_out_dir / f"{image_type}.csv") for image_type, hazard_df in hazard_data.items()]
-
+    _eval_out_path, evaluation_df = save_evaluation(dataset_config,
+                                               evaluation_data = evaluation_df,
+                                               signature = signature,
+                                               split = split)
+    
+    _pred_out_paths = save_predictions(dataset_config,
+                                       prediction_data = hazard_data,
+                                       signature = signature,
+                                       prediction_type = 'hazards',
+                                       split = split)
     if bootstrap > 0:
-        bootstrap_out_dir = prediction_out_dir / f"bootstrap_{bootstrap}"
-        bootstrap_out_dir.mkdir(parents=True, exist_ok=True)
-        [bootstrap_df.to_csv(bootstrap_out_dir / f"{image_type}.csv") for image_type, bootstrap_df in bootstrap_data.items()]
-
-    return prediction_df, bootstrap_data, hazard_data
-
+        _bootstrap_out_paths = save_predictions(dataset_config,
+                                                prediction_data = bootstrap_data,
+                                                signature = signature,
+                                                prediction_type = f"bootstrap_{bootstrap}",
+                                                split = split)
+        
+    return evaluation_df, bootstrap_data, hazard_data
 
 
 if __name__ == "__main__":

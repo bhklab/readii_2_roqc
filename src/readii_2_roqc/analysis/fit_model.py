@@ -1,53 +1,14 @@
 import click
 import logging
 import numpy as np
-import yaml
 
 from damply import dirs
 from pathlib import Path
 from readii.utils import logger
-from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.loaders import load_dataset_config, DATA_SPLIT_CHOICES
 from readii_2_roqc.utils.analysis import prediction_data_setup
+from readii_2_roqc.utils.writers import save_signature
 from sksurv.linear_model import CoxPHSurvivalAnalysis
-
-def save_signature(dataset_name:str,
-                   signature_name:str,
-                   signature_coefficients:dict[str, np.float64],
-                   overwrite:bool = False):
-
-    # add dataset name to front of signature incase same signature features are used on another dataset
-    save_signature_name = dataset_name + "_" + signature_name
-    
-    # add or change file suffix to yaml if not already there
-    if Path(save_signature_name).suffix not in {".yaml", ".yml"}:
-        save_signature_name = Path(save_signature_name).with_suffix(".yaml").name
-
-    # setup full output path with 
-    save_signature_path = dirs.CONFIG / "signatures" / save_signature_name
-
-    if save_signature_path.exists() and not overwrite:
-        logger.info(f"Signature file already exists at {save_signature_path}. Set overwrite to True if you wish to update it.")
-        return save_signature_path
-    
-    else:
-        try:
-            # create folder structure if it doesn't exist
-            save_signature_path.parent.mkdir(parents=True, exist_ok=True)
-            signature_formatted = {'signature': signature_coefficients}
-
-            # write out the signature with coefficients
-            with open(save_signature_path, 'w', encoding='utf-8') as outfile:
-                yaml.safe_dump(signature_formatted, outfile, default_flow_style=False)
-        except Exception:
-            message = f"Error occurred saving the {save_signature_name} signature."
-            logger.exception(message)
-            raise
-
-        return save_signature_path
-
-
-# def save_predictions(dataset_name:str,
-#                      model)
 
 
 def fit_cph(feature_data,
@@ -107,7 +68,7 @@ def fit_cph(feature_data,
 @click.argument('model', type=click.Choice(['cph']))
 @click.option('--signature', type=click.STRING, default=None)
 @click.option('--image_type', type=click.STRING, default="original_full")
-@click.option('--split', type=click.STRING, default=None)
+@click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Use 'None' for all data; settings taken from dataset config.")
 @click.option('--overwrite', is_flag=True, default=False, help="Overwrite existing outputs if present.")
 def fit_model(dataset:str,
               features:str,
@@ -200,6 +161,7 @@ def fit_model(dataset:str,
     
     match model:
         case 'cph':
+            model_type = 'CoxPHSurvivalAnalysis'
             coefficients, predictions, cidx = fit_cph(feature_data, outcome_data)
             logger.info("Fitted CPH: %d samples, c-index=%.4f", len(predictions), cidx)
         case '_':
@@ -214,7 +176,8 @@ def fit_model(dataset:str,
         
     save_signature(dataset_name, 
                    signature_name = signature_name, 
-                   signature_coefficients=coefficients, 
+                   signature_coefficients=coefficients,
+                   model_type = model_type, 
                    overwrite = overwrite)
 
 
