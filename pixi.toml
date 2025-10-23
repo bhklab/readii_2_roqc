@@ -137,7 +137,7 @@ cmd = ["python",
        "--split", "{{ split }}"
        ]
 
-[tasks.plot_predict]
+[tasks.plot-predict]
 args = ["dataset", 
         "signature",
         {arg = "split", default = 'None'},
