@@ -173,7 +173,9 @@ def predict_with_signature(dataset: str,
         feature_data, outcome_data = prediction_data_setup(dataset_config,
                                                            feature_file=feature_file_path,
                                                            signature_name=signature,
-                                                           split=split)
+                                                           split=split,
+                                                           standard_event_label="survival_event_binary",
+                                                           standard_time_label="survival_time_years")
 
         prediction_metrics, bootstrap_cidx, hazards = predict_with_one_image_type(feature_data = feature_data,
                                                                                   outcome_data = outcome_data,
