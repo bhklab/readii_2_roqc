@@ -67,15 +67,15 @@ def fit_cph(feature_data,
 @click.argument('features', type=click.STRING)
 @click.argument('model', type=click.Choice(['cph']))
 @click.option('--signature', type=click.STRING, default=None)
-@click.option('--image_type', type=click.STRING, default="original_full")
 @click.option('--split', type=click.Choice(DATA_SPLIT_CHOICES), default='None', help="Data subset to use for prediction, TRAIN or TEST. Use 'None' for all data; settings taken from dataset config.")
-@click.option('--overwrite', is_flag=True, default=False, help="Overwrite existing outputs if present.")
+@click.option('--image_type', type=click.STRING, default="original_full")
+@click.option('--overwrite', type=click.BOOL, default='false', help="Overwrite existing outputs if present.")
 def fit_model(dataset:str,
               features:str,
               model:str,
               signature:str | None = None,
-              image_type:str = 'original_full',
               split:str | None = None,
+              image_type:str = 'original_full',
               overwrite:bool = False):
     """Fit a specified model with a signature list of features.
 
