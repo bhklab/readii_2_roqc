@@ -63,55 +63,90 @@ def clinical_data_setup(dataset_config: dict,
 
 def outcome_data_setup(dataset_config: dict,
                        dataframe_with_outcome: pd.DataFrame,
-                       standard_event_label : str = "survival_event_binary",
-                       standard_time_label : str = "survival_time_years"
+                       standard_event_label : str | None = None,
+                       standard_time_label : str | None = None
                        ) -> pd.DataFrame:
-    """Set up survival time in years and binarized event columns based on columns described in a dataset config.
+    """Set up time and event prediction label columns based on settings described in a dataset config.
     """
     outcome_data = dataframe_with_outcome.copy()
     
     # Set up the outcome columns
     outcome_labels = dataset_config['CLINICAL']['OUTCOME_VARIABLES']
 
-    event_variable_type = outcome_data[outcome_labels['event_label']].dtype
-    if pd.api.types.is_object_dtype(event_variable_type):
+    # binary event label setup
+    # can be used for binary or survival prediction labelling
+    event_label = outcome_labels['event_label']
+    
+    standard_labels = []
+
+    if event_label is None:
+        logger.debug('No outcome event label passed for setup. Using time label only.')        
+        standard_event_label = None
+    
+    else:
         mapping = outcome_labels.get('event_value_mapping')
         if not isinstance(mapping, dict):
-            message = ("Outcome event column is object dtype; "
-                       "CLINICAL.OUTCOME_VARIABLES.event_value_mapping must be a dict.")
+            message = ("CLINICAL.OUTCOME_VARIABLES.event_value_mapping in config must be a dict.")
             logger.error(message)
             raise ValueError(message)
-        
-        mapped = outcome_data[outcome_labels['event_label']].map(mapping)
-        if mapped.isna().any():  
-            bad_vals = outcome_data.loc[mapped.isna(), outcome_labels['event_label']].unique()[:10]  
-            message = f"Unmapped event values: {bad_vals}. Update event_value_mapping."  
-            logger.error(message)  
-            raise ValueError(message)  
-        outcome_data[standard_event_label] = mapped.astype(int)  
-        
-    else:
-        outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
-                                                outcome_column_label=outcome_labels['event_label'],
-                                                standard_column_label=standard_event_label,
-                                                event_column_value_mapping=None
-                                                )
-    
-    outcome_data = timeOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
-                                           outcome_column_label=outcome_labels['time_label'],
-                                           standard_column_label=standard_time_label,
-                                           convert_to_years=outcome_labels['convert_to_years']
-                                           )
-    # Select out the standardized outcome columns
-    outcome_data = outcome_data[[standard_event_label, standard_time_label]]
 
-    return outcome_data
+        # Handling if the event labels are a string
+        if pd.api.types.is_object_dtype(outcome_data[event_label]):
+            mapped = outcome_data[event_label].map(mapping)
+
+            if mapped.isna().any():  
+                bad_vals = outcome_data.loc[mapped.isna(), outcome_labels['event_label']].unique()[:10]  
+                message = f"Unmapped event values: {bad_vals}. Update event_value_mapping."  
+                logger.error(message)  
+                raise ValueError(message)
+            
+            outcome_data[standard_event_label] = mapped.astype(int) 
+        else: 
+            # handling if the event labels are any other type 
+            outcome_data = eventOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
+                                                outcome_column_label=event_label,
+                                                standard_column_label=standard_event_label,
+                                                event_column_value_mapping=mapping
+                                                )
+        # add the standardized event label to the list of labels to select at the end of the function
+        standard_labels.append(standard_event_label)
+
+    # continuous time label setup      
+    # can be used for regression or survival prediction labelling
+    time_label = outcome_labels['time_label']
+    if time_label is None:
+        if event_label is None:
+            message = "No outcome labels set in this config. Cannot set up data for prediction labelling."
+            logger.error(message)
+            raise ValueError(message)
+        else:
+            logger.debug('No outcome time label passed for setup. Using event label only.')
+            standard_time_label = None
+    
+    else:
+        # Convert the time column to years if specified in config and rename to standard name
+        outcome_data = timeOutcomeColumnSetup(dataframe_with_outcome=outcome_data,
+                                              outcome_column_label=time_label,
+                                              standard_column_label=standard_time_label,
+                                              convert_to_years=outcome_labels['convert_to_years']
+                                              )
+        
+        # add the standardized time label to the list of labels to select at the end of the function
+        standard_labels.append(standard_time_label)
+    
+    # Select out the standardized outcome columns
+    select_outcome_data = outcome_data[standard_labels]
+
+    return select_outcome_data
 
 
 def prediction_data_setup(dataset_config : dict,
                           feature_file : Path,
-                          signature_name : str | None,
-                          split : str | None):
+                          signature_name : str | None = None,
+                          split : str | None = None,
+                          standard_event_label : str | None = None,
+                          standard_time_label : str | None = None
+                          ):
     """Set up the feature and label data for prediction
        Clinical data is loaded, SampleID column added as index, subsetted by inclusion/exclusion variables and into the train or test cohort defined in the dataset config.
        Outcome data (time to event and event status) is extracted from the clinical data; event is converted to numeric, time is converted to years if needed.
@@ -122,7 +157,10 @@ def prediction_data_setup(dataset_config : dict,
     clinical_data = clinical_data_setup(dataset_config, split = split)
 
     # get outcome variable data from clinical data
-    outcome_data = outcome_data_setup(dataset_config, clinical_data)
+    outcome_data = outcome_data_setup(dataset_config,
+                                      clinical_data,
+                                      standard_event_label=standard_event_label,
+                                      standard_time_label=standard_time_label)
 
     # Load feature data to create signature with
     feature_data = loadFileToDataFrame(feature_file)

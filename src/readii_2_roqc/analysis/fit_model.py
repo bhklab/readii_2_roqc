@@ -157,7 +157,9 @@ def fit_model(dataset:str,
     feature_data, outcome_data = prediction_data_setup(dataset_config,
                                                        feature_file,
                                                        signature,
-                                                       split)
+                                                       split,
+                                                       standard_event_label="survival_event_binary",
+                                                       standard_time_label="survival_time_years")
     
     match model:
         case 'cph':
