@@ -395,3 +395,61 @@ dev_binary_prediction.ipynb
 * Got self-correlation plots made for the original features of each PyRadiomics feature class for NSCLC-Radiomics
 * Should be able to set up loop to process all the HN1 original features tomorrow
 * And hopefully RADCURE negative controls will be done generating by then, and can run feature extraction
+
+
+
+## Adding FMCIB
+#### [2025-09-23]
+
+* Updated the index script to generate the FMCIB extraction file expected
+* Realized I need to update make_negative_controls to add in the crop method
+* Can use this as an opportunity to parallelize the script at the same time
+* Restructuring in a notebook first
+
+
+## Debugging updated negative control generation
+#### [2025-10-14]
+
+* RADCURE data experiences overflow errors for the randomized full negative control feature extraction
+
+```python
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:127: RuntimeWarning: overflow encountered in scalar subtract
+  lowBound = minimum - (minimum % binWidth)
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:132: RuntimeWarning: overflow encountered in scalar add
+  highBound = maximum + 2 * binWidth
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:134: RuntimeWarning: overflow encountered in scalar subtract
+  binEdges = numpy.arange(lowBound, highBound, binWidth)
+/readii_2_roqc/.pixi/envs/default/lib/python3.11/site-packages/radiomics/imageoperations.py:134: RuntimeWarning: overflow encountered in scalar add
+  binEdges = numpy.arange(lowBound, highBound, binWidth)
+```
+
+* So digging into this revealed it's an issue when the range of voxel values in an image exceeds what can be handled by np.int64
+* Trying out windowing the image to see if this solves the problem
+    * Running med-imagetools autopipeline with the following
+
+    ```bash
+    imgtools autopipeline \
+    --filename-format '{PatientID}_{SampleNumber}/{Modality}_{SeriesInstanceUID}/{ImageID}.nii.gz' \
+    --modalities CT,RTSTRUCT \
+    --roi-strategy SEPARATE \
+    -rmap "ROI:GTVp" \
+    --window-level 8500 \ # important change
+    --window-width 23000 \ # important change
+    data/rawdata/TCIA_RADCURE_test/images \
+    data/procdata/TCIA_RADCURE_window_test/images/mit_RADCURE_window_test
+    ```
+
+* OHHH I think this is the original randomized bug!! Why the randomized wouldn't run - that's why I haven't run into until now.
+
+* Ok SO in order to handle this bug there are two updated settings to be applied in the full pipeline
+
+1. In autopipeline, use windowing settings:
+    ```
+    --window-level 1500 
+    --window-width 7000 
+    ```
+    This will set the range of values to -2000 to 5000 in the processed nifti images. This range was chosen to maintain the artifacts in the RADCURE dataset while preventing the overflow errors in the GLCM calculations during PyRadiomics feature extraction on the randomized negative control images.
+
+2. In feature extraction, set the interpolator to `sitk.Linear`. This is better for CT images and prevents the interpolated values from falling outside the -2000 to 5000 range we made in the windowing of med-imagetools.
+
+Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.

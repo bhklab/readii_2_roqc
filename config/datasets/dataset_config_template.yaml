@@ -24,10 +24,9 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
-            - "roi"
         permutations:
-            - "sampled"
-        crop: []
+        crop:
+        resize: 
 
 ### Feature Extraction settings
 EXTRACTION:
