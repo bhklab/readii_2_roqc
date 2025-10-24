@@ -3,6 +3,7 @@ from typing import Optional
 import pandas as pd
 from readii.utils import logger
 from readii.process.label import getPatientIdentifierLabel
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
 from damply import dirs
 from readii.io.loaders.general import loadFileToDataFrame
 from pathlib import Path
@@ -154,15 +155,15 @@ def insert_r2r_index(dataset_config: dict,
     existing_pat_id = getPatientIdentifierLabel(data_to_index)
     extraction_method = f"{dataset_config['EXTRACTION']['METHOD']}"
 
-    # Load the med-imagetools autopipeline simple index output for the dataset
+    # Load the feature extraction index output for the dataset
     full_dataset_name = f"{dataset_config['DATA_SOURCE']}_{dataset_config['DATASET_NAME']}"
-    r2r_index_path = dirs.PROCDATA / full_dataset_name / "features" / extraction_method / f"{extraction_method}_{dataset_config['DATASET_NAME']}_index.csv"
+    extract_features_dir = dirs.PROCDATA / full_dataset_name / "features" / extraction_method
+    r2r_index_path = get_extraction_index_filepath(dataset_config, extract_features_dir)
 
     if r2r_index_path.exists():
         r2r_index = loadFileToDataFrame(r2r_index_path)
     else:
-        message = f"READII {extraction_method} index output don't exist for the {full_dataset_name} dataset. Run index to generate this file."
-        print(message)
+        message = f"READII {extraction_method} index output don't exist for the {full_dataset_name} dataset. Check that feature extraction ran successfully."
         logger.error(message)
         raise FileNotFoundError(message)
 
