@@ -5147,6 +5147,7 @@ packages:
   md5: af20efc4f52675e7ce9a3e3ed8447fbb
   depends:
   - python
+  - libgcc >=14
   - libstdcxx >=14
   - libgcc >=14
   - __glibc >=2.17,<3.0.a0
