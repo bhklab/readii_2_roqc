@@ -21,18 +21,12 @@ env.RESULTS = "${PIXI_PROJECT_ROOT}/data/results"
 env.SCRIPTS = "${PIXI_PROJECT_ROOT}/workflow/scripts"
 
 [dependencies]
-python = "3.11.*"
+python = "<3.12"
 pip = "*"
 ipython = "*"
 ipykernel = "*"
 jupyterlab = "*"
 ipywidgets = ">=8.1.7,<9"
-# numpy = ">=2.2.5,<3"
-# scikit-learn = ">=1.6.1,<2"
-# scikit-survival = ">=0.24.1,<0.25"
-# openpyxl = ">=3.1.5,<4"
-# snakemake = ">=9.4.0,<10"
-# click = ">=8.2.1,<9"
 pyvista = ">=0.46.1,<0.47"
 trame = ">=3.11.0,<4"
 trame-vuetify = ">=3.0.2,<4"
@@ -40,8 +34,6 @@ trame-vtk = ">=2.9.1,<3"
 
 [pypi-dependencies]
 readii_2_roqc = { path = ".", editable = true }
-# readii = ">=1.36.1, <2"
-# damply = ">=0.10.0, <0.11"
 
 
 [tasks]
@@ -65,13 +57,17 @@ cmd = ["imgtools",
 [tasks.readii_negative]
 args = ["dataset",
          {arg = "overwrite", default = "false"},
+         {arg = "parallel", default = "false"},
+         {arg = "jobs", default = "-1"},
          {arg = "seed", default = "10"}
 ]
 cwd = "src/readii_2_roqc/readii"
 cmd = ["python",
        "make_negative_controls.py",
-       "--dataset", "{{ dataset }}",
+       "{{ dataset }}",
        "--overwrite", "{{ overwrite }}",
+       "--parallel", "{{ parallel }}",
+       "--jobs", "{{ jobs }}",
        "--seed", "{{ seed }}"
 ]
 
@@ -80,8 +76,8 @@ args = ["dataset", "method", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
-       "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}",
+       "{{ dataset }}",
+       "{{ method }}",
        "--overwrite", "{{ overwrite }}"
 ]
 
@@ -90,16 +86,39 @@ args = ["dataset",
         "method", 
         "settings",
         {arg = "overwrite", default = "False"},
-        {arg = "parallel", default = "True"}]
+        {arg = "parallel", default = "False"},
+        {arg = "jobs", default = "-1"}]
 depends-on = [{ "task" = "index", "args" = ["{{ dataset }}", "{{ method }}"] }]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "extract.py",
-       "--dataset", "{{ dataset }}",
-       "--method", "{{ method }}",
-       "--settings", "{{ settings }}",
+       "{{ dataset }}",
+       "{{ method }}",
+       "{{ settings }}",
        "--overwrite", "{{ overwrite }}",
-       "--parallel", "{{ parallel }}"
+       "--parallel", "{{ parallel }}",
+       "--jobs", "{{ jobs }}"
+]
+
+[tasks.fit-model]
+args = ["dataset",
+        "features",
+        "model",
+        {arg = "signature", default = 'None'},
+        {arg = "split", default = 'None'},
+        {arg = "image_type", default = "original_full"},
+        {arg = "overwrite", default = 'false'}
+       ]
+cwd = "src/readii_2_roqc/analysis"
+cmd = ["python",
+       "fit_model.py",
+       "{{ dataset }}",
+       "{{ features }}",
+       "{{ model }}",
+       "--signature", "{{ signature }}",
+       "--split", "{{ split }}",
+       "--image_type", "{{ image_type}}", 
+       "--overwrite", "{{ overwrite }}"
 ]
 
 [tasks.predict]
@@ -107,26 +126,28 @@ args = ["dataset",
         "features", 
         "signature",
         {arg = "bootstrap", default = '1000'},
-        {arg = "split", default = 'NONE'}]
+        {arg = "split", default = 'None'}]
 cwd = "src/readii_2_roqc/analysis"
 cmd = ["python",
        "predict.py",
-       "--dataset", "{{ dataset }}",
-       "--features", "{{ features }}",
-       "--signature", "{{ signature }}",
+       "{{ dataset }}",
+       "{{ features }}",
+       "{{ signature }}",
        "--bootstrap", "{{ bootstrap }}",
        "--split", "{{ split }}"
        ]
 
-[tasks.plot_predict]
+[tasks.plot-predict]
 args = ["dataset", 
         "signature",
+        {arg = "split", default = 'None'},
         {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/visualization"
 cmd = ["python",
        "plot_prediction.py",
        "{{ dataset }}",
        "{{ signature }}",
+       "--split", "{{ split }}",
        "--overwrite", "{{ overwrite }}"
        ]
 

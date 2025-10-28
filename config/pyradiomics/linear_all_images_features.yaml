@@ -1,0 +1,38 @@
+imageType:
+    Original: {}
+    Wavelet: {}
+    Square: {}
+    SquareRoot: {}
+    Logarithm: {}
+    Exponential: {}
+    Gradient: {}
+
+featureClass:
+    shape:
+        - MeshVolume
+        - VoxelVolume
+        - SurfaceArea
+        - SurfaceVolumeRatio
+        - Sphericity
+        - Compactness1
+        - SphericalDisproportion
+        - Maximum3DDiameter
+        - Maximum2DDiameterSlice
+        - Maximum2DDiameterColumn
+        - Maximum2DDiameterRow
+        - MajorAxisLength
+        - MinorAxisLength
+        - LeastAxisLength
+        - Elongation
+        - Flatness
+    firstorder:
+    glcm: 
+    glrlm: 
+    glszm: 
+    gldm:
+    ngtdm: 
+
+setting:
+    binWidth: 25
+    resampledPixelSpacing: [1., 1., 1.]
+    interpolator: 'sitkLinear'

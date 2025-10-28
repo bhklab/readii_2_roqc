@@ -1,12 +1,12 @@
 [project]
 authors = [{ name = "Katy", email = "bhklab.katyscott@gmail.com" }]
 name = "readii_2_roqc"
-requires-python = "<3.13"
+requires-python = "<3.12"
 version = "0.1.0"
 dependencies = [
     "pydantic-settings>=2.9.1,<3", 
     "med-imagetools>=2.12.0,<3", 
-    "readii>=1.35.1,<2",
+    "readii>=1.36.2,<2",
     "numpy>=2.2.5,<3",
     "scikit-learn>=1.6.1,<2",
     "scikit-survival>=0.24.1,<0.25",

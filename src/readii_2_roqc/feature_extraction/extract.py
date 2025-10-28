@@ -7,11 +7,15 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
+import logging
+import numpy as np
 from radiomics import featureextractor, setVerbosity
-from readii.io.loaders import loadImageDatasetConfig
-from readii.process.config import get_full_data_name
+from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
+from readii_2_roqc.utils.metadata import remove_slice_index_from_string
 from readii.utils import logger
 from tqdm import tqdm
+
 
 
 def sample_feature_writer(feature_vector : OrderedDict,
@@ -37,8 +41,11 @@ def sample_feature_writer(feature_vector : OrderedDict,
         OrderedDict[str, str]
             Combined metadata and features that was saved out.
     """
+    # Get image size data for output path
+    image_size_str = remove_slice_index_from_string(metadata['readii_Resize'])
+    
     # Construct output path with elements from metadata
-    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Set up metadata as an OrderedDict to be combined with the features
@@ -108,9 +115,11 @@ def pyradiomics_extract(settings: Path | str,
     if metadata is None:
         message = "`metadata` must be provided when overwrite is False."
         raise ValueError(message)
+    
+    image_size_str = remove_slice_index_from_string(metadata["readii_Resize"])
 
     # Check if feature file already exists and if overwrite is specified
-    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / image_size_str / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
         logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
         # Load the existing feature file
@@ -241,9 +250,17 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
     compiled_dataset_features : dict[str, pd.DataFrame]
         A dictionary where keys are image type identifiers (e.g., "original_full", "original_partial") and values are DataFrames containing the compiled features for each image type.
     """
+    dataset_row = dataset_index.iloc[0]
+    # Validate that all rows share the same DataSource and DatasetName  
+    if not (dataset_index['DataSource'].nunique() == 1 and dataset_index['DatasetName'].nunique() == 1):  
+        message = "Dataset index contains mixed DataSource or DatasetName values."  
+        logger.error(message)  
+        raise ValueError(message)
     
+    image_size_str = remove_slice_index_from_string(dataset_row['readii_Resize'])
+
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
-    features_dir_struct = Path(f"{dataset_index.iloc[0]['DataSource']}_{dataset_index.iloc[0]['DatasetName']}") / "features" / method / settings_name
+    features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / image_size_str / settings_name
 
     # Set up path to the directory containing the sample feature files
     sample_features_dir = dirs.PROCDATA / features_dir_struct
@@ -253,27 +270,25 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
     # Check for existing result feature dataset files
     existing_dataset_files = sorted((dirs.RESULTS / features_dir_struct).glob('*.csv'))
+    # Initialize dictionary to store compiled feature dataframes
+    compiled_dataset_features: dict[str, pd.DataFrame] = {}
     if existing_dataset_files and not overwrite:
         # Get the image classes in the same format as readii_image_classes (a set of tuples)
-        compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_')) for file in existing_dataset_files}
+        compiled_image_classes = {tuple(file.name.removesuffix('_features.csv').split('_', 1)) for file in existing_dataset_files}
         
         # Check whether there are new image classes to compile
         if readii_image_classes.issubset(compiled_image_classes):
             message = "All requested feature sets have already been generated for these samples and compiled into results for this dataset. Set overwrite to True if you want to re-process these."
-            print(message)
             logger.info(message)
             
             # Load in the existing compiled dataset files into a dictionary to match function output
             compiled_dataset_features = {file.name.removesuffix('_features.csv'):pd.read_csv(file) for file in existing_dataset_files}
+            return compiled_dataset_features
         else:
             message = "Some requested feature sets have already been compiled. These will not be rerun, but loaded from existing files. Set overwrite to True if you want to re-compile all image type feature sets."
-            print(message)
             logger.info(message)
 
     else:
-        # Initialize dictionary to store compiled feature dataframes
-        compiled_dataset_features = {}
-
         for permutation, region in readii_image_classes:
             logger.info(f"Compiling features for {permutation} {region} images.")
             # Filter the dataset index for this image class
@@ -339,16 +354,18 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
 
 @click.command()
-@click.option('--dataset', type=click.STRING, required=True, help='Name of the dataset to perform extraction on.')
-@click.option('--method', type=click.Choice(['pyradiomics']), required=True, help='Feature extraction method to use.')
-@click.option('--settings', type=click.STRING, required=True, help='Name of the feature extraction settings file in config/<method>.')
+@click.argument('dataset', type=click.STRING)
+@click.argument('method', type=click.Choice(['pyradiomics']))
+@click.argument('settings', type=click.STRING)
 @click.option('--overwrite', type=click.BOOL, default=False, help='Overwrite existing feature files.')
 @click.option('--parallel', type=click.BOOL, default=False, help='Run feature extraction in parallel.')
+@click.option('--jobs', type=click.INT, help="Number of jobs to give parallel processor", default=-1)
 def extract_dataset_features(dataset: str,
                              method: str,
                              settings: str | Path,
                              overwrite: bool = False,
-                             parallel: bool = False) -> Path:
+                             parallel: bool = False,
+                             jobs: int = -1) -> dict[str, pd.DataFrame]: 
     """Extract features from a dataset using the specified method and settings.
 
     Parameters
@@ -363,44 +380,59 @@ def extract_dataset_features(dataset: str,
         Whether to overwrite existing feature files.
     parallel : bool = False
         Whether to run feature extraction in parallel. Defaults to False.
+    jobs : int = -1
+        Number of jobs to give parallel processor.
 
     Returns
     -------
-    Path
-        Path to the output feature file.
+    dict[str, pd.DataFrame]
+        Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
+    logger = logging.getLogger(__name__)  
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)  
+    logging.basicConfig(  
+        filename=str(dirs.LOGS / f"{dataset}_extract.log"),  
+        encoding='utf-8',  
+        level=logging.DEBUG,  
+        force=True  
+    )
+
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
         raise ValueError(message)
-
-    # get path to dataset config directory
-    config_dir_path = dirs.CONFIG / 'datasets'
     
     # Load in dataset configuration settings from provided dataset name
-    dataset_config = loadImageDatasetConfig(dataset, config_dir_path)
-
-    dataset_name = dataset_config['DATASET_NAME']
-    full_data_name = get_full_data_name(config_dir_path / dataset)
+    dataset_config, dataset_name, full_data_name = load_dataset_config(dataset)
     logger.info(f"Extraction {method} radiomic features for {dataset_name}")
 
     try:
         # Load the dataset index
-        dataset_index_path = dirs.PROCDATA / full_data_name / "features" / method / f"{method}_{dataset_name}_index.csv"
+        dataset_index_path = get_extraction_index_filepath(dataset_config,
+                                                           extract_features_dir = dirs.PROCDATA / full_data_name / "features" / method)
         dataset_index = pd.read_csv(dataset_index_path)
     except FileNotFoundError:
-        logger.error(f"Dataset index file for {method} feature extraction does not exist at {dataset_index_path}.")
+        logger.error(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
         raise
 
     # Add dataset source to metadata for file loading and saving purposes
     if 'DataSource' not in dataset_index.columns:
         dataset_index['DataSource'] = dataset_config['DATA_SOURCE']
 
+    # PyRadiomics READII does not support crop in this pipeline; raise if any crop value is present
+    if method == 'pyradiomics':
+        crop_series = dataset_index['readii_Crop']
+        has_crop = crop_series.notna() & (crop_series.astype(str).str.strip() != '')
+        if has_crop.any():
+            message = 'No crop methods have been implemented for PyRadiomics extraction with READII yet.'
+            logger.error(message)
+            raise NotImplementedError(message)
+
     logger.info("Starting feature extraction for individual image type + mask pairs.")
     # Extract features for each sample in the dataset index
     if parallel:
         # Use joblib to parallelize feature extraction
-        Parallel(n_jobs=-1)(
+        Parallel(n_jobs=jobs)(
             delayed(extract_sample_features)(
                 sample_data=sample_data,
                 method=method,
