@@ -1,0 +1,54 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "HEAD-NECK-RADIOMICS-HN1_windowed"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: "Copy of HEAD-NECK-RADIOMICS-HN1 Clinical data updated July 2020 2.csv"
+    OUTCOME_VARIABLES:
+        time_label: # "overall_survival_in_days"
+        event_label: overall_hpv_p16_status #"event_overall_survival"
+        convert_to_years: True
+        event_value_mapping: {"positive": 1, "negative": 0} #{} # Event values should be in the order {0: Alive_value, 1: Dead_value}
+    EXCLUSION_VARIABLES: {}
+    INCLUSION_VARIABLES: {'index_tumour_location': ['oropharynx'],
+                          'overall_hpv_p16_status': ['positive', 'negative']}
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        ROI:GTV-1
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+            - "roi"
+            - "non_roi"
+        permutations:
+            - "shuffled"
+            - "sampled"
+            - "randomized"
+        crop:
+        resize: 
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: linear_all_images_features
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split: False
+        split_variable: {}
+        impute: null
+
+RANDOM_SEED: 10
+
+VOL_LINE: 0.6133935907970419 # opc only
+# 0.629 # full dataset

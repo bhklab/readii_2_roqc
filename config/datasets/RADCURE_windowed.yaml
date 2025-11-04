@@ -1,0 +1,60 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "RADCURE_windowed"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: "RADCURE_Clinical_v04_20241219.xlsx"
+    OUTCOME_VARIABLES:
+        event_label: "HPV" #"Status"
+        event_value_mapping: {"Yes, positive": 1, "Yes, Negative": 0} #{'Alive': 0, 'Dead': 1}
+        time_label: # "Length FU"
+        convert_to_years: False
+    EXCLUSION_VARIABLES: {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+    INCLUSION_VARIABLES: {
+        'Ds Site': ['Oropharynx'],
+        'HPV': ['Yes, positive', 'Yes, Negative']
+        }
+    
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        ROI:GTVp
+        
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions:
+            - "full"
+            - "roi"
+            - "non_roi"
+        permutations:
+            - "shuffled"
+            - "sampled"
+            - "randomized"
+        crop: 
+        resize:
+
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: linear_all_images_features
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split_variable: 'RADCURE-challenge'
+        train_label: 'training'
+        test_label: 'test'
+        impute: 'training'
+
+RANDOM_SEED: 10
+
+VOL_LINE: 0.6998015515064044 # opc test
+# 0.7094337342116396 # test
