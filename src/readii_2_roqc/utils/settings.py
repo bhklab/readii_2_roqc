@@ -1,6 +1,9 @@
-from pathlib import Path
-from readii.utils import logger
+import logging
 import numpy as np
+
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 REGIONS = {'full', 'roi', 'non_roi'}
 PERMUTATIONS = {'shuffled', 'sampled', 'randomized'}

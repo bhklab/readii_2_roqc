@@ -1,19 +1,22 @@
 
-import numpy as np
-import pandas as pd
-
-from damply import dirs
+import logging
 from pathlib import Path
-from readii.utils import logger
+
+import pandas as pd
+from damply import dirs
+
 from readii.io.loaders import loadFileToDataFrame
 from readii.process.label import (
     eventOutcomeColumnSetup,
     timeOutcomeColumnSetup,
 )
-from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
 from readii.process.split import splitDataByColumnValue
+from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
+
 from readii_2_roqc.utils.loaders import load_signature_config
 from readii_2_roqc.utils.metadata import insert_r2r_index
+
+logger = logging.getLogger(__name__)
 
 
 def clinical_data_setup(dataset_config: dict,
