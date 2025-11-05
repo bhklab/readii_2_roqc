@@ -133,6 +133,12 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#updates-to-usage">Updates to usage</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#2025-11-05">[2025-11-05]</a>
+    </li>
+        </ul>
+    </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../shabnam_notes/">Shabnam's Notes</a>
@@ -709,6 +715,26 @@ data/procdata/TCIA_RADCURE_window_test/images/mit_RADCURE_window_test
 </li>
 </ul>
 <p>Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.</p>
+<h2 id="updates-to-usage">Updates to usage</h2>
+<h4 id="2025-11-05">[2025-11-05]</h4>
+<p>Removing data splitting
+<div class="highlight"><pre><span></span><code>    ## Data splitting
+    ### aerts_original
+    Train: NSCLC-Radiomics  
+    Validation: HN1, RADCURE-test
+
+    ### aerts_RADCURE_refit
+    Train: RADCURE-train  
+    Validation: HN1, RADCURE-test
+
+    ### r2r_NSCLC
+    Train: NSCLC-Radiomics  
+    Validation: HN1, RADCURE-test
+
+    ### r2r_RADCURE
+    Train: RADCURE-train  
+    Validation: HN1, RADCURE-test
+</code></pre></div></p>
               
             </div>
           </div><footer>
