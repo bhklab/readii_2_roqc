@@ -221,7 +221,7 @@ def make_negative_controls(dataset: str,
         List of paths to the saved out negative control NIfTI files.
     """
     # Set up logging
-    dirs.LOGS.mkdir(exist_ok=True)
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=str(dirs.LOGS / f"{dataset}_make_negative_controls.log"),
         encoding='utf-8',

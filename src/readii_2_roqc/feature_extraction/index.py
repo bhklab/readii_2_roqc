@@ -330,7 +330,7 @@ def generate_dataset_index(dataset: str,
         Dataframe listing metadata required for specified method's feature extraction process.
     """
     # Set up logging
-    dirs.LOGS.mkdir(exist_ok=True)
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(
         filename=str(dirs.LOGS / f"{dataset}_index.log"),
         encoding='utf-8',
