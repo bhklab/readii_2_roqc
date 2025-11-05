@@ -6,7 +6,6 @@ import pandas as pd
 from damply import dirs
 from readii.io.loaders.general import loadFileToDataFrame
 
-# from readii.utils import logger
 from readii.process.label import getPatientIdentifierLabel
 
 from readii_2_roqc.utils.settings import get_extraction_index_filepath

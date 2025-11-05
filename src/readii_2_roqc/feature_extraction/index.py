@@ -7,7 +7,6 @@ from damply import dirs
 from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name
 
-# from readii.utils import logger
 from readii_2_roqc.utils.metadata import (
     get_masked_image_metadata,
     make_edges_df,

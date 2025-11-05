@@ -6,7 +6,6 @@ import SimpleITK as sitk
 import yaml
 from damply import dirs
 
-# from readii.utils import logger
 from readii.image_processing import alignImages, flattenImage
 from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name

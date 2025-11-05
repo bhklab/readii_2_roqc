@@ -10,7 +10,6 @@ from damply import dirs
 from joblib import Parallel, delayed
 from radiomics import featureextractor, setVerbosity
 
-# from readii.utils import logger
 from tqdm import tqdm
 
 from readii_2_roqc.utils.loaders import load_dataset_config

@@ -1,8 +1,7 @@
 import logging
-from pathlib import Path
-
-# from readii.utils import logger
 import numpy as np
+
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
