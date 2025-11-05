@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import click
@@ -5,10 +6,20 @@ import pandas as pd
 from damply import dirs
 from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name
-from readii.utils import logger
 
-from readii_2_roqc.utils.metadata import get_masked_image_metadata, make_edges_df, remove_slice_index_from_string
-from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
+# from readii.utils import logger
+from readii_2_roqc.utils.metadata import (
+    get_masked_image_metadata,
+    make_edges_df,
+    remove_slice_index_from_string,
+)
+from readii_2_roqc.utils.settings import (
+    get_readii_index_filepath,
+    get_readii_settings,
+    get_resize_string,
+)
+
+logger = logging.getLogger(__name__)
 
 def get_mit_extraction_index(dataset_config: dict,
                              mit_index_path: Path):
@@ -318,6 +329,14 @@ def generate_dataset_index(dataset: str,
     dataset_index:pd.DataFrame
         Dataframe listing metadata required for specified method's feature extraction process.
     """
+    # Set up logging
+    dirs.LOGS.mkdir(exist_ok=True)
+    logging.basicConfig(
+        filename=str(dirs.LOGS / f"{dataset}_index.log"),
+        encoding='utf-8',
+        level=logging.DEBUG,
+        force=True
+    )
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
@@ -354,7 +373,7 @@ def generate_dataset_index(dataset: str,
             raise ValueError(message)
 
     else:
-        logger.info(f"No READII settings specified. Only MIT index will be used for extraction index generation.")
+        logger.info("No READII settings specified. Only MIT index will be used for extraction index generation.")
         readii_index = None
 
     # Construct output file path from DMP and feature extraction type

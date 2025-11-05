@@ -1,17 +1,19 @@
+import logging
 from pathlib import Path
 
 import click
-import logging
+
+# import logging
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
 from damply import dirs
 from matplotlib.figure import Figure
 from readii.io.writers.plot_writer import PlotWriter
+
 from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
 
-logger = logging.getLogger(__name__)  
+logger = logging.getLogger(__name__)
 
 
 def build_prediction_df(dataset_config: dict,

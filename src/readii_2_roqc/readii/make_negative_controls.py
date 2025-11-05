@@ -1,23 +1,31 @@
-import click
-import pandas as pd
 import itertools
 import logging
-import SimpleITK as sitk
-
-from damply import dirs
 from pathlib import Path
-from tqdm import tqdm
-from joblib import Parallel, delayed
 
+import click
+import pandas as pd
+import SimpleITK as sitk
+from damply import dirs
 from imgtools.io.writers.nifti_writer import NIFTIWriter, NiftiWriterIOError
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
-from readii.process.images.crop import crop_and_resize_image_and_mask
 from readii.negative_controls_refactor.manager import NegativeControlManager
-from readii.utils import logger
-
+from readii.process.images.crop import crop_and_resize_image_and_mask
 from readii_2_roqc.utils.loaders import load_dataset_config, load_image_and_mask
-from readii_2_roqc.utils.metadata import get_masked_image_metadata, insert_SampleID, make_edges_df, remove_slice_index_from_string
-from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
+from readii_2_roqc.utils.metadata import (
+    get_masked_image_metadata,
+    insert_SampleID,
+    make_edges_df,
+    remove_slice_index_from_string,
+)
+from readii_2_roqc.utils.settings import (
+    get_readii_index_filepath,
+    get_readii_settings,
+    get_resize_string,
+)
+
+logger = logging.getLogger(__name__)
 
 def negative_control_generator(sample_id:str,
                                image:sitk.Image,
@@ -212,8 +220,8 @@ def make_negative_controls(dataset: str,
     readii_image_paths : list[Path]
         List of paths to the saved out negative control NIfTI files.
     """
-    logger = logging.getLogger(__name__)
-    dirs.LOGS.mkdir(parents=True, exist_ok=True)
+    # Set up logging
+    dirs.LOGS.mkdir(exist_ok=True)
     logging.basicConfig(
         filename=str(dirs.LOGS / f"{dataset}_make_negative_controls.log"),
         encoding='utf-8',

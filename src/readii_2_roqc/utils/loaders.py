@@ -1,13 +1,17 @@
-from damply import dirs
+import logging
 from pathlib import Path
-from readii.io.loaders import loadImageDatasetConfig
-from readii.process.config import get_full_data_name
-from readii.utils import logger
-from readii.image_processing import alignImages, flattenImage
 
 import pandas as pd
 import SimpleITK as sitk
 import yaml
+from damply import dirs
+
+# from readii.utils import logger
+from readii.image_processing import alignImages, flattenImage
+from readii.io.loaders import loadImageDatasetConfig
+from readii.process.config import get_full_data_name
+
+logger = logging.getLogger(__name__)
 
 # Global variable used for --split input argument throughout package
 DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', 'None']

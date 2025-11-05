@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import Generator
@@ -7,16 +8,16 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
-import logging
-import numpy as np
 from radiomics import featureextractor, setVerbosity
-from readii_2_roqc.utils.loaders import load_dataset_config
-from readii_2_roqc.utils.settings import get_extraction_index_filepath
-from readii_2_roqc.utils.metadata import remove_slice_index_from_string
-from readii.utils import logger
+
+# from readii.utils import logger
 from tqdm import tqdm
 
+from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.metadata import remove_slice_index_from_string
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
 
+logger = logging.getLogger(__name__)
 
 def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
@@ -388,7 +389,7 @@ def extract_dataset_features(dataset: str,
     dict[str, pd.DataFrame]
         Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
-    logger = logging.getLogger(__name__)  
+
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
     logging.basicConfig(  
         filename=str(dirs.LOGS / f"{dataset}_extract.log"),  

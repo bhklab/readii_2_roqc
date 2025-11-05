@@ -1,13 +1,17 @@
+import logging
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from readii.utils import logger
-from readii.process.label import getPatientIdentifierLabel
-from readii_2_roqc.utils.settings import get_extraction_index_filepath
 from damply import dirs
 from readii.io.loaders.general import loadFileToDataFrame
-from pathlib import Path
 
+# from readii.utils import logger
+from readii.process.label import getPatientIdentifierLabel
+
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
+
+logger = logging.getLogger(__name__)
 
 def roi_filter_mask_metadata(mask_metadata:pd.DataFrame,
                              dataset_config:dict

@@ -1,6 +1,7 @@
-from readii_2_roqc.utils.loaders import load_dataset_config
-from readii.io.writers.correlation_writer import CorrelationWriter
 from damply import dirs
+from readii.io.writers.correlation_writer import CorrelationWriter
+
+from readii_2_roqc.utils.loaders import load_dataset_config
 
 # More colour options
 # from palettable.colorbrewer.diverging import PuOr_4
@@ -34,11 +35,9 @@ def self_correlate(dataset: str,
     # - image type vertical and horizontal
 
 
-    return
 
 
 if __name__ == "__main__":
     self_correlate()
 
 
-    # 
