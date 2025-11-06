@@ -1,0 +1,5 @@
+signature:
+    'original_firstorder_Energy': 2.42E-11
+    'original_shape_Compactness1': -5.38E-03
+    'original_glrlm_GrayLevelNonUniformity': -1.47E-04
+    'wavelet-HLH_glrlm_GrayLevelNonUniformity': 9.39E-06
