@@ -41,8 +41,13 @@ def sample_feature_writer(feature_vector : OrderedDict,
         OrderedDict[str, str]
             Combined metadata and features that was saved out.
     """
-    # Get image size data for output path
-    image_size_str = remove_slice_index_from_string(metadata['readii_Resize'])
+
+    resize = metadata['readii_Resize']
+    if resize == '':
+        image_size_str = "original"
+    else:
+        # Get image size data for output path
+        image_size_str = remove_slice_index_from_string(resize)
     
     # Construct output path with elements from metadata
     output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
@@ -59,6 +64,7 @@ def sample_feature_writer(feature_vector : OrderedDict,
     with output_path.open('w') as f:
         f.writelines(f"{key};{value}\n" for key, value in metadata.items())
 
+    logger.info(f"Features written to {output_path}.")
     return metadata
 
 
@@ -116,7 +122,12 @@ def pyradiomics_extract(settings: Path | str,
         message = "`metadata` must be provided when overwrite is False."
         raise ValueError(message)
     
-    image_size_str = remove_slice_index_from_string(metadata["readii_Resize"])
+    resize = metadata['readii_Resize']
+    if resize == '':
+        image_size_str = "original"
+    else:
+        # Get image size data for output path
+        image_size_str = remove_slice_index_from_string(resize)
 
     # Check if feature file already exists and if overwrite is specified
     sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / image_size_str / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
@@ -139,6 +150,8 @@ def pyradiomics_extract(settings: Path | str,
             settings = str(settings)
 
         try:
+            logger.info(f"Extraction features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask")
+ 
             # Set up PyRadiomics feature extractor with provided settings file (expects a string, not a pathlib Path)
             extractor = featureextractor.RadiomicsFeatureExtractor(settings)
 
@@ -150,6 +163,7 @@ def pyradiomics_extract(settings: Path | str,
             sample_feature_vector = OrderedDict()
         
         if len(sample_feature_vector) > 0:
+            logger.info("Writing out extracted features.")
             # Save out the feature vector with the metadata appended to the front
             sample_feature_writer(feature_vector=sample_feature_vector,
                                 metadata=metadata,
@@ -257,7 +271,11 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
         logger.error(message)  
         raise ValueError(message)
     
-    image_size_str = remove_slice_index_from_string(dataset_row['readii_Resize'])
+    resize = dataset_row['readii_Resize']
+    if resize == '':
+        image_size_str = 'original'
+    else:
+        image_size_str = remove_slice_index_from_string(resize)
 
     # Set up the directory structure for the features in the processed (samples) and results (datasets) directories
     features_dir_struct = Path(f"{dataset_row['DataSource']}_{dataset_row['DatasetName']}") / "features" / method / image_size_str / settings_name
@@ -410,7 +428,7 @@ def extract_dataset_features(dataset: str,
         # Load the dataset index
         dataset_index_path = get_extraction_index_filepath(dataset_config,
                                                            extract_features_dir = dirs.PROCDATA / full_data_name / "features" / method)
-        dataset_index = pd.read_csv(dataset_index_path)
+        dataset_index = pd.read_csv(dataset_index_path, keep_default_na=False)
     except FileNotFoundError:
         logger.error(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
         raise

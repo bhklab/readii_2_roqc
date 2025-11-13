@@ -73,7 +73,7 @@ def get_extraction_index_filepath(dataset_config:dict,
         if crop is not None and resize is not None:
             extract_index_filepath = extract_features_dir.glob(f"{crop}_{get_resize_string(resize)}/{extract_method}_{dataset_name}_index.csv").__next__()
         else:
-            extract_index_filepath = extract_features_dir.glob(f"original_*/{extract_method}_{dataset_name}_index.csv").__next__()
+            extract_index_filepath = extract_features_dir.glob(f"original/{extract_method}_{dataset_name}_index.csv").__next__()
     except StopIteration:
         message = f"No {extract_method} index file was found for the specified settings"
         logger.warning(message)

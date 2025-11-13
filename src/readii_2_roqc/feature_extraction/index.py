@@ -84,7 +84,7 @@ def get_mit_extraction_index(dataset_config: dict,
                               "readii_Permutation": "original",
                               "readii_Region": "full",
                               "readii_Crop": '',
-                              "readii_Resize": mit_edges_index.apply(lambda x: x['size_image'].replace(', ', "_").strip('()'), axis=1)
+                              "readii_Resize": ''
                              }
                        )
 
@@ -381,7 +381,7 @@ def generate_dataset_index(dataset: str,
         image_type = f'{crop}_{get_resize_string(resize)}'
     else:
         # Get the x and y dimension of the image and put this with an n as the size value for the output folder
-        image_type = remove_slice_index_from_string(img_size=mit_index.readii_Resize[0])
+        image_type = 'original'
 
     output_file_path = dirs.PROCDATA / full_data_name / "features" / feature_extraction_type / image_type / f"{feature_extraction_type}_{dataset_name}_index.csv"
 
