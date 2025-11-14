@@ -144,10 +144,15 @@ def image_preprocessor(dataset_config:dict,
     # Process crop and resize of original image if needed, and save
     if crop is not None and resize is not None:
         logger.info("Making cropped version of original image")
-        crop_image, crop_mask = crop_and_resize_image_and_mask(image, 
-                                                               mask, 
-                                                               crop_method = crop, 
-                                                               resize_dimension = resize)
+        try:
+            crop_image, crop_mask = crop_and_resize_image_and_mask(image, 
+                                                                mask, 
+                                                                crop_method = crop, 
+                                                                resize_dimension = resize)
+        except Exception:
+            message = f"Cropping and resizing {sample_id} image failed. Skipping image. Image_ID: {image_meta_id}, Mask_ID: {mask_meta_id}. Image size: {image.GetSize()}. Mask size: {mask.GetSize()}"
+            logger.debug(message)
+            return []
         # save out cropped image
         try:
             # The capitalized arguments are here on purpose to manipulate the order of the columns in the index file
