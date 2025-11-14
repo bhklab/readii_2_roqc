@@ -15,9 +15,9 @@ CLINICAL:
 MIT:
     MODALITIES: 
         image: CT
-        mask: 
+        mask: SEG
     ROI_STRATEGY: SEPARATE
-    ROI_MATCH_MAP: ROI:GTV_.* # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
+    ROI_MATCH_MAP: ROI:GTV.* # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
         
 
 ### READII settings
@@ -29,7 +29,7 @@ READII:
             
         crop:
              
-        resize: []
+        resize:
 
 ### Feature Extraction settings
 EXTRACTION:
