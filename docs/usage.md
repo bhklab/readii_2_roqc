@@ -14,6 +14,16 @@
 ## Environment
 **IMPORTANT NOTE** This project will not work with Med-ImageTools properly with Python 3.12 or above. The pixi environment must have Python < 3.12 installed.
 
+## Data Prerequisites  
+
+At minimum, datasets for the READII-2-ROQC must include the following for each sample: 
+
+1. A radiographic image in DICOM-CT format 
+2. An ROI mask in DICOM-RTSTRUCT or DICOM-SEG format. 
+
+Images should be organized into a directory for processing. Clinical data is an optional addition, and may be included in a CSV or XLSX format. A READII-2-ROQC configuration file must be filled in with settings for each of the pipeline steps. 
+
+
 ## Project Configuration
 
 `config` should have three subdirectories: `datasets/`, `pyradiomics/`, and `signatures/`
