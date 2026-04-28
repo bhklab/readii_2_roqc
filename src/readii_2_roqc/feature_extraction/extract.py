@@ -141,12 +141,15 @@ def pyradiomics_extract(settings: Path | str,
         try:
             # Set up PyRadiomics feature extractor with provided settings file (expects a string, not a pathlib Path)
             extractor = featureextractor.RadiomicsFeatureExtractor(settings)
-
             sample_feature_vector = extractor.execute(image, mask)
 
-        except Exception as e:
-            logger.debug(f"Feature extraction failed for this sample: {e}")
+        # Check for common issues with the settings file that would cause PyRadiomics to fail
+        except ValueError as e:
+            print(f"Issue with the settings file for PyRadiomics feature extraction: {e}")
+            raise e
 
+        except Exception as e:
+            print(f"Feature extraction failed for this sample: {e}")
             sample_feature_vector = OrderedDict()
         
         if len(sample_feature_vector) > 0:
