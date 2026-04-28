@@ -1,5 +1,5 @@
-DATA_SOURCE: "TCGA-KIRC"
-DATASET_NAME: "TCIA"
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "TCGA-KIRC"
 
 ### CLINICAL VARIABLE INFORMATION ###
 CLINICAL:
@@ -15,9 +15,9 @@ CLINICAL:
 MIT:
     MODALITIES: 
         image: CT
-        mask: 
-    ROI_STRATEGY: MERGE
-    ROI_MATCH_MAP: KEY:ROI_NAME # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
+        mask: SEG
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: ROI:GTV.* # NOTE: there can be no spaces in KEY:ROI_NAME and right now there can only be one KEY
         
 
 ### READII settings
@@ -29,7 +29,7 @@ READII:
             
         crop:
              
-        resize: []
+        resize:
 
 ### Feature Extraction settings
 EXTRACTION:
