@@ -6,6 +6,7 @@ imageType:
     Logarithm: {}
     Exponential: {}
     Gradient: {}
+    LBP2D: {}
 
 featureClass:
     shape:
