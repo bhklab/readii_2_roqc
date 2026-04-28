@@ -1,0 +1,3 @@
+model: CoxPHSurvivalAnalysis
+signature:
+  original_shape_MeshVolume: 8.527092409541519e-06
