@@ -1,6 +1,7 @@
 from pathlib import Path
 from readii.utils import logger
 import numpy as np
+import itertools
 
 REGIONS = {'full', 'roi', 'non_roi'}
 PERMUTATIONS = {'shuffled', 'sampled', 'randomized'}
@@ -174,3 +175,10 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, str, int | li
         raise TypeError(message)
 
     return regions, permutations, crop, resize
+
+
+def image_type_iterator(dataset_config: dict) -> itertools.chain:
+    """Get iterator to loop over all combinations of negative controls plus the original full image type."""
+    regions, permutations, _, _ = get_readii_settings(dataset_config)
+
+    return itertools.chain([('original', 'full')],itertools.product(permutations,regions))

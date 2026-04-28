@@ -9,32 +9,36 @@ CLINICAL:
         event_label: "deadstatus.event"
         convert_to_years: True
         event_value_mapping: {}
-    EXCLUSION_VARIABLES: {}
     INCLUSION_VARIABLES: {}
+    EXCLUSION_VARIABLES: {}
 
 ### MED-IMAGETOOLS settings
 MIT:
     MODALITIES:
         image: CT
         mask: RTSTRUCT
-    ROI_STRATEGY: MERGE
+    ROI_STRATEGY: SEPARATE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        'GTV:GTV-1,gtv-pre-op'
+        'ROI:GTV-1,gtv-pre-op'
 
 ### READII settings
 READII:
     IMAGE_TYPES:
         regions:
+            - "full"
             - "roi"
+            - "non_roi"
         permutations:
             - "shuffled"
-        crop:   
+            - "randomized"
+            - "sampled"
+        crop: 
         resize: []
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: linear_all_images_features.yaml
+    CONFIG: linear_all_images_features
 
 ### Analysis settings
 ANALYSIS:
@@ -45,4 +49,4 @@ ANALYSIS:
 
 RANDOM_SEED: 10
 
-VOL_LINE: 0.585
+VOL_LINE: 0.585 # test

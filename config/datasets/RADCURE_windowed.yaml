@@ -5,13 +5,17 @@ DATASET_NAME: "RADCURE_windowed"
 CLINICAL:
     FILE: "RADCURE_Clinical_v04_20241219.xlsx"
     OUTCOME_VARIABLES:
+        event_label: "Status" # "HPV" 
+        event_value_mapping: {'Alive': 0, 'Dead': 1} # {"Yes, positive": 1, "Yes, Negative": 0}
         time_label: "Length FU"
-        event_label: "Status"
         convert_to_years: False
-        event_value_mapping: {"Alive": 0, "Dead": 1}
-    EXCLUSION_VARIABLES: {} # {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
-    INCLUSION_VARIABLES: {
-        }
+    EXCLUSION_VARIABLES: {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+    INCLUSION_VARIABLES: {}
+        # {
+        # 'Ds Site': ['Oropharynx'],
+        # 'HPV': ['Yes, positive', 'Yes, Negative']
+        # }
+    
 
 ### MED-IMAGETOOLS settings
 MIT:
@@ -19,26 +23,29 @@ MIT:
         image: CT
         mask: RTSTRUCT
     ROI_STRATEGY: SEPARATE
-    ROI_MATCH_MAP: ROI:GTVp
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        ROI:GTVp
+        
 
 ### READII settings
 READII:
-    IMAGE_TYPES: 
-        regions: 
+    IMAGE_TYPES:
+        regions:
             - "full"
             - "roi"
             - "non_roi"
-        permutations: 
-            - "randomized"
-            - "sampled"
+        permutations:
             - "shuffled"
-        crop:
-        resize: []
+            - "sampled"
+            - "randomized"
+        crop: 
+        resize:
+
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: linear_all_images_features.yaml
+    CONFIG: linear_all_images_features
 
 ### Analysis settings
 ANALYSIS:
@@ -50,4 +57,5 @@ ANALYSIS:
 
 RANDOM_SEED: 10
 
-VOL_LINE: 0.710
+VOL_LINE: 0.710 # test
+# 0.69980 # opc test 

@@ -6,20 +6,21 @@ CLINICAL:
     FILE: "Copy of HEAD-NECK-RADIOMICS-HN1 Clinical data updated July 2020 2.csv"
     OUTCOME_VARIABLES:
         time_label: "overall_survival_in_days"
-        event_label: "event_overall_survival"
+        event_label: "event_overall_survival" # overall_hpv_p16_status 
         convert_to_years: True
-        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
+        event_value_mapping: #{"positive": 1, "negative": 0} #{} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
-    INCLUSION_VARIABLES: {}
+    INCLUSION_VARIABLES: {} #{'index_tumour_location': ['oropharynx'],
+                            # 'overall_hpv_p16_status': ['positive', 'negative']}
 
 ### MED-IMAGETOOLS settings
 MIT:
     MODALITIES: 
         image: CT
         mask: RTSTRUCT
-    ROI_STRATEGY: MERGE
+    ROI_STRATEGY: SEPARATE
     ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
-        GTV:GTV-1
+        ROI:GTV-1
 
 ### READII settings
 READII:
@@ -33,7 +34,7 @@ READII:
             - "sampled"
             - "randomized"
         crop:
-        resize: []
+        resize: 
 
 ### Feature Extraction settings
 EXTRACTION:
@@ -49,4 +50,6 @@ ANALYSIS:
 
 RANDOM_SEED: 10
 
-VOL_LINE: 0.629
+VOL_LINE: 0.629 # test
+# 0.6133935907970419 # opc only
+

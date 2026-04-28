@@ -5,10 +5,10 @@ DATASET_NAME: ""
 CLINICAL:
     FILE: ""
     OUTCOME_VARIABLES:
-        time_label: ""
         event_label: ""
+        event_value_mapping: {} # Ex. {'Event': 1, 'No event': 0}
+        time_label: ""
         convert_to_years: False
-        event_value_mapping: {} # Event values should be in the order {0: Alive_value, 1: Dead_value}
     EXCLUSION_VARIABLES: {}
     INCLUSION_VARIABLES: {}
 
@@ -24,14 +24,20 @@ MIT:
 READII:
     IMAGE_TYPES:
         regions:
+            - "full"
+            - "roi"
+            - "non_roi"
         permutations:
+            - "shuffled"
+            - "sampled"
+            - "randomized"
         crop:
         resize: 
 
 ### Feature Extraction settings
 EXTRACTION:
     METHOD: pyradiomics
-    CONFIG: pyradiomics_original_single_feature.yaml
+    CONFIG: linear_all_images_features
 
 ### Analysis settings
 ANALYSIS:
@@ -42,3 +48,6 @@ ANALYSIS:
         impute: 'training'
 
 RANDOM_SEED: 10
+
+# Argument for plot_prediction to generate volume only prediction line on violin plots
+# VOL_LINE:
