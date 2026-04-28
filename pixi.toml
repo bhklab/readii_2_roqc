@@ -9,6 +9,7 @@ platforms = ["osx-arm64", "linux-64", "win-64", "osx-64"]
 [environments]
 quality = { features = ["quality"], solve-group = "default" }
 docs = { features = ["docs"], solve-group = "default" }
+visualization = { features = ["visualization"], no-default-feature = true}
 
 [activation]
 # convenient variables which can be used in scripts
@@ -182,3 +183,17 @@ description = "Build documentation with mkdocs"
 cmd = "mkdocs serve -f mkdocs.yaml"
 depends-on = ["doc-build"]
 description = "Serve documentation with mkdocs, runs doc-build first"
+
+######################################### VISUALIZATION ############################################
+[feature.visualization.dependencies]
+python = "<3.12"
+pip = "*"
+ipython = "*"
+ipykernel = "*"
+jupyterlab = "*"
+ipywidgets = ">=8.1.7,<9"
+pandas = "<4"
+plotly = ">=6.3.1,<7"
+
+
+
