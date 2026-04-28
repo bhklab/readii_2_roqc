@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/bhklab/readii_2_roqc/compare/v1.0.0...v1.0.1) (2026-04-28)
+
+
+### Bug Fixes
+
+* add catch for error from PyRadiomics feature extraction ([4467cfe](https://github.com/bhklab/readii_2_roqc/commit/4467cfe45131575bf1720eccd1376ac35bae12c3))
+* add catch for error from PyRadiomics feature extraction ([08e5f19](https://github.com/bhklab/readii_2_roqc/commit/08e5f192cd616390d7f24aff6cca49da81225328))
+
 ## 1.0.0 (2025-11-05)
 
 
