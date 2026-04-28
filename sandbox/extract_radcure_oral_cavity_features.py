@@ -1,13 +1,17 @@
-from readii_2_roqc.feature_extraction.extract import pyradiomics_extract
+from readii_2_roqc.feature_extraction.extract import extract_sample_features
 import pandas as pd
 from tqdm import tqdm
 import SimpleITK as sitk
+from damply import dirs
 
 
-dataset_index = pd.read_csv('/home/bhkuser/bhklab/katy/readii_2_roqc/data/procdata/TCIA_RADCURE/features/pyradiomics/pyradiomics_RADCURE_GTVp_oral_cavity_index.csv')
+dataset_index = pd.read_csv('/home/bhkuser/bhklab/katy/readii_2_roqc/data/procdata/PMCC_AutoWATChmAN/features/pyradiomics/original_512_512_n/pyradiomics_AutoWATChmAN_index.csv')
+if 'DataSource' not in dataset_index.columns:
+    dataset_index['DataSource'] = 'PMCC'
+
 
 method = 'pyradiomics'
-settings = '/home/bhkuser/bhklab/katy/readii_2_roqc/config/pyradiomics/pyradiomics_h4h_all_images_features.yaml'
+settings = '/home/bhkuser/bhklab/katy/readii_2_roqc/config/pyradiomics/linear_all_images_features.yaml'
 
 feature_vector = []
 
@@ -17,18 +21,18 @@ for _, sample_data in tqdm(
     desc=f"Extracting {method} features",
     total=len(dataset_index)
 ):
-    image = sitk.ReadImage(sample_data['Image'])
-    mask = sitk.ReadImage(sample_data['Mask'])
+    image = sitk.ReadImage(dirs.PROCDATA / "PMCC_AutoWATChmAN" / "images" / sample_data['Image'])
+    mask = sitk.ReadImage(dirs.PROCDATA / "PMCC_AutoWATChmAN" / "images" / sample_data['Mask'])
     mask.SetOrigin(image.GetOrigin())
 
-    sample_feature_vector = pyradiomics_extract(settings = settings,
-                                                image = image,
-                                                mask = mask,
-                                                metadata = sample_data,
-                                                overwrite=False)
-    # print(sample_feature_vector)
+  
+    sample_feature_vector = extract_sample_features(sample_data=sample_data,
+                                                        method=method,
+                                                        settings=settings,
+                                                        overwrite=False)
+
     feature_vector.append(sample_feature_vector)
 
 
 features_df = pd.DataFrame.from_dict(feature_vector)
-features_df.to_csv('/home/bhkuser/bhklab/katy/readii_2_roqc/data/results/TCIA_RADCURE/features/pyradiomics/pyradiomics_RADCURE_GTVp_oral_cavity_features.csv')
+features_df.to_csv('/home/bhkuser/bhklab/katy/readii_2_roqc/data/results/PMCC_AutoWATChmAN/features/pyradiomics/pyradiomics_AutoWATChmAN_features.csv')

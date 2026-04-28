@@ -1,0 +1,53 @@
+DATA_SOURCE: "TCIA"
+DATASET_NAME: "RADCURE_windowed"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: "RADCURE_Clinical_v04_20241219.xlsx"
+    OUTCOME_VARIABLES:
+        time_label: "Length FU"
+        event_label: "Status"
+        convert_to_years: False
+        event_value_mapping: {"Alive": 0, "Dead": 1}
+    EXCLUSION_VARIABLES: {} # {'Ds Site': ['Sarcoma', 'Unknown', 'Paraganglioma', 'Salivary Glands', 'Other', 'benign tumor', 'Orbit', 'Lacrimal gland', 'Skin']}
+    INCLUSION_VARIABLES: {
+        }
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: ROI:GTVp
+
+### READII settings
+READII:
+    IMAGE_TYPES: 
+        regions: 
+            - "full"
+            - "roi"
+            - "non_roi"
+        permutations: 
+            - "randomized"
+            - "sampled"
+            - "shuffled"
+        crop:
+        resize: []
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: linear_all_images_features.yaml
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split_variable: 'RADCURE-challenge'
+        train_label: 'training'
+        test_label: 'test'
+        impute: 'training'
+
+RANDOM_SEED: 10
+
+VOL_LINE: 0.710
