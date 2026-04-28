@@ -8,6 +8,7 @@ imageType:
     Gradient: {}
     LBP2D: {}
 
+
 featureClass:
     shape:
         - MeshVolume
