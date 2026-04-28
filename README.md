@@ -15,9 +15,9 @@ Radiomic Extraction and Analysis for DICOM Images to Refine Objective Quality Co
 [![Built with Material for MkDocs](https://img.shields.io/badge/mkdocs--material-gray?logo=materialformkdocs&style=flat-square)](https://github.com/squidfunk/mkdocs-material)
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/bhklab/readii_2_roqc?style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues/bhklab/readii_2_roqc?style=flat-square)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/bhklab/readii_2_roqc?style=flat-square)
-![GitHub contributors](https://img.shields.io/github/contributors/bhklab/readii_2_roqc?style=flat-square)
+[![GitHub issues](https://img.shields.io/github/issues/bhklab/readii_2_roqc?style=flat-square)](https://github.com/bhklab/readii_2_roqc/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/bhklab/readii_2_roqc?style=flat-square)](https://github.com/bhklab/readii_2_roqc/pulls?q=is%3Aopen+is%3Apr)
+[![GitHub contributors](https://img.shields.io/github/contributors/bhklab/readii_2_roqc?style=flat-square)](https://github.com/bhklab/readii_2_roqc/graphs/contributors)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/bhklab/readii_2_roqc?style=flat-square)
 
 ## Set Up

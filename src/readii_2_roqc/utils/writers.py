@@ -1,10 +1,11 @@
-import numpy as np
+import logging
+from pathlib import Path
+
 import pandas as pd
 import yaml
-
 from damply import dirs
-from pathlib import Path
-from readii.utils import logger
+
+logger = logging.getLogger(__name__)
 
 from typing import Any, Mapping
 

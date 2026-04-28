@@ -1,14 +1,16 @@
-import click
 import logging
-import numpy as np
-
-from damply import dirs
 from pathlib import Path
-from readii.utils import logger
-from readii_2_roqc.utils.loaders import load_dataset_config, DATA_SPLIT_CHOICES
-from readii_2_roqc.utils.analysis import prediction_data_setup
-from readii_2_roqc.utils.writers import save_signature
+
+import click
+import numpy as np
+from damply import dirs
 from sksurv.linear_model import CoxPHSurvivalAnalysis
+
+from readii_2_roqc.utils.analysis import prediction_data_setup
+from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
+from readii_2_roqc.utils.writers import save_signature
+
+logger = logging.getLogger(__name__)
 
 
 def fit_cph(feature_data,
@@ -99,7 +101,7 @@ def fit_model(dataset:str,
     overwrite : bool (defaul = False)
         Used to determine if outputs should be overwritten if file already exists.
     """
-    logger = logging.getLogger(__name__)  
+ 
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
     logging.basicConfig(  
         filename=str(dirs.LOGS / f"{dataset}_fit_{model}_{signature}.log"),  
@@ -153,7 +155,7 @@ def fit_model(dataset:str,
     
     feature_file = image_type_feature_file_list[0]
 
-    logger.info(f"Setting up data for prediction.")
+    logger.info("Setting up data for prediction.")
     feature_data, outcome_data = prediction_data_setup(dataset_config,
                                                        feature_file,
                                                        signature,
@@ -183,7 +185,6 @@ def fit_model(dataset:str,
                    overwrite = overwrite)
 
 
-    return None
 
 
 
