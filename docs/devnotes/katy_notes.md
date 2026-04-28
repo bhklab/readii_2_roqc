@@ -55,9 +55,9 @@
 
 **Methods**
 
-- [ ] Add prediction of HPV status model
+- [X] Add prediction of HPV status model
 - [ ] Include section about saving out the negative control images
-- [ ] Explain modular implementation of the negative controls such that users can construct their own
+- [X] Explain modular implementation of the negative controls such that users can construct their own
 - [ ] Add ability to save out the changed mask from the contraction/expansion NCs
 - [X] Look for synonyms for transformation
     * Intensity transformation? --> permutation?
@@ -72,7 +72,7 @@
 - [ ] Keep the diagonal self-correlation plots, will go in supplemental
 - [ ] Calculate and plot average correlations between clusters of features (shape vs. first order)
 - [ ] Hierarchical clustering between the feature class clusters
-- [ ] Correlation plot of the Aerts signature + volume features
+- [X] Correlation plot of the Aerts signature + volume features
 - [ ] Compare distribution of correlation values in a line plot
     * Line for each image type
     * x-axis is the feature types, colourblock behind the plot for each imagetype
