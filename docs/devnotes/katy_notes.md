@@ -453,3 +453,24 @@ dev_binary_prediction.ipynb
 2. In feature extraction, set the interpolator to `sitk.Linear`. This is better for CT images and prevents the interpolated values from falling outside the -2000 to 5000 range we made in the windowing of med-imagetools.
 
 Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.
+
+
+## Correlation Visualization updates
+#### [2026-04-29]
+volume vs. grey level on the different image types
+reference backto big triangle plots to say this represents this line
+find one line that's very blue and one that's very yellow and show verlich plots for one blue line and one yellow line
+have one triangle to show representative sub-figure 
+
+adjust triangle plot distribution to understand how to read big triangle plot 
+
+
+how likely something to be disrupted, looks like a U
+- the plots nasim makes in ISPY
+
+
+highly correlated between perturbed and not-perturbed are garbage
+low correlation after perturbation
+want to make these visible somehow
+
+remap heatmap plot into V plot somehow
