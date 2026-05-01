@@ -153,6 +153,10 @@ def prediction_data_setup(dataset_config : dict,
        Feature data is loaded and intersected with outcome data to get overlap between the two.
        If a signature is provided, feature data is subsetted to just those features.
     """
+    if split is None:
+        split_info = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
+        split = split_info['split']
+
     # load clinical metadata
     clinical_data = clinical_data_setup(dataset_config, split = split)
 
