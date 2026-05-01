@@ -1,9 +1,10 @@
 from damply import dirs
 from pathlib import Path
-from readii.io.loaders import loadImageDatasetConfig
+from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
 from readii.process.config import get_full_data_name
 from readii.utils import logger
 from readii.image_processing import alignImages, flattenImage
+from readii_2_roqc.utils.metadata import insert_r2r_index
 
 import pandas as pd
 import SimpleITK as sitk
@@ -123,3 +124,21 @@ def load_signature_config(file: str | Path) -> pd.Series:
         raise
 
     return signature
+
+
+def load_clinical_data(
+        dataset_config:dict, 
+        full_data_name:str
+        ) -> pd.DataFrame:
+    # load clinical data based on dataset config file
+    clinical = dataset_config['CLINICAL']
+    clinical_path = dirs.RAWDATA / full_data_name / "clinical" / clinical['FILE']
+    clinical_data = loadFileToDataFrame(clinical_path)
+
+    # insert the MIT index
+    clinical_data = insert_r2r_index(dataset_config, clinical_data)
+
+    # Set the MIT SampleIDs as the index for clinical data
+    clinical_data = clinical_data.set_index('SampleID')
+
+    return clinical_data
