@@ -1,4 +1,4 @@
-from damply import dirs
+import logging
 from pathlib import Path
 from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
 from readii.process.config import get_full_data_name
@@ -9,6 +9,9 @@ from readii_2_roqc.utils.metadata import insert_r2r_index
 import pandas as pd
 import SimpleITK as sitk
 import yaml
+from damply import dirs
+
+logger = logging.getLogger(__name__)
 
 # Global variable used for --split input argument throughout package
 DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', 'None']
