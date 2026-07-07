@@ -40,9 +40,7 @@ pandas = "<=3.0.0"
 
 [pypi-dependencies]
 readii_2_roqc = { path = ".", editable = true }
-kaleido = ">=1.2.0, <2"
-dash = ">=4.1.0, <5"
-dash-bio = ">=1.0.2, <2"
+
 
 
 [tasks]
