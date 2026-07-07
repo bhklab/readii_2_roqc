@@ -36,6 +36,7 @@ scipy = ">=1.17.1,<2"
 plotly = ">=6.6.0,<7"
 anywidget = ">=0.11.0,<0.12"
 seaborn = ">=0.13.2,<0.14"
+pandas = "<=3.0.0"
 
 [pypi-dependencies]
 readii_2_roqc = { path = ".", editable = true }
