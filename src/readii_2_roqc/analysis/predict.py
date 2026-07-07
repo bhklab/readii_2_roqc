@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 from damply import dirs
 from joblib import Parallel, delayed
-from sksurv.metrics import concordance_index_censored
 from sklearn.metrics import roc_auc_score
+from sksurv.metrics import concordance_index_censored
 
 from readii_2_roqc.utils.analysis import get_signature_features, prediction_data_setup
 
@@ -88,13 +88,13 @@ def bootstrap_auc(
 
     bootstrap_auc = []
     
-    def _bootstrap_auc_sample(y_true_sampled, y_score):
+    def _bootstrap_auc_sample(y_true_sampled: pd.Series, y_score:pd.Series) -> float:
         return roc_auc_score(y_true_sampled, y_score.loc[y_true_sampled.index])
 
     # Bootstrap the prediction results to get confidence intervals
     sampled_auc = Parallel(n_jobs=-1)(
                     delayed(_bootstrap_auc_sample)(
-                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True),
+                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True, random_state=random_state),
                         y_score = y_score
                     )
                     for _idx in range(bootstrap_count)
