@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import click
@@ -5,13 +6,23 @@ import pandas as pd
 from damply import dirs
 from readii.io.loaders import loadImageDatasetConfig
 from readii.process.config import get_full_data_name
-from readii.utils import logger
 
-from readii_2_roqc.utils.metadata import get_masked_image_metadata, make_edges_df, remove_slice_index_from_string
-from readii_2_roqc.utils.settings import get_readii_settings, get_resize_string, get_readii_index_filepath
+from readii_2_roqc.utils.metadata import (
+    get_masked_image_metadata,
+    make_edges_df,
+    remove_slice_index_from_string,
+)
+from readii_2_roqc.utils.settings import (
+    get_readii_index_filepath,
+    get_readii_settings,
+    get_resize_string,
+)
+
+logger = logging.getLogger(__name__)
 
 def get_mit_extraction_index(dataset_config: dict,
-                             mit_index_path: Path):
+                             mit_index_path: Path
+                             ) -> pd.DataFrame:
     """Set up med-imagetools index dataframe for feature extraction.
     
     Parameters
@@ -81,7 +92,8 @@ def get_mit_extraction_index(dataset_config: dict,
 
 
 def get_readii_extraction_index(dataset_config: dict,
-                                readii_index_path: Path):
+                                readii_index_path: Path
+                                ) -> pd.DataFrame:
     """Set up readii index dataframe for feature extraction on READII processed images using the index file generated from negative control generation.
     
     Parameters
@@ -218,7 +230,7 @@ def generate_pyradiomics_index(dataset_config: dict,
     
     except AssertionError:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
-        logger.error(message)
+        logger.exception(message)
         raise
 
     return pyradiomics_index
@@ -289,7 +301,7 @@ def generate_fmcib_index(dataset_config: dict,
     
     except AssertionError:
         message = f"output_file_path for generate_fmcib_index does not end in .csv. Path given: {output_file_path}"
-        logger.error(message)
+        logger.exception(message)
         raise
 
     return fmcib_index
@@ -318,6 +330,14 @@ def generate_dataset_index(dataset: str,
     dataset_index:pd.DataFrame
         Dataframe listing metadata required for specified method's feature extraction process.
     """
+    # Set up logging
+    dirs.LOGS.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        filename=str(dirs.LOGS / f"{dataset}_index.log"),
+        encoding='utf-8',
+        level=logging.DEBUG,
+        force=True
+    )
     if dataset is None:
         message = "Dataset name must be provided."
         logger.error(message)
@@ -354,7 +374,7 @@ def generate_dataset_index(dataset: str,
             raise ValueError(message)
 
     else:
-        logger.info(f"No READII settings specified. Only MIT index will be used for extraction index generation.")
+        logger.info("No READII settings specified. Only MIT index will be used for extraction index generation.")
         readii_index = None
 
     # Construct output file path from DMP and feature extraction type
@@ -372,8 +392,8 @@ def generate_dataset_index(dataset: str,
         logger.info(message)
         try:
             dataset_index = pd.read_csv(output_file_path)
-        except Exception as e:
-            logger.error(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.: {e}")
+        except Exception:
+            logger.exception(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.")
             raise
     else:
         output_file_path.parent.mkdir(parents=True, exist_ok=True)

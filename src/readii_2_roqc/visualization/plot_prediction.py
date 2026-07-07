@@ -1,17 +1,17 @@
+import logging
 from pathlib import Path
 
 import click
-import logging
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-
 from damply import dirs
 from matplotlib.figure import Figure
 from readii.io.writers.plot_writer import PlotWriter
+
 from readii_2_roqc.utils.loaders import DATA_SPLIT_CHOICES, load_dataset_config
 
-logger = logging.getLogger(__name__)  
+logger = logging.getLogger(__name__)
 
 
 def build_prediction_df(dataset_config: dict,
@@ -111,11 +111,7 @@ def prediction_violin(predictions: pd.DataFrame,
     plt.suptitle(title_text)
 
     # Set up subtitle
-    if subtitle_text is None:
-        if split:
-            subtitle_text = f"{dataset_name} ({split})"
-        else:
-            subtitle_text = dataset_name
+    subtitle_text = f"{dataset_name} ({split})" if split else dataset_name
     ax.set_title(subtitle_text)
 
     # Set axis labels

@@ -1,16 +1,25 @@
-import click
 import logging
+from pathlib import Path
+
+import click
 import numpy as np
 import pandas as pd
-
 from damply import dirs
 from joblib import Parallel, delayed
-from pathlib import Path
-from readii.utils import logger
-from readii_2_roqc.utils.loaders import load_dataset_config, load_signature_config, DATA_SPLIT_CHOICES
-from readii_2_roqc.utils.analysis import get_signature_features, prediction_data_setup
-from readii_2_roqc.utils.writers import save_evaluation, save_predictions
+from sklearn.metrics import roc_auc_score
 from sksurv.metrics import concordance_index_censored
+
+from readii_2_roqc.utils.analysis import get_signature_features, prediction_data_setup
+
+# from readii.utils import logger
+from readii_2_roqc.utils.loaders import (
+    DATA_SPLIT_CHOICES,
+    load_dataset_config,
+    load_signature_config,
+)
+from readii_2_roqc.utils.writers import save_evaluation, save_predictions
+
+logger = logging.getLogger(__name__)
 
 
 def calculate_signature_hazards(feature_data : pd.DataFrame,
@@ -38,7 +47,8 @@ def evaluate_signature_prediction(hazards_and_outcomes : pd.DataFrame) -> tuple:
 
 
 def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
-                      bootstrap_count: int = 1000,             
+                      bootstrap_count: int = 1000,
+                      random_state: int = 10             
                      ) -> tuple[list[float], float, float]:
     """Generate confidence intervals by bootstrapping a set of prediction/hazard values by sampling with replacement and calculating metrics."""
     if bootstrap_count < 1:
@@ -50,7 +60,7 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
     # Bootstrap the prediction results to get confidence intervals
     sampled_cindex = Parallel(n_jobs=-1)(
                     delayed(evaluate_signature_prediction)(
-                        hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True)
+                        hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True, random_state=random_state)
                     )
                     for _idx in range(bootstrap_count)
                     )
@@ -59,6 +69,41 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
     upper_confidence_interval = np.percentile(sampled_cindex, 97.5)
     
     return bootstrap_cidx, lower_confidence_interval, upper_confidence_interval
+
+
+
+def bootstrap_auc(
+    y_true: pd.Series,
+    y_score: pd.Series | np.ndarray,
+    bootstrap_count: int = 1000, 
+    random_state: int = 10            
+) -> tuple[list[float], float, float]:
+    """Generate confidence intervals by bootstrapping a set of prediction/hazard values by sampling with replacement and calculating metrics."""
+    if bootstrap_count < 1:
+        message = "Bootstrap count must be a positive integer."
+        raise ValueError(message)
+    
+    if isinstance(y_score, np.ndarray):
+        y_score = pd.Series(y_score, index=y_true.index)
+
+    bootstrap_auc = []
+    
+    def _bootstrap_auc_sample(y_true_sampled: pd.Series, y_score:pd.Series) -> float:
+        return roc_auc_score(y_true_sampled, y_score.loc[y_true_sampled.index])
+
+    # Bootstrap the prediction results to get confidence intervals
+    sampled_auc = Parallel(n_jobs=-1)(
+                    delayed(_bootstrap_auc_sample)(
+                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True, random_state=random_state),
+                        y_score = y_score
+                    )
+                    for _idx in range(bootstrap_count)
+                    )
+    bootstrap_auc += sampled_auc
+    lower_confidence_interval = np.percentile(sampled_auc, 2.5)  
+    upper_confidence_interval = np.percentile(sampled_auc, 97.5)
+    
+    return bootstrap_auc, lower_confidence_interval, upper_confidence_interval
 
 
 
@@ -128,7 +173,7 @@ def predict_with_signature(dataset: str,
     bootstrap_data : dict
     hazard_data : dict
     """
-    logger = logging.getLogger(__name__)  
+
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
     logging.basicConfig(
         filename=str(dirs.LOGS / f"{dataset}_predict.log"),  

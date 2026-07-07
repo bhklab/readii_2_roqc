@@ -1,3 +1,4 @@
+import logging
 from collections import OrderedDict
 from pathlib import Path
 from typing import Generator
@@ -7,16 +8,14 @@ import pandas as pd
 import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
-import logging
-import numpy as np
 from radiomics import featureextractor, setVerbosity
-from readii_2_roqc.utils.loaders import load_dataset_config
-from readii_2_roqc.utils.settings import get_extraction_index_filepath
-from readii_2_roqc.utils.metadata import remove_slice_index_from_string
-from readii.utils import logger
 from tqdm import tqdm
 
+from readii_2_roqc.utils.loaders import load_dataset_config
+from readii_2_roqc.utils.metadata import remove_slice_index_from_string
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
 
+logger = logging.getLogger(__name__)
 
 def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
@@ -141,12 +140,15 @@ def pyradiomics_extract(settings: Path | str,
         try:
             # Set up PyRadiomics feature extractor with provided settings file (expects a string, not a pathlib Path)
             extractor = featureextractor.RadiomicsFeatureExtractor(settings)
-
             sample_feature_vector = extractor.execute(image, mask)
 
-        except Exception as e:
-            logger.debug(f"Feature extraction failed for this sample: {e}")
+        # Check for common issues with the settings file that would cause PyRadiomics to fail
+        except ValueError:
+            print("Issue with the settings file for PyRadiomics feature extraction")
+            raise 
 
+        except Exception as e:
+            print(f"Feature extraction failed for this sample: {e}")
             sample_feature_vector = OrderedDict()
         
         if len(sample_feature_vector) > 0:
@@ -338,14 +340,14 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
                 except ValueError:
                     # Handle case where all dataframes are empty
-                    logger.error(f"No non-empty dataframes found for {permutation} {region}.")
+                    logger.exception(f"No non-empty dataframes found for {permutation} {region}.")
                     # Create empty dataframe for compiled dataset features
                     dataset_features = pd.DataFrame()
                     # write empty file to the output file
                     with dataset_features_path.open("w") as f:
                         # write an empty file
                         f.write("")
-                    logger.error(f"Empty file written to {dataset_features_path}")
+                    logger.exception(f"Empty file written to {dataset_features_path}")
 
                 compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
 
@@ -388,7 +390,7 @@ def extract_dataset_features(dataset: str,
     dict[str, pd.DataFrame]
         Compiled feature tables per image class keyed by "<permutation>_<region>".
     """
-    logger = logging.getLogger(__name__)  
+
     dirs.LOGS.mkdir(parents=True, exist_ok=True)  
     logging.basicConfig(  
         filename=str(dirs.LOGS / f"{dataset}_extract.log"),  
@@ -412,7 +414,7 @@ def extract_dataset_features(dataset: str,
                                                            extract_features_dir = dirs.PROCDATA / full_data_name / "features" / method)
         dataset_index = pd.read_csv(dataset_index_path)
     except FileNotFoundError:
-        logger.error(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
+        logger.exception(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
         raise
 
     # Add dataset source to metadata for file loading and saving purposes

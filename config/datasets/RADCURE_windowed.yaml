@@ -50,6 +50,7 @@ EXTRACTION:
 ### Analysis settings
 ANALYSIS:
     TRAIN_TEST_SPLIT:
+        split: False
         split_variable: 'RADCURE-challenge'
         train_label: 'training'
         test_label: 'test'
