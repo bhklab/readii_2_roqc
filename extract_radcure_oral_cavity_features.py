@@ -1,8 +1,8 @@
-from readii_2_roqc.feature_extraction.extract import pyradiomics_extract
 import pandas as pd
-from tqdm import tqdm
 import SimpleITK as sitk
+from tqdm import tqdm
 
+from readii_2_roqc.feature_extraction.extract import pyradiomics_extract
 
 dataset_index = pd.read_csv('/home/bhkuser/bhklab/katy/readii_2_roqc/data/procdata/TCIA_RADCURE/features/pyradiomics/pyradiomics_RADCURE_GTVp_oral_cavity_index.csv')
 
