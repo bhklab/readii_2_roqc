@@ -21,7 +21,8 @@ from readii_2_roqc.utils.settings import (
 logger = logging.getLogger(__name__)
 
 def get_mit_extraction_index(dataset_config: dict,
-                             mit_index_path: Path):
+                             mit_index_path: Path
+                             ) -> pd.DataFrame:
     """Set up med-imagetools index dataframe for feature extraction.
     
     Parameters
@@ -91,7 +92,8 @@ def get_mit_extraction_index(dataset_config: dict,
 
 
 def get_readii_extraction_index(dataset_config: dict,
-                                readii_index_path: Path):
+                                readii_index_path: Path
+                                ) -> pd.DataFrame:
     """Set up readii index dataframe for feature extraction on READII processed images using the index file generated from negative control generation.
     
     Parameters
@@ -228,7 +230,7 @@ def generate_pyradiomics_index(dataset_config: dict,
     
     except AssertionError:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
-        logger.error(message)
+        logger.exception(message)
         raise
 
     return pyradiomics_index
@@ -299,7 +301,7 @@ def generate_fmcib_index(dataset_config: dict,
     
     except AssertionError:
         message = f"output_file_path for generate_fmcib_index does not end in .csv. Path given: {output_file_path}"
-        logger.error(message)
+        logger.exception(message)
         raise
 
     return fmcib_index
@@ -390,8 +392,8 @@ def generate_dataset_index(dataset: str,
         logger.info(message)
         try:
             dataset_index = pd.read_csv(output_file_path)
-        except Exception as e:
-            logger.error(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.: {e}")
+        except Exception:
+            logger.exception(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.")
             raise
     else:
         output_file_path.parent.mkdir(parents=True, exist_ok=True)
