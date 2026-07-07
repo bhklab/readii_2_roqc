@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pandas as pd
 from damply import dirs
-
 from readii.io.loaders import loadFileToDataFrame
 from readii.process.label import (
     eventOutcomeColumnSetup,
@@ -149,7 +148,7 @@ def prediction_data_setup(dataset_config : dict,
                           split : str | None = None,
                           standard_event_label : str | None = None,
                           standard_time_label : str | None = None
-                          ):
+                          ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Set up the feature and label data for prediction
        Clinical data is loaded, SampleID column added as index, subsetted by inclusion/exclusion variables and into the train or test cohort defined in the dataset config.
        Outcome data (time to event and event status) is extracted from the clinical data; event is converted to numeric, time is converted to years if needed.
@@ -211,13 +210,14 @@ def prediction_data_splitting(dataset_config: dict,
 
 
 def get_signature_features(feature_data : pd.DataFrame,
-                           signature : pd.Series
+                           signature : pd.Series,
+                           missing_list_len:int = 10
                            ) -> pd.DataFrame:
     """Get just the feature values for the features listed in the signature"""
     # Check that signature features are in the feature_data provided
     missing = [f for f in signature.index if f not in feature_data.columns]  
     if missing:  
-        preview = ", ".join(missing[:10]) + ("..." if len(missing) > 10 else "")  
+        preview = ", ".join(missing[:missing_list_len]) + ("..." if len(missing) > missing_list_len else "")  
         message = f"{len(missing)} signature feature(s) not found in feature_data: {preview}"  
         logger.error(message)  
         raise KeyError(message)  
