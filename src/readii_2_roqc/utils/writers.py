@@ -41,7 +41,7 @@ def save_signature(dataset_name:str,
                                    'signature': signature_coefficients}
 
             # write out the signature with coefficients
-            with open(save_signature_path, 'w', encoding='utf-8') as outfile:
+            with save_signature_path.open('w', encoding='utf-8') as outfile:
                 yaml.safe_dump(signature_formatted, outfile, default_flow_style=False)
         except Exception:
             message = f"Error occurred saving the {save_signature_name} signature."
@@ -84,7 +84,8 @@ def save_predictions(dataset_config:dict[str, Any],
                      prediction_data:dict[str,pd.DataFrame],
                      signature:str,
                      prediction_type:str | None = None,
-                     split:str | None = None):
+                     split:str | None = None
+                     ) -> list[Path]:
     
     if prediction_type is None:
         prediction_type = 'predictions'
