@@ -1,12 +1,15 @@
-from damply import dirs
 from pathlib import Path
+
+import click
 import pandas as pd
+import yaml
 from joblib import Parallel, delayed
 from tqdm import tqdm
-import yaml
-import click
 
-from readii_2_roqc.feature_extraction.extract import extract_sample_features, metadata_setup
+from readii_2_roqc.feature_extraction.extract import (
+    extract_sample_features,
+    metadata_setup,
+)
 from readii_2_roqc.feature_extraction.index import get_mit_extraction_index
 
 
@@ -65,11 +68,11 @@ def simple_extraction(
     mit_simple_index_path = nifti_dir / f"{nifti_dir.stem}_index-simple.csv"
     extraction_index = get_mit_extraction_index(dataset_config, mit_simple_index_path)
     if 'DataSource' not in extraction_index.columns:
-        extraction_index['DataSource'] = 'PMCC'
+        extraction_index['DataSource'] = 'SourceNotSpecified'
 
     # Save out the extraction index to the output features path
     feature_dir.mkdir(parents=True, exist_ok=True)
-    extraction_index.to_csv(feature_dir / f"pyradiomics_extraction_index.csv", index=False)
+    extraction_index.to_csv(feature_dir / "pyradiomics_extraction_index.csv", index=False)
 
     # extract features in parallel for each sample in the extraction index
     feature_vectors = Parallel(n_jobs=n_jobs)(
@@ -82,7 +85,7 @@ def simple_extraction(
         )
         for _, sample_data in tqdm(
             extraction_index.iterrows(),
-            desc=f"Extracting pyradiomics features",
+            desc="Extracting pyradiomics features",
             total=len(extraction_index)
         )
     )
@@ -90,18 +93,8 @@ def simple_extraction(
     # Concatenate all the feature vectors
     features_df = pd.DataFrame.from_dict(feature_vectors)
     # # Save out the features to a single CSV
-    features_df.to_csv(feature_dir / f"pyradiomics_features.csv", index=False)
+    features_df.to_csv(feature_dir / "pyradiomics_features.csv", index=False)
 
 
 if __name__ == "__main__":
     simple_extraction()
-
-    # dataset = "HEAD-NECK-RADIOMICS-HN1"
-
-    # config_file_path = dirs.CONFIG / 'datasets' / f'{dataset}.yaml'
-    # nifti_images_dir_path = dirs.PROCDATA / dataset / "nifti_images" 
-    # output_features_path = dirs.PROCDATA / dataset / "features"
-    # extraction_settings = dirs.CONFIG / 'pyradiomics' / 'linear_all_images_features.yaml'
-
-    # n_jobs = -1
-    # overwrite = False
