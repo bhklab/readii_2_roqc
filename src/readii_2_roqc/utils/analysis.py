@@ -157,7 +157,8 @@ def prediction_data_setup(dataset_config : dict,
     """
     if split is None:
         split_info = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
-        split = split_info['split']
+        config_split = split_info['split']
+        split = config_split if config_split else None
 
     # load clinical metadata
     clinical_data = clinical_data_setup(dataset_config, split = split)
