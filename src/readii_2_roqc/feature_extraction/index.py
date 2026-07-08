@@ -102,10 +102,10 @@ def get_readii_extraction_index(dataset_config: dict,
     ----------
     dataset_config : dict
         Configuration settings for a dataset, loaded with loadImageDatasetConfig
-    readii_index : pd.DataFrame
-        DataFrame containing metadata for the images and masks processed by READII make_negative_controls
-    mit_index : pd.DataFrame | None
-        DataFrame containing metadata for the MIT processed images and masks
+    readii_index_path : Path
+        Path to file containing metadata for the images and masks processed by READII make_negative_controls
+    mit_index_path : Path | None
+        Path to file containing metadata for the MIT processed images and masks
 
     Returns
     -------
