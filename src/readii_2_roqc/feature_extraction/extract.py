@@ -220,7 +220,7 @@ def extract_sample_features(sample_data: pd.Series,
         The extracted features for the sample. No metadata will be prepended to this vector.
     """
     # Set up settings file path for the feature extraction method
-    if not settings.exists():
+    if not Path(settings).exists():
         message = f"Settings file for {method} feature extraction does not exist at {settings}."
         logger.error(message)
         raise FileNotFoundError(message)
