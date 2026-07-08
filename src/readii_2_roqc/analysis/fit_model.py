@@ -3,6 +3,7 @@ from pathlib import Path
 
 import click
 import numpy as np
+import pandas as pd
 from damply import dirs
 from sksurv.linear_model import CoxPHSurvivalAnalysis
 
@@ -13,15 +14,16 @@ from readii_2_roqc.utils.writers import save_signature
 logger = logging.getLogger(__name__)
 
 
-def fit_cph(feature_data,
-            outcome_data):
+def fit_cph(feature_data: pd.DataFrame,
+            outcome_data: pd.DataFrame
+            ) -> tuple[dict, list, float]:
     """Fit a CoxPH Survival Analysis model and return predicted risks.
     
     Parameters
     ----------
     feature_data : array-like, shape = (n_samples, n_features)
         Data matrix of feature values to fit the model on.
-    event_time_label : pd.DataFrame
+    outcome_data : pd.DataFrame
         Labels for feature data with first column as survival event and second column as survival time
     Returns
     -------
@@ -78,7 +80,8 @@ def fit_model(dataset:str,
               signature:str | None = None,
               split:str | None = None,
               image_type:str = 'original_full',
-              overwrite:bool = False):
+              overwrite:bool = False
+              ) -> None:
     """Fit a specified model with a signature list of features.
 
     Parameters
@@ -173,10 +176,7 @@ def fit_model(dataset:str,
             logger.error(message)
             raise NotImplementedError(message)
 
-    if signature is None:
-        signature_name = "all_features"
-    else:
-        signature_name = signature
+    signature_name = "all_features" if signature is None else signature
         
     save_signature(dataset_name, 
                    signature_name = signature_name, 
