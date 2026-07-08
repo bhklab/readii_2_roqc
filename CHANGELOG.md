@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0](https://github.com/bhklab/readii_2_roqc/compare/v1.0.0...v1.1.0) (2026-07-08)
+
+
+### Features
+
+* handle empty regions and permutations lists in config for image type iterator ([ccaa39e](https://github.com/bhklab/readii_2_roqc/commit/ccaa39e7d682c7af92513e52844acbfd6c3a88a4))
+
+
+### Bug Fixes
+
+* add catch for error from PyRadiomics feature extraction ([4467cfe](https://github.com/bhklab/readii_2_roqc/commit/4467cfe45131575bf1720eccd1376ac35bae12c3))
+* add catch for error from PyRadiomics feature extraction ([08e5f19](https://github.com/bhklab/readii_2_roqc/commit/08e5f192cd616390d7f24aff6cca49da81225328))
+* coerce split to None if set to False in config for prediction data setup ([11af077](https://github.com/bhklab/readii_2_roqc/commit/11af0772afcad188b7ac5ae43c939f0fb190d6bc))
+* correct input type for feature data ([e2ecc58](https://github.com/bhklab/readii_2_roqc/commit/e2ecc58272e219b2c8d0977a5fa95dbda266262a))
+* remove random seed for bootstrap functions so it doesn't select the same subsample every time ([d17aba4](https://github.com/bhklab/readii_2_roqc/commit/d17aba4f0f849556ed7dd1bc10aa6ab5386237df))
+
 ## 1.0.0 (2025-11-05)
 
 
