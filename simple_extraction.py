@@ -15,9 +15,9 @@ from readii_2_roqc.feature_extraction.index import get_mit_extraction_index
 
 def extract_one_pyradiomics(
         sample_data: pd.Series,
-        extraction_settings: str,
-        nifti_images_dir_path: str,
-        output_features_path: str,
+        extraction_settings: Path,
+        nifti_images_dir_path: Path,
+        output_features_path: Path,
         overwrite: bool = False
 ) -> dict[str, str]:
     """Extract features from a single scan and mask pair using pyradiomics."""
@@ -54,7 +54,7 @@ def simple_extraction(
     
     CONFIG_FILE is the path to the dataset configuration file (YAML format).
 
-    NIFTI_DIR is the path to the directory containing med-imagetools converted NIfTI images. Must contain an index-simple.csv file.
+    NIFTI_DIR is the path to the directory containing med-imagetools converted NIfTI images. Must contain an {stem}_index-simple.csv file.
 
     FEATURE_DIR is the path to the directory where extracted features will be saved.
 
