@@ -47,8 +47,7 @@ def evaluate_signature_prediction(hazards_and_outcomes : pd.DataFrame) -> tuple:
 
 
 def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
-                      bootstrap_count: int = 1000,
-                      random_state: int = 10             
+                      bootstrap_count: int = 1000             
                      ) -> tuple[list[float], float, float]:
     """Generate confidence intervals by bootstrapping a set of prediction/hazard values by sampling with replacement and calculating metrics."""
     if bootstrap_count < 1:
@@ -60,7 +59,7 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
     # Bootstrap the prediction results to get confidence intervals
     sampled_cindex = Parallel(n_jobs=-1)(
                     delayed(evaluate_signature_prediction)(
-                        hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True, random_state=random_state)
+                        hazards_and_outcomes = hazards_and_outcomes.sample(n=hazards_and_outcomes.shape[0], replace=True)
                     )
                     for _idx in range(bootstrap_count)
                     )
@@ -75,8 +74,7 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
 def bootstrap_auc(
     y_true: pd.Series,
     y_score: pd.Series | np.ndarray,
-    bootstrap_count: int = 1000, 
-    random_state: int = 10            
+    bootstrap_count: int = 1000        
 ) -> tuple[list[float], float, float]:
     """Generate confidence intervals by bootstrapping a set of prediction/hazard values by sampling with replacement and calculating metrics."""
     if bootstrap_count < 1:
@@ -94,7 +92,7 @@ def bootstrap_auc(
     # Bootstrap the prediction results to get confidence intervals
     sampled_auc = Parallel(n_jobs=-1)(
                     delayed(_bootstrap_auc_sample)(
-                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True, random_state=random_state),
+                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True),
                         y_score = y_score
                     )
                     for _idx in range(bootstrap_count)

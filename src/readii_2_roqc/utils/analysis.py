@@ -12,7 +12,7 @@ from readii.process.label import (
 from readii.process.split import splitDataByColumnValue
 from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
 
-from readii_2_roqc.utils.loaders import load_signature_config
+from readii_2_roqc.utils.loaders import load_signature_config, load_clinical_data
 from readii_2_roqc.utils.metadata import insert_r2r_index
 
 logger = logging.getLogger(__name__)
@@ -28,14 +28,9 @@ def clinical_data_setup(dataset_config: dict,
 
     # load clinical metadata
     clinical = dataset_config['CLINICAL']
-    clinical_path = dirs.RAWDATA / full_data_name / "clinical" / clinical['FILE']
-    clinical_data = loadFileToDataFrame(clinical_path)
-
-    # insert the MIT index
-    clinical_data = insert_r2r_index(dataset_config, clinical_data)
 
     # Set the MIT SampleIDs as the index for clinical data
-    clinical_data = clinical_data.set_index('SampleID')
+    clinical_data = load_clinical_data(dataset_config, full_data_name)
 
     # Drop rows based on exclusion variables in config file
     if len(clinical['EXCLUSION_VARIABLES']) != 0 or len(clinical['INCLUSION_VARIABLES']) != 0:
@@ -157,7 +152,8 @@ def prediction_data_setup(dataset_config : dict,
     """
     if split is None:
         split_info = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
-        split = split_info['split']
+        config_split = split_info['split']
+        split = config_split if config_split else None
 
     # load clinical metadata
     clinical_data = clinical_data_setup(dataset_config, split = split)

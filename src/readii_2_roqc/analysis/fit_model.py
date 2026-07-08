@@ -14,7 +14,7 @@ from readii_2_roqc.utils.writers import save_signature
 logger = logging.getLogger(__name__)
 
 
-def fit_cph(feature_data: np.ndarray,
+def fit_cph(feature_data: pd.DataFrame,
             outcome_data: pd.DataFrame
             ) -> tuple[dict, list, float]:
     """Fit a CoxPH Survival Analysis model and return predicted risks.

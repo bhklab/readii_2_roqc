@@ -186,4 +186,8 @@ def image_type_iterator(dataset_config: dict) -> itertools.chain:
     """Get iterator to loop over all combinations of negative controls plus the original full image type."""
     regions, permutations, _, _ = get_readii_settings(dataset_config)
 
+    # Handle case where regions or permutations are None (no negative controls requested) so that iterator is still returned with just the original full image type
+    regions = regions if regions is not None else []
+    permutations = permutations if permutations is not None else []
+
     return itertools.chain([('original', 'full')],itertools.product(permutations,regions))
