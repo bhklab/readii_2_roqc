@@ -106,10 +106,22 @@ def pyradiomics_extract(settings: Path | str,
     
     Parameters
     ----------
-    
+    settings : Path | str
+        Path to the settings file for PyRadiomics feature extraction. Can be a pathlib.Path or a string.
+    image : sitk.Image
+        SimpleITK image object to extract features from.
+    mask : sitk.Image
+        SimpleITK mask object to extract features from.
+    metadata : OrderedDict | dict[str, str] | pd.Series | None
+        Metadata for the sample being extracted. Used to construct output path and save out metadata with features
+    feature_dir : Path | None
+        Path to the directory where features will be saved. If None, will use default path based on metadata and settings.
+    overwrite : bool
+        Whether to overwrite existing feature files. If False and feature file exists, will load existing features and return them instead of re-extracting.
     Returns
     -------
-
+    pd.Series
+        Extracted features as a pandas Series object. If overwrite is False and feature file exists, will load existing features and return them instead of re-extracting.
     """
     # Set PyRadiomics verbosity to critical only
     setVerbosity(50)
@@ -198,7 +210,7 @@ def extract_sample_features(sample_data: pd.Series,
     method : str
         The feature extraction method to use.
     settings : str
-        Name of the settings file for the feature extraction method. Should be in the config/<method> directory.
+        Path to the settings file for the feature extraction method. 
     overwrite : bool
         Whether to overwrite existing feature files.
 
@@ -208,9 +220,8 @@ def extract_sample_features(sample_data: pd.Series,
         The extracted features for the sample. No metadata will be prepended to this vector.
     """
     # Set up settings file path for the feature extraction method
-    settings_path = dirs.CONFIG / method / settings
-    if not settings_path.exists():
-        message = f"Settings file for {method} feature extraction does not exist at {settings_path}."
+    if not Path(settings).exists():
+        message = f"Settings file for {method} feature extraction does not exist at {settings}."
         logger.error(message)
         raise FileNotFoundError(message)
     
@@ -223,7 +234,7 @@ def extract_sample_features(sample_data: pd.Series,
     match method:
         case "pyradiomics":
             # Extract features using PyRadiomics
-            sample_feature_vector = pyradiomics_extract(settings=settings_path,
+            sample_feature_vector = pyradiomics_extract(settings=settings,
                                                         image=image,
                                                         mask=mask,
                                                         metadata=sample_data,
@@ -438,6 +449,8 @@ def extract_dataset_features(dataset: str,
             message = 'No crop methods have been implemented for PyRadiomics extraction with READII yet.'
             logger.error(message)
             raise NotImplementedError(message)
+
+
 
     logger.info("Starting feature extraction for individual image type + mask pairs.")
     # Extract features for each sample in the dataset index
