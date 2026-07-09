@@ -79,12 +79,13 @@ cmd = ["python",
 ]
 
 [tasks.index]
-args = ["dataset", "method", {arg = "overwrite", default = "false"}]
+args = ["dataset", "method", "nifti_dir", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
        "{{ dataset }}",
        "{{ method }}",
+       "--nifti_dir", "{{ nifti_dir }}",
        "--overwrite", "{{ overwrite }}"
 ]
 
