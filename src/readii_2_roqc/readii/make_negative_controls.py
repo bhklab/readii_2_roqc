@@ -110,10 +110,10 @@ def image_preprocessor(dataset_config:dict,
     # make mask identifier string for file writer
     mask_meta_id = f"{mask_path.parent.name}/{mask_image_id.replace(' ', '_')}"
     
-    # Get beginning of the path to the nifti images dir
-    mit_images_dir = images_dir_path / f'mit_{dataset_name}'
+    # # Get beginning of the path to the nifti images dir
+    # mit_images_dir = images_dir_path / f'mit_{dataset_name}'
     # load in the nifti image and mask files, flattened to 3D and aligned with each other
-    image, mask = load_image_and_mask(mit_images_dir / image_path, mit_images_dir / mask_path)
+    image, mask = load_image_and_mask(images_dir_path / image_path, images_dir_path / mask_path)
     # get image modality for file writer
     image_modality = dataset_config['MIT']['MODALITIES']['image']
     
@@ -188,11 +188,13 @@ def image_preprocessor(dataset_config:dict,
 
 @click.command()
 @click.argument('dataset')
+@click.option('--images_dir_path', type=click.Path(exists=True, file_okay=False, dir_okay=True), help='Path to the directory containing the images and masks to process. If not provided, will use the default path of data/procdata/{datasource}_{dataset}/images/mit_{dataset}.', default=None)
 @click.option('--overwrite', help='Whether to overwrite existing readii image files', default=False)
 @click.option('--parallel', type=click.BOOL, help='Whether to run READII preprocessing in parallel', default=False)
 @click.option('--jobs', type=click.INT, help="Number of jobs to give parallel processor", default=-1)
 @click.option('--seed', help='Random seed used for negative control generation.', default=10)
 def make_negative_controls(dataset: str,
+                           images_dir_path: Path = None,
                            overwrite: bool = False,
                            parallel: bool = False,
                            jobs: int = -1,
@@ -204,6 +206,8 @@ def make_negative_controls(dataset: str,
     ----------
     dataset : str
         Name of the dataset to perform extraction on. Must have a configuration file in the config/datasets directory.
+    images_dir_path : Path
+        Path to the directory containing the images and masks to process. If not provided, will use the default path of data/procdata/{datasource}_{dataset}/images/mit_{dataset}.
     overwrite : bool = False
         Whether to overwrite existing feature files.
     parallel : bool = False
@@ -236,10 +240,10 @@ def make_negative_controls(dataset: str,
     logger.info(f"Creating negative controls for dataset: {dataset_name}") 
     
     # Set up the path to the images data directory
-    images_dir_path = dirs.PROCDATA / full_dataset_name / 'images'
+    images_dir_path = dirs.PROCDATA / full_dataset_name / 'images' / f'mit_{dataset_name}' if images_dir_path is None else Path(images_dir_path)
 
     # Load the med-imagetools simple index file for list of files to process
-    dataset_index = pd.read_csv(images_dir_path / f'mit_{dataset_name}' / f'mit_{dataset_name}_index-simple.csv')
+    dataset_index = pd.read_csv(images_dir_path / f'{images_dir_path.stem}_index-simple.csv')
     # Create a SampleID column by combining the patient ID and sample number - this will be the main identifier
     dataset_index = insert_SampleID(dataset_index)
 
@@ -250,7 +254,7 @@ def make_negative_controls(dataset: str,
     regions, permutations, crop, resize = get_readii_settings(dataset_config)
 
     # Set up the base output directory for the processed images
-    readii_image_dir = images_dir_path / f'readii_{dataset_name}'
+    readii_image_dir = images_dir_path.parent / f'readii_{dataset_name}'
     
     try:
         # Check for existing outputs from this function
