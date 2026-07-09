@@ -455,6 +455,29 @@ dev_binary_prediction.ipynb
 Now need to rerun all of the datasets with these updated settings. The former shouldn't have an impact on the other two datasets (HN1 and Lung1), but the latter will because we're impacting the interpolation during feature extraction.
 
 
+## Updates to usage
+#### [2025-11-05]
+Removing data splitting
+```
+    ## Data splitting
+    ### aerts_original
+    Train: NSCLC-Radiomics  
+    Validation: HN1, RADCURE-test
+
+    ### aerts_RADCURE_refit
+    Train: RADCURE-train  
+    Validation: HN1, RADCURE-test
+
+    ### r2r_NSCLC
+    Train: NSCLC-Radiomics  
+    Validation: HN1, RADCURE-test
+
+    ### r2r_RADCURE
+    Train: RADCURE-train  
+    Validation: HN1, RADCURE-test
+```
+
+
 ## Correlation Visualization updates
 #### [2026-04-29]
 volume vs. grey level on the different image types

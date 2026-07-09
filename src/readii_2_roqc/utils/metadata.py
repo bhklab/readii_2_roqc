@@ -1,13 +1,15 @@
+import logging
+from pathlib import Path
 from typing import Optional
 
 import pandas as pd
-from readii.utils import logger
-from readii.process.label import getPatientIdentifierLabel
-from readii_2_roqc.utils.settings import get_extraction_index_filepath
 from damply import dirs
 from readii.io.loaders.general import loadFileToDataFrame
-from pathlib import Path
+from readii.process.label import getPatientIdentifierLabel
 
+from readii_2_roqc.utils.settings import get_extraction_index_filepath
+
+logger = logging.getLogger(__name__)
 
 def roi_filter_mask_metadata(mask_metadata:pd.DataFrame,
                              dataset_config:dict
@@ -122,7 +124,7 @@ def get_masked_image_metadata(dataset_index:pd.DataFrame,
 
 
 
-def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame:
+def insert_SampleID(dataset_index:pd.DataFrame) -> pd.DataFrame: 
     """Combine the PatientID and SampleNumber columns in an index to generate a SampleID
        SampleNumber is padded with 0s to make a length of four.
     """
@@ -181,7 +183,8 @@ def insert_r2r_index(dataset_config: dict,
 
 def make_edges_df(mit_index: pd.DataFrame | Path,
                    image_modality: str,
-                   mask_modality: str) -> pd.DataFrame:
+                   mask_modality: str
+                   ) -> pd.DataFrame:
     """Create rows for matching images and masks from an imgtools autopipeline dataset index file. Each image may have multiple masks, so a row is created for each combination.
     
     Parameters
@@ -229,7 +232,7 @@ def make_edges_df(mit_index: pd.DataFrame | Path,
     return edges_df
 
 
-def remove_slice_index_from_string(img_size:str):
+def remove_slice_index_from_string(img_size:str) -> str:
     """Split up 3D image size into a string that looks like original_##_##_n to remove the slice value and add the original part to the front."""
 
     split_up_img_size_vals = img_size.split('_')

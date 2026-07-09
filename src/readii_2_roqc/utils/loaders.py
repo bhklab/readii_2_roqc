@@ -1,19 +1,20 @@
-from damply import dirs
 from pathlib import Path
-from readii.io.loaders import loadImageDatasetConfig, loadFileToDataFrame
-from readii.process.config import get_full_data_name
-from readii.utils import logger
-from readii.image_processing import alignImages, flattenImage
-from readii_2_roqc.utils.metadata import insert_r2r_index
 
 import pandas as pd
 import SimpleITK as sitk
 import yaml
+from damply import dirs
+from readii.image_processing import alignImages, flattenImage
+from readii.io.loaders import loadFileToDataFrame, loadImageDatasetConfig
+from readii.process.config import get_full_data_name
+from readii.utils import logger
+
+from readii_2_roqc.utils.metadata import insert_r2r_index
 
 # Global variable used for --split input argument throughout package
 DATA_SPLIT_CHOICES = ['TRAIN', 'TEST', 'None']
 
-def load_dataset_config(dataset:str):
+def load_dataset_config(dataset:str) -> tuple[dict, str, str]:
     if dataset is None:
             message = "Dataset name must be provided."
             logger.error(message)
