@@ -36,12 +36,11 @@ scipy = ">=1.17.1,<2"
 plotly = ">=6.6.0,<7"
 anywidget = ">=0.11.0,<0.12"
 seaborn = ">=0.13.2,<0.14"
+pandas = "<=3.0.0"
 
 [pypi-dependencies]
 readii_2_roqc = { path = ".", editable = true }
-kaleido = ">=1.2.0, <2"
-dash = ">=4.1.0, <5"
-dash-bio = ">=1.0.2, <2"
+
 
 
 [tasks]
@@ -203,6 +202,8 @@ plotly = ">=6.3.1,<7"
 
 [feature.visualization.pypi-dependencies]
 damply = ">=0.26.1, <0.27"
+dash = ">=4.4.0, <5"
+dash-bio = ">=1.0.2, <2"
 
 
 

@@ -1,7 +1,6 @@
 from .predict import (
 	bootstrap_auc,
 	bootstrap_c_index,
-    bootstrap_auc,
 	calculate_signature_hazards,
 	evaluate_signature_prediction,
 	load_signature_config,

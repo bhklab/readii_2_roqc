@@ -92,7 +92,7 @@ def bootstrap_auc(
     # Bootstrap the prediction results to get confidence intervals
     sampled_auc = Parallel(n_jobs=-1)(
                     delayed(_bootstrap_auc_sample)(
-                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True),
+                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True, random_state=random_state),
                         y_score = y_score
                     )
                     for _idx in range(bootstrap_count)
