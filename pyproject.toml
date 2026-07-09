@@ -12,7 +12,7 @@ dependencies = [
     "scikit-survival>=0.24.1,<0.28",
     "openpyxl>=3.1.5,<4",
     "click>=8.2.1,<9",
-    "damply>=0.26.1, <0.27"
+    "damply>=0.26.0"
 ]
 
 [project.scripts]
