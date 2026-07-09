@@ -4,7 +4,7 @@
 
 **Contact:** [bhklab.katyscott@gmail.com](mailto:bhklab.katyscott@gmail.com)
 
-**GitHub:** [strixy16](https://github.com/strixy16)
+**GitHub:** [katy-scott](https://github.com/katy-scott)
 
 --------------------------------------
 
