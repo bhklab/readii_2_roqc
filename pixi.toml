@@ -63,6 +63,7 @@ cmd = ["imgtools",
 
 [tasks.readii_negative]
 args = ["dataset",
+        "images_dir_path",
          {arg = "overwrite", default = "false"},
          {arg = "parallel", default = "false"},
          {arg = "jobs", default = "-1"},
@@ -72,6 +73,7 @@ cwd = "src/readii_2_roqc/readii"
 cmd = ["python",
        "make_negative_controls.py",
        "{{ dataset }}",
+       "--images_dir_path", "{{ images_dir_path }}", 
        "--overwrite", "{{ overwrite }}",
        "--parallel", "{{ parallel }}",
        "--jobs", "{{ jobs }}",
@@ -79,12 +81,13 @@ cmd = ["python",
 ]
 
 [tasks.index]
-args = ["dataset", "method", {arg = "overwrite", default = "false"}]
+args = ["dataset", "method", "nifti_dir", {arg = "overwrite", default = "false"}]
 cwd = "src/readii_2_roqc/feature_extraction"
 cmd = ["python",
        "index.py",
        "{{ dataset }}",
        "{{ method }}",
+       "--nifti_dir", "{{ nifti_dir }}",
        "--overwrite", "{{ overwrite }}"
 ]
 
