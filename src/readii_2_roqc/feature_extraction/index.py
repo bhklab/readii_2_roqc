@@ -74,7 +74,7 @@ def get_mit_extraction_index(dataset_config: dict,
     mit_image_dir_path = Path(mit_index_path.parent.stem)
 
     # Set up the data from the mit index to point to the original images for feature extraction
-    return pd.DataFrame(data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
+    return pd.DataFrame(data={"SampleID": mit_edges_index.apply(lambda x: f"{Path(x.filepath_image).parts[0]}", axis=1),
                               "Image": mit_edges_index.apply(lambda x: f"{mit_image_dir_path / x.filepath_image}", axis=1),
                               "Mask": mit_edges_index.apply(lambda x: f"{mit_image_dir_path / x.filepath_mask}", axis=1),
                               "DatasetName": dataset_name,
@@ -152,7 +152,7 @@ def get_readii_extraction_index(dataset_config: dict,
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
     mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
 
-    readii_image_dir_path = Path(readii_index_path.parent.stem)
+    readii_image_dir_path = Path(readii_index_path.parent.parent.stem)
     mit_image_dir_path = Path(mit_index_path.parent.stem) if mit_index_path is not None else Path(f'mit_{dataset_name}')
     
     return pd.DataFrame(data={"SampleID": settings_readii_index.SampleID,
