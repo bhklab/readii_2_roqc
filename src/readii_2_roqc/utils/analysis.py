@@ -3,7 +3,6 @@ import logging
 from pathlib import Path
 
 import pandas as pd
-from damply import dirs
 from readii.io.loaders import loadFileToDataFrame
 from readii.process.label import (
     eventOutcomeColumnSetup,
@@ -12,8 +11,7 @@ from readii.process.label import (
 from readii.process.split import splitDataByColumnValue
 from readii.process.subset import getPatientIntersectionDataframes, selectByColumnValue
 
-from readii_2_roqc.utils.loaders import load_signature_config, load_clinical_data
-from readii_2_roqc.utils.metadata import insert_r2r_index
+from readii_2_roqc.utils.loaders import load_clinical_data, load_signature_config
 
 logger = logging.getLogger(__name__)
 
@@ -153,7 +151,7 @@ def prediction_data_setup(dataset_config : dict,
     if split is None:
         split_info = dataset_config['ANALYSIS']['TRAIN_TEST_SPLIT']
         config_split = split_info['split']
-        split = config_split if config_split else None
+        split = config_split or None
 
     # load clinical metadata
     clinical_data = clinical_data_setup(dataset_config, split = split)
