@@ -1,0 +1,52 @@
+DATA_SOURCE: "PMCC"
+DATASET_NAME: "AutoWATChmAN"
+
+### CLINICAL VARIABLE INFORMATION ###
+CLINICAL:
+    FILE: ""
+    OUTCOME_VARIABLES:
+        time_label: ""
+        event_label: ""
+        convert_to_years: False
+        event_value_mapping: {'Alive': 0, 'Dead': 1}
+    EXCLUSION_VARIABLES: {}
+    INCLUSION_VARIABLES: {}
+
+### MED-IMAGETOOLS settings
+MIT:
+    MODALITIES: 
+        image: CT
+        mask: RTSTRUCT
+    ROI_STRATEGY: SEPARATE
+    ROI_MATCH_MAP: # NOTE: there can be no spaces in KEY:ROI_NAME
+        "ROI:'.*'"
+        
+
+### READII settings
+READII:
+    IMAGE_TYPES:
+        regions: 
+            - "roi"
+            - "non_roi"
+        permutations:
+            - "shuffled"
+            - "randomized"
+        crop: 
+            - 'centroid'
+        resize: 50
+
+
+### Feature Extraction settings
+EXTRACTION:
+    METHOD: pyradiomics
+    CONFIG: linear_all_images_features.yaml
+
+### Analysis settings
+ANALYSIS:
+    TRAIN_TEST_SPLIT:
+        split_variable: 
+        train_label: 
+        test_label:
+        impute: 
+
+RANDOM_SEED: 10
