@@ -497,3 +497,10 @@ low correlation after perturbation
 want to make these visible somehow
 
 remap heatmap plot into V plot somehow
+
+
+## Other tool additions
+#### [2026-08-28]  
+I've moved the pycaret analysis notebooks into a pycaret folder in the main directory and made a separate pixi feature/environment for it. 
+
+Also moved Shabnam's life-x scripts into their own folder in the main directory as well. These generate the script needed to run lifex feature extraction with the app.
