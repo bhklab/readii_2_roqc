@@ -9,7 +9,6 @@ import SimpleITK as sitk
 from damply import dirs
 from joblib import Parallel, delayed
 from radiomics import featureextractor, setVerbosity
-
 from tqdm import tqdm
 
 from readii_2_roqc.utils.loaders import load_dataset_config
@@ -21,7 +20,8 @@ logger = logging.getLogger(__name__)
 def sample_feature_writer(feature_vector : OrderedDict,
                           metadata : dict[str, str],
                           extraction_method: str,
-                          extraction_settings_name : str
+                          extraction_settings_name : str,
+                          feature_dir: Path | None = None
                           ) -> OrderedDict[str, str]:
     """Write out the feature vector and metadata to a csv file.
     
@@ -45,7 +45,8 @@ def sample_feature_writer(feature_vector : OrderedDict,
     image_size_str = remove_slice_index_from_string(metadata['readii_Resize'])
     
     # Construct output path with elements from metadata
-    output_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    feature_dir = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / extraction_method / image_size_str / extraction_settings_name if feature_dir is None else feature_dir
+    output_path = feature_dir / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Set up metadata as an OrderedDict to be combined with the features
@@ -98,16 +99,29 @@ def pyradiomics_extract(settings: Path | str,
                         image: sitk.Image,
                         mask: sitk.Image,
                         metadata : OrderedDict | dict[str, str] | pd.Series | None = None,
+                        feature_dir: Path | None = None,
                         overwrite : bool = False
                         ) -> pd.Series:
     """Extract PyRadiomic features from an image and mask pair based on configuration from settings file.
     
     Parameters
     ----------
-    
+    settings : Path | str
+        Path to the settings file for PyRadiomics feature extraction. Can be a pathlib.Path or a string.
+    image : sitk.Image
+        SimpleITK image object to extract features from.
+    mask : sitk.Image
+        SimpleITK mask object to extract features from.
+    metadata : OrderedDict | dict[str, str] | pd.Series | None
+        Metadata for the sample being extracted. Used to construct output path and save out metadata with features
+    feature_dir : Path | None
+        Path to the directory where features will be saved. If None, will use default path based on metadata and settings.
+    overwrite : bool
+        Whether to overwrite existing feature files. If False and feature file exists, will load existing features and return them instead of re-extracting.
     Returns
     -------
-
+    pd.Series
+        Extracted features as a pandas Series object. If overwrite is False and feature file exists, will load existing features and return them instead of re-extracting.
     """
     # Set PyRadiomics verbosity to critical only
     setVerbosity(50)
@@ -119,7 +133,8 @@ def pyradiomics_extract(settings: Path | str,
     image_size_str = remove_slice_index_from_string(metadata["readii_Resize"])
 
     # Check if feature file already exists and if overwrite is specified
-    sample_feature_file_path = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / image_size_str / Path(settings).stem / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
+    feature_dir = dirs.PROCDATA / f"{metadata['DataSource']}_{metadata['DatasetName']}" / "features" / "pyradiomics" / image_size_str / Path(settings).stem  if feature_dir is None else feature_dir
+    sample_feature_file_path = feature_dir / metadata['SampleID'] / metadata['MaskID'] / f"{metadata['readii_Permutation']}_{metadata['readii_Region']}_features.csv"
     if sample_feature_file_path.exists() and not overwrite:
         logger.info(f"Features for {metadata['SampleID']} {metadata['readii_Permutation']} {metadata['readii_Region']} {metadata['Modality_Image']} image and {metadata['MaskID']} mask have already been extracted.")
         # Load the existing feature file
@@ -141,12 +156,15 @@ def pyradiomics_extract(settings: Path | str,
         try:
             # Set up PyRadiomics feature extractor with provided settings file (expects a string, not a pathlib Path)
             extractor = featureextractor.RadiomicsFeatureExtractor(settings)
-
             sample_feature_vector = extractor.execute(image, mask)
 
-        except Exception as e:
-            logger.debug(f"Feature extraction failed for this sample: {e}")
+        # Check for common issues with the settings file that would cause PyRadiomics to fail
+        except ValueError:
+            print("Issue with the settings file for PyRadiomics feature extraction")
+            raise 
 
+        except Exception as e:
+            print(f"Feature extraction failed for this sample: {e}")
             sample_feature_vector = OrderedDict()
         
         if len(sample_feature_vector) > 0:
@@ -154,7 +172,8 @@ def pyradiomics_extract(settings: Path | str,
             sample_feature_writer(feature_vector=sample_feature_vector,
                                 metadata=metadata,
                                 extraction_method="pyradiomics",
-                                extraction_settings_name=Path(settings).stem)
+                                extraction_settings_name=Path(settings).stem,
+                                feature_dir=feature_dir)
 
     # Returning this vector of features on its own with no metadata on the front
     return sample_feature_vector
@@ -164,6 +183,8 @@ def pyradiomics_extract(settings: Path | str,
 def extract_sample_features(sample_data: pd.Series,
                             method: str,
                             settings: Path | str,
+                            data_dir: Path | None = None,
+                            feature_dir: Path | None = None,
                             overwrite: bool = False) -> OrderedDict:
     """Extract features from a single sample using the specified method and settings.
 
@@ -189,7 +210,7 @@ def extract_sample_features(sample_data: pd.Series,
     method : str
         The feature extraction method to use.
     settings : str
-        Name of the settings file for the feature extraction method. Should be in the config/<method> directory.
+        Path to the settings file for the feature extraction method. 
     overwrite : bool
         Whether to overwrite existing feature files.
 
@@ -199,24 +220,25 @@ def extract_sample_features(sample_data: pd.Series,
         The extracted features for the sample. No metadata will be prepended to this vector.
     """
     # Set up settings file path for the feature extraction method
-    settings_path = dirs.CONFIG / method / settings
-    if not settings_path.exists():
-        message = f"Settings file for {method} feature extraction does not exist at {settings_path}."
+    if not Path(settings).exists():
+        message = f"Settings file for {method} feature extraction does not exist at {settings}."
         logger.error(message)
         raise FileNotFoundError(message)
     
-    data_dir = dirs.PROCDATA / f"{sample_data['DataSource']}_{sample_data['DatasetName']}" / "images"
+    data_dir = dirs.PROCDATA / f"{sample_data['DataSource']}_{sample_data['DatasetName']}" / "images" if data_dir is None else data_dir
 
     image = sitk.ReadImage(data_dir / sample_data['Image'])
     mask = sitk.ReadImage(data_dir / sample_data['Mask'])
+    mask.SetOrigin(image.GetOrigin())
 
     match method:
         case "pyradiomics":
             # Extract features using PyRadiomics
-            sample_feature_vector = pyradiomics_extract(settings=settings_path,
+            sample_feature_vector = pyradiomics_extract(settings=settings,
                                                         image=image,
                                                         mask=mask,
                                                         metadata=sample_data,
+                                                        feature_dir=feature_dir,
                                                         overwrite=overwrite)
         case _:
             message = f"Feature extraction method {method} is not implemented yet."
@@ -338,14 +360,14 @@ def compile_dataset_features(dataset_index: pd.DataFrame,
 
                 except ValueError:
                     # Handle case where all dataframes are empty
-                    logger.error(f"No non-empty dataframes found for {permutation} {region}.")
+                    logger.info(f"No non-empty dataframes found for {permutation} {region}.")
                     # Create empty dataframe for compiled dataset features
                     dataset_features = pd.DataFrame()
                     # write empty file to the output file
                     with dataset_features_path.open("w") as f:
                         # write an empty file
                         f.write("")
-                    logger.error(f"Empty file written to {dataset_features_path}")
+                    logger.info(f"Empty file written to {dataset_features_path}")
 
                 compiled_dataset_features[f"{permutation}_{region}"] = dataset_features
 
@@ -412,7 +434,7 @@ def extract_dataset_features(dataset: str,
                                                            extract_features_dir = dirs.PROCDATA / full_data_name / "features" / method)
         dataset_index = pd.read_csv(dataset_index_path)
     except FileNotFoundError:
-        logger.error(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
+        logger.exception(f"Dataset index file for {method} feature extraction not found for {full_data_name}.")
         raise
 
     # Add dataset source to metadata for file loading and saving purposes
@@ -427,6 +449,8 @@ def extract_dataset_features(dataset: str,
             message = 'No crop methods have been implemented for PyRadiomics extraction with READII yet.'
             logger.error(message)
             raise NotImplementedError(message)
+
+
 
     logger.info("Starting feature extraction for individual image type + mask pairs.")
     # Extract features for each sample in the dataset index

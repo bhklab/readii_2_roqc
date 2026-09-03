@@ -21,7 +21,8 @@ from readii_2_roqc.utils.settings import (
 logger = logging.getLogger(__name__)
 
 def get_mit_extraction_index(dataset_config: dict,
-                             mit_index_path: Path):
+                             mit_index_path: Path
+                             ) -> pd.DataFrame:
     """Set up med-imagetools index dataframe for feature extraction.
     
     Parameters
@@ -69,12 +70,13 @@ def get_mit_extraction_index(dataset_config: dict,
 
     # Get single row for each image and mask pair
     mit_edges_index = make_edges_df(mit_index, image_modality, mask_modality)
-
+    # Get directory the index folder is in to prepend to the image and mask file paths
+    mit_image_dir_path = Path(mit_index_path.parent.stem)
 
     # Set up the data from the mit index to point to the original images for feature extraction
     return pd.DataFrame(data={"SampleID": mit_edges_index.apply(lambda x: f"{x.PatientID}_{str(x.SampleNumber).zfill(4)}", axis=1),
-                              "Image": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_image}", axis=1),
-                              "Mask": mit_edges_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.filepath_mask}", axis=1),
+                              "Image": mit_edges_index.apply(lambda x: f"{mit_image_dir_path / x.filepath_image}", axis=1),
+                              "Mask": mit_edges_index.apply(lambda x: f"{mit_image_dir_path / x.filepath_mask}", axis=1),
                               "DatasetName": dataset_name,
                               "SeriesInstanceUID_Image": mit_edges_index['SeriesInstanceUID_image'],
                               "Modality_Image": mit_edges_index['Modality_image'],
@@ -91,20 +93,24 @@ def get_mit_extraction_index(dataset_config: dict,
 
 
 def get_readii_extraction_index(dataset_config: dict,
-                                readii_index_path: Path):
+                                readii_index_path: Path,
+                                mit_index_path: Path | None = None
+                                ) -> pd.DataFrame:
     """Set up readii index dataframe for feature extraction on READII processed images using the index file generated from negative control generation.
     
     Parameters
     ----------
     dataset_config : dict
         Configuration settings for a dataset, loaded with loadImageDatasetConfig
-    readii_index : pd.DataFrame
-        Dataframe containing metadata for the images and masks processed by READII make_negative_controls
-    
+    readii_index_path : Path
+        Path to file containing metadata for the images and masks processed by READII make_negative_controls
+    mit_index_path : Path | None
+        Path to file containing metadata for the MIT processed images and masks
+
     Returns
     -------
     base_index : pd.DataFrame
-        Dataframe with columns:
+        DataFrame with columns:
         * SampleID: PatientID + SampleNumber from imgtools autopipeline
         * Image - path to the image nifti file
         * Mask - path to the mask nifti file
@@ -145,10 +151,13 @@ def get_readii_extraction_index(dataset_config: dict,
 
     image_modality = dataset_config["MIT"]["MODALITIES"]["image"]
     mask_modality = dataset_config["MIT"]["MODALITIES"]["mask"]
+
+    readii_image_dir_path = Path(readii_index_path.parent.stem)
+    mit_image_dir_path = Path(mit_index_path.parent.stem) if mit_index_path is not None else Path(f'mit_{dataset_name}')
     
     return pd.DataFrame(data={"SampleID": settings_readii_index.SampleID,
-                              "Image": settings_readii_index.apply(lambda x: f"{Path(f'readii_{dataset_name}') / x.filepath}", axis=1),
-                              "Mask": settings_readii_index.apply(lambda x: f"{Path(f'mit_{dataset_name}') / x.SampleID / f'{x.MaskID}.nii.gz'}", axis=1),
+                              "Image": settings_readii_index.apply(lambda x: f"{readii_image_dir_path / x.filepath}", axis=1),
+                              "Mask": settings_readii_index.apply(lambda x: f"{mit_image_dir_path / x.SampleID / f'{x.MaskID}.nii.gz'}", axis=1),
                               "DatasetName": dataset_name,
                               "SeriesInstanceUID_Image": "",
                               "Modality_Image": image_modality,
@@ -228,7 +237,7 @@ def generate_pyradiomics_index(dataset_config: dict,
     
     except AssertionError:
         message = f"output_file_path for generate_pyradiomics_index does not end in .csv. Path given: {output_file_path}"
-        logger.error(message)
+        logger.exception(message)
         raise
 
     return pyradiomics_index
@@ -299,7 +308,7 @@ def generate_fmcib_index(dataset_config: dict,
     
     except AssertionError:
         message = f"output_file_path for generate_fmcib_index does not end in .csv. Path given: {output_file_path}"
-        logger.error(message)
+        logger.exception(message)
         raise
 
     return fmcib_index
@@ -390,8 +399,8 @@ def generate_dataset_index(dataset: str,
         logger.info(message)
         try:
             dataset_index = pd.read_csv(output_file_path)
-        except Exception as e:
-            logger.error(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.: {e}")
+        except Exception:
+            logger.exception(f"Failed to load existing index file {output_file_path}. Consider using --overwrite to regenerate the index file.")
             raise
     else:
         output_file_path.parent.mkdir(parents=True, exist_ok=True)

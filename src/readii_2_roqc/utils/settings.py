@@ -1,7 +1,8 @@
+import itertools
 import logging
-import numpy as np
-
 from pathlib import Path
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,8 @@ def get_resize_string(resize: list | tuple | np.ndarray | int) -> str:
 
 
 def get_readii_index_filepath(dataset_config:dict,
-                              readii_image_dir:Path):
+                              readii_image_dir:Path
+                              ) -> Path:
     """Construct the full filepath to the READII image index that lists all the processed images from running make_negative_controls.
        This function requires that the READII index file exist to find the filepath for uncropped images.
 
@@ -59,7 +61,8 @@ def get_readii_index_filepath(dataset_config:dict,
 
 
 def get_extraction_index_filepath(dataset_config:dict,
-                                  extract_features_dir:Path):
+                                  extract_features_dir:Path
+                                  ) -> Path:
     # Get dataset name from config settings
     dataset_name = dataset_config['DATASET_NAME']
 
@@ -177,3 +180,14 @@ def get_readii_settings(dataset_config: dict) -> tuple[list, list, str, int | li
         raise TypeError(message)
 
     return regions, permutations, crop, resize
+
+
+def image_type_iterator(dataset_config: dict) -> itertools.chain:
+    """Get iterator to loop over all combinations of negative controls plus the original full image type."""
+    regions, permutations, _, _ = get_readii_settings(dataset_config)
+
+    # Handle case where regions or permutations are None (no negative controls requested) so that iterator is still returned with just the original full image type
+    regions = regions if regions is not None else []
+    permutations = permutations if permutations is not None else []
+
+    return itertools.chain([('original', 'full')],itertools.product(permutations,regions))

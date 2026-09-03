@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from damply import dirs
 from joblib import Parallel, delayed
+from sklearn.metrics import roc_auc_score
 from sksurv.metrics import concordance_index_censored
 
 from readii_2_roqc.utils.analysis import get_signature_features, prediction_data_setup
@@ -46,7 +47,7 @@ def evaluate_signature_prediction(hazards_and_outcomes : pd.DataFrame) -> tuple:
 
 
 def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
-                      bootstrap_count: int = 1000,             
+                      bootstrap_count: int = 1000             
                      ) -> tuple[list[float], float, float]:
     """Generate confidence intervals by bootstrapping a set of prediction/hazard values by sampling with replacement and calculating metrics."""
     if bootstrap_count < 1:
@@ -67,6 +68,40 @@ def bootstrap_c_index(hazards_and_outcomes: pd.DataFrame,
     upper_confidence_interval = np.percentile(sampled_cindex, 97.5)
     
     return bootstrap_cidx, lower_confidence_interval, upper_confidence_interval
+
+
+
+def bootstrap_auc(
+    y_true: pd.Series,
+    y_score: pd.Series | np.ndarray,
+    bootstrap_count: int = 1000        
+) -> tuple[list[float], float, float]:
+    """Generate confidence intervals by bootstrapping a set of prediction/hazard values by sampling with replacement and calculating metrics."""
+    if bootstrap_count < 1:
+        message = "Bootstrap count must be a positive integer."
+        raise ValueError(message)
+    
+    if isinstance(y_score, np.ndarray):
+        y_score = pd.Series(y_score, index=y_true.index)
+
+    bootstrap_auc = []
+    
+    def _bootstrap_auc_sample(y_true_sampled: pd.Series, y_score:pd.Series) -> float:
+        return roc_auc_score(y_true_sampled, y_score.loc[y_true_sampled.index])
+
+    # Bootstrap the prediction results to get confidence intervals
+    sampled_auc = Parallel(n_jobs=-1)(
+                    delayed(_bootstrap_auc_sample)(
+                        y_true_sampled = y_true.sample(n=y_true.shape[0], replace=True),
+                        y_score = y_score
+                    )
+                    for _idx in range(bootstrap_count)
+                    )
+    bootstrap_auc += sampled_auc
+    lower_confidence_interval = np.percentile(sampled_auc, 2.5)  
+    upper_confidence_interval = np.percentile(sampled_auc, 97.5)
+    
+    return bootstrap_auc, lower_confidence_interval, upper_confidence_interval
 
 
 

@@ -93,7 +93,8 @@ def image_preprocessor(dataset_config:dict,
                         sample_id:str = None, 
                         mask_image_id:str = None, 
                         overwrite:bool = False,
-                        seed = 10):
+                        seed:int = 10
+                        ) -> list[Path]:
     dataset_name = dataset_config['DATASET_NAME']
 
     # Get READII image preprocessing settings from config file
@@ -125,10 +126,7 @@ def image_preprocessor(dataset_config:dict,
         crop_setting_string = f'{crop}_{resize_string}'
 
     # Set up writer for saving out the negative controls and index file
-    if overwrite:
-        existing_file_mode = 'OVERWRITE'
-    else:
-        existing_file_mode = 'SKIP'
+    existing_file_mode = 'OVERWRITE' if overwrite else 'SKIP'
 
     nifti_writer = NIFTIWriter(
             root_directory = output_dir,
