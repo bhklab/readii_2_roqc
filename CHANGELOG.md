@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0](https://github.com/bhklab/readii_2_roqc/compare/v1.1.0...v1.2.0) (2026-09-03)
+
+
+### Features
+
+* add simple extraction script ([6755651](https://github.com/bhklab/readii_2_roqc/commit/6755651d06a45d54dadaf55066a4eaddc3345df6))
+* simple extraction script for non-negative control feature extraction ([acf3e9a](https://github.com/bhklab/readii_2_roqc/commit/acf3e9a6c6e09a683a620b943ebebda1aeb019de))
+* update extraction for simple extraction capability ([b160199](https://github.com/bhklab/readii_2_roqc/commit/b160199f8a46793eee478cc80ebdc0a56138c59f))
+
+
+### Bug Fixes
+
+* handle string settings ([3035b3b](https://github.com/bhklab/readii_2_roqc/commit/3035b3bd8418664e514a8abd60efa503d4ef6235))
+
 ## [1.1.0](https://github.com/bhklab/readii_2_roqc/compare/v1.0.0...v1.1.0) (2026-07-08)
 
 
