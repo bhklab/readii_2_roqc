@@ -68,6 +68,8 @@ select = [
     "F", # Finds logical errors like undefined names and unused imports
     # https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "N", # Enforces PEP 8 naming conventions for consistency
+    # https://docs.astral.sh/ruff/rules/docstring-missing-exception/
+    "DOC", # Docstring checking
 
 ]
 ignore = [
